@@ -1,41 +1,41 @@
 
 
 .detail_container{
-    padding: 50px;
-    color: rgb(33, 53, 71);
+  padding: 50px;
+  color: rgb(33, 53, 71);
 }
 .product-detail{
-    display: flex;
-    justify-content: space-around;
-    gap:30px;
-    flex-direction: row;
+  display: flex;
+  justify-content: space-around;
+  gap:30px;
+  flex-direction: row;
 }
-  
+
 .text_card_detail{
-    padding: 0px 20px;
-    width: 500px;
+  padding: 0px 20px;
+  width: 500px;
 }
 
 .descripcion_detail{
-    padding-top: -20px;
-    font-size: 20px;
+  padding-top: -20px;
+  font-size: 20px;
 }
 
 .descripcion_detail h4{
-    padding-top: -20px;
-    font-size: 20px;
-    font-weight: 600;
+  padding-top: -20px;
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .descripcion_detail h3{
-    font-size: 30px;
+  font-size: 30px;
 }
 .detail_precio{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: -30px;
-    gap:30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: -30px;
+  gap:30px;
 }
 
 .detail_precio h3{
@@ -44,63 +44,63 @@ font-weight: 800;
 }
 
 .btn_detail{
-    display: flex;
-    gap:20px
+  display: flex;
+  gap:20px
 }
 
 .btn_detail button {
-    margin-top: 10px;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    background-color: black;
-    cursor: pointer;
-  }
-  
-  .btn_detail button:hover {
-    background-color: #333; 
-  }
+  margin-top: 10px;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  background-color: black;
+  cursor: pointer;
+}
+
+.btn_detail button:hover {
+  background-color: #333; 
+}
 
 .detail_pokemon{
-    display: flex;
-    justify-content: space-around;
+  display: flex;
+  justify-content: space-around;
 }
 .detail_stats_nombre{
-    font-weight: 600;
+  font-weight: 600;
 }
-  
+
 .detail_habilidades {
-    margin-top: 20px;
-  }
-  
-.detail_pokemon h4 {
-    font-size: 20px;
-    margin: 5px 0px;
-  }
-  
-ul {
-  list-style-type: none;
-  padding: 0;
+  margin-top: 20px;
 }
-  
+
+.detail_pokemon h4 {
+  font-size: 20px;
+  margin: 5px 0px;
+}
+
+ul {
+list-style-type: none;
+padding: 0;
+}
+
 li {
 margin-bottom: 5px;
-    font-size: 20px;
+  font-size: 20px;
 }
-  
+
 a {
-    text-decoration: none;
-    color:rgb(33, 53, 71);
-    font-weight: 600;
+  text-decoration: none;
+  color:rgb(33, 53, 71);
+  font-weight: 600;
 }
 .detail_result{
-    font-weight: 400;
+  font-weight: 400;
 
 }
 .no_reviews {
-    text-align: center;
+  text-align: center;
 }
 .no_reviews h4{
-    font-weight: 400;
+  font-weight: 400;
 }

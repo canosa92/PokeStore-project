@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { useProducts } from '../usecontext/ProductContext.jsx';
 import Cards from '../Componentes/Cards/Cards.jsx';
-import Nav from '../Componentes/NavBar/Nav.jsx';
+import Nav from '../Componentes/NavBar/Navbar.jsx';
 import ProductDetail from '../Componentes/ProductDetail/productDetail.jsx';
 import ProductType from '../Componentes/ProductType.jsx';
 import Legendarios from '../Componentes/Lengendario.jsx';
@@ -12,8 +12,9 @@ import Footer from '../Componentes/Footer/Footer.jsx';
 import RegisterForm from '../Pages/Auht/RegisterForm.jsx';
 import LoginForm from '../Pages/Auht/LoginPages.jsx';
 import TypeComponent from '../Pages/TypesPages/TypesPages.jsx';
-//import CreateProduct from '../Pages/Product/CreateProduct.jsx';
-//import UpdateProduct from '../Pages/CU-Product/UpdateProduct.jsx'
+import ProductForm from '../Pages/ProductForm/ProductForm.jsx';
+import TypePages from '../Pages/TypesPages/TypesPages.jsx';
+import CarritoPages from '../Pages/CarritoPages/CarritoPages.jsx';
 
 
 const ScrollTop=()=>{
@@ -26,7 +27,7 @@ const ScrollTop=()=>{
     }
 
 function Rutas() {
-    const  products  = useProducts();
+    const products = useProducts();
 
     return (
         <>
@@ -35,17 +36,19 @@ function Rutas() {
             <Nav />
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/pokemon" element={<Cards products={products} />} />
+                <Route path="/todos" element={<Cards products={products} showSort={true} />} />
                 <Route path="/pokemon/legendarios" element={<Legendarios />} />
                 <Route path="/pokemon/misticos" element={<Mythical />} />
                 <Route path="/pokemon/tipo" element={ <TypeComponent/>} />
+                <Route path="/tipos" element={<TypePages/>}/>
                 <Route path="/pokemon/tipo/:tipo" element={<ProductType />} />
-                <Route path="/product/:nombre" element={<ProductDetail />} />
+                <Route path="/pokemon/:nombre" element={<ProductDetail />} />
                 <Route path="/user/register" element={<RegisterForm role='user'/>} />
                 <Route path="/login" element={<LoginForm />} />
                 <Route path="/admin/register" element={<RegisterForm role='admin' />} />
-             
-
+                <Route path="/pokemon/new" element={<ProductForm isEdit={false} />} />
+                <Route path="/pokemon/edit/:nombre" element={<ProductForm isEdit={true} />} />
+                <Route path='/carrito' element={<CarritoPages/>}/>
             </Routes>
             <Footer/>   
         </Router>
