@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './SearchBar.css';
+import { Box, IconButton, Input, Button } from '@chakra-ui/react';
+import { CloseIcon, SearchIcon } from '@chakra-ui/icons';
 
 const SearchBar = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,8 +19,7 @@ const SearchBar = () => {
   };
 
   const performSearch = () => {
-    const formattedSearchTerm =
-      searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1);
+    const formattedSearchTerm = searchTerm.charAt(0).toUpperCase() + searchTerm.slice(1);
     navigate(`/product/${formattedSearchTerm}`);
   };
 
@@ -28,13 +28,15 @@ const SearchBar = () => {
   };
 
   return (
-    <div className="search-container">
-      <button className="search-icon" onClick={toggleSearch}>
-        🔍
-      </button>
+    <Box className="search-container">
+      <IconButton
+        icon={isSearchOpen ? <CloseIcon /> : <SearchIcon />}
+        aria-label="Toggle Search"
+        onClick={toggleSearch}
+      />
       {isSearchOpen && (
-        <div className="search-input-container">
-          <input
+        <Box className="search-input-container">
+          <Input
             type="text"
             className="search-input"
             placeholder="Buscar productos..."
@@ -42,12 +44,12 @@ const SearchBar = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={handleKeyPress}
           />
-          <button className="search-button" onClick={handleSearch}>
+          <Button className="search-button" onClick={handleSearch}>
             Buscar
-          </button>
-        </div>
+          </Button>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 
