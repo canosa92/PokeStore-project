@@ -2,8 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useProducts } from '../../usecontext/ProductContext';
 import Cards from '../../Componentes/Cards/Cards.jsx';
-import PokemonBaner from '../../assets/Imagenes/pokemonBaner.jpeg'; 
-import './Home.css';
+import PokemonBanner from '../../assets/Imagenes/pokemonBaner.jpeg';
+import {
+  Box,
+  Heading,
+  Text,
+  Image,
+  Flex,
+  Grid,
+  GridItem,
+  Link as ChakraLink
+} from '@chakra-ui/react';
 
 const Home = () => {
   const products = useProducts();
@@ -30,44 +39,38 @@ const Home = () => {
   }, [products]);
 
   return (
-    <>
-      <div className="home-container">
-        <img src={PokemonBaner} alt="Background" className="background-image" />
-        <section className="text">
-          <h1 className="welcome-text">
-            ¡Bienvenido a nuestra tienda exclusiva de Pokémon!
-          </h1>
-          <p className="intro-text">
-            En nuestro mundo, los Pokémon son más que simples criaturas: son compañeros de aventuras, amigos leales y poderosos aliados en tu viaje para convertirte en el mejor entrenador. En nuestra tienda, te ofrecemos la oportunidad de llevar a casa a tus Pokémon favoritos, desde los más populares hasta los legendarios más raros.
-          </p>
-        </section>
-        <section className="home-section">
-          <h2>Novedades</h2>
-          <Cards products={newest} />
-        </section>
-        <section className="home-section">
-          <h2>Pokémon Mejor Valorados</h2>
-          <Cards products={bestRated} />
-        </section>
-        <section className="home-section">
-          <h2>Pokémon con Más Comentarios</h2>
-          <Cards products={mostCommented} />
-        </section>
-        <section className="home-section">
-          <h2>Tipos Más Vendidos</h2>
-          <div className="types-container">
-            {topTypes.map(({ type, image }) => (
-              <div key={type} className="type-card">
-                <Link to={`/pokemon/tipo/${type}`}>
-                  <img src={image} alt={type} className="type-image" />
-                  <h3 className="type-title">{type}</h3>
-                </Link>
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
-    </>
+    <Box bg="gray.50" p={4}>
+      <Image src={PokemonBanner} alt="Background" width="100%" mb={6} borderRadius="md" />
+      <Box textAlign="center" mb={6}>
+        <Heading as="h1" size="xl" mb={2}>¡Bienvenido a nuestra tienda exclusiva de Pokémon!</Heading>
+        <Text fontSize="lg">En nuestro mundo, los Pokémon son más que simples criaturas: son compañeros de aventuras, amigos leales y poderosos aliados en tu viaje para convertirte en el mejor entrenador. En nuestra tienda, te ofrecemos la oportunidad de llevar a casa a tus Pokémon favoritos, desde los más populares hasta los legendarios más raros.</Text>
+      </Box>
+      <Box mb={6}>
+        <Heading as="h2" size="lg" mb={4}>Novedades</Heading>
+        <Cards products={newest} />
+      </Box>
+      <Box mb={6}>
+        <Heading as="h2" size="lg" mb={4}>Pokémon Mejor Valorados</Heading>
+        <Cards products={bestRated} />
+      </Box>
+      <Box mb={6}>
+        <Heading as="h2" size="lg" mb={4}>Pokémon con Más Comentarios</Heading>
+        <Cards products={mostCommented} />
+      </Box>
+      <Box>
+        <Heading as="h2" size="lg" mb={4}>Tipos Más Vendidos</Heading>
+        <Grid templateColumns="repeat(auto-fill, minmax(150px, 1fr))" gap={6}>
+          {topTypes.map(({ type, image }) => (
+            <GridItem key={type} textAlign="center">
+              <ChakraLink as={Link} to={`/pokemon/tipo/${type}`}>
+                <Image src={image} alt={type} borderRadius="md" mb={2} />
+                <Heading as="h3" size="md">{type}</Heading>
+              </ChakraLink>
+            </GridItem>
+          ))}
+        </Grid>
+      </Box>
+    </Box>
   );
 };
 
