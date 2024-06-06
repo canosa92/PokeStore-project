@@ -1,7 +1,7 @@
 import React from 'react';
 import { useCarrito } from '../../usecontext/CarritoContext';
-import './CarritoPages.css';
 import { Link } from 'react-router-dom';
+import { Box, Button, Flex, Heading, Image, Text, VStack, HStack } from '@chakra-ui/react';
 
 const CarritoPages = () => {
   const { carrito, eliminar, vaciarCarrito } = useCarrito();
@@ -11,32 +11,34 @@ const CarritoPages = () => {
   };
 
   return (
-    <div className="carrito-page">
-      <h1>Mi Carrito</h1>
+    <Box p={4} bg="gray.50">
+      <Heading as="h1" mb={6}>Mi Carrito</Heading>
       {carrito.length === 0 ? (
-        <p>No hay productos en el carrito. <Link to="/">Vuelve a la tienda</Link></p>
+        <Text>No hay productos en el carrito. <Link to="/">Vuelve a la tienda</Link></Text>
       ) : (
-        <div>
-          <ul className="carrito-list">
-            {carrito.map((producto, index) => (
-              <li key={index} className="carrito-item">
-                <img src={producto.imagen} alt={producto.nombre} width="100px" />
-                <div>
-                  <h2>{producto.nombre}</h2>
-                  <p>{producto.descripcion}</p>
-                  <p>Precio: {producto.precio} €</p>
-                  <p>Cantidad: {producto.cantidad}</p>
-                  <button onClick={() => eliminar(producto.id)}>Eliminar</button>
-                </div>
-              </li>
-            ))}
-          </ul>
-          <h3>Total: {calcularTotal()} €</h3>
-          <button onClick={vaciarCarrito}>Vaciar Carrito</button>
-          <button>Proceder al Pago</button>
-        </div>
+        <VStack spacing={4}>
+          {carrito.map((producto, index) => (
+            <Flex key={index} p={4} bg="white" borderRadius="md" boxShadow="md" width="100%" direction={{ base: 'column', md: 'row' }} alignItems="center">
+              <Image src={producto.imagen} alt={producto.nombre} boxSize="100px" objectFit="cover" />
+              <Box ml={{ base: 0, md: 4 }} mt={{ base: 4, md: 0 }} flex="1">
+                <Heading as="h2" size="md">{producto.nombre}</Heading>
+                <Text>{producto.descripcion}</Text>
+                <Text>Precio: {producto.precio} €</Text>
+                <Text>Cantidad: {producto.cantidad}</Text>
+                <Button mt={2} colorScheme="red" onClick={() => eliminar(producto.id)}>Eliminar</Button>
+              </Box>
+            </Flex>
+          ))}
+          <Box width="100%" textAlign="center">
+            <Heading as="h3" size="lg">Total: {calcularTotal()} €</Heading>
+            <HStack spacing={4} mt={4} justifyContent="center">
+              <Button colorScheme="red" onClick={vaciarCarrito}>Vaciar Carrito</Button>
+              <Button colorScheme="green">Proceder al Pago</Button>
+            </HStack>
+          </Box>
+        </VStack>
       )}
-    </div>
+    </Box>
   );
 };
 
