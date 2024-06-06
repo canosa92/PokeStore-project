@@ -1,21 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './NavLinks.css';
 
-const NavLinks = ({ isMenuOpen, handleMenuToggle }) => {
+const NavLinks = () => {
   return (
-    <div className='navLinks'>
-      <div className="hamburger" onClick={handleMenuToggle}>
-        ☰
-      </div>
-      <ul className={`nav-links ${isMenuOpen ? 'open' : ''}`}>
-        <li><Link to="/">Home</Link></li>
-        <li><Link to="/todos"> All Pokemon</Link></li>
-        <li><Link to="/tipos">Tipos</Link></li>
-        <li><Link to="/pokemon/legendarios">Legendarios</Link></li>
-        <li><Link to="/pokemon/misticos">Místicos</Link></li>
-      </ul>
-    </div>
+    <>
+      <Link to="/" style={{ color: 'white' }}>Home</Link>
+      <Link to="/todos" style={{ color: 'white' }}>All Pokemon</Link>
+      <Link to="/tipos" style={{ color: 'white' }}>Tipos</Link>
+      <Link to="/pokemon/legendarios" style={{ color: 'white' }}>Legendarios</Link>
+      <Link to="/pokemon/misticos" style={{ color: 'white' }}>Místicos</Link>
+    </>
   );
 };
 
