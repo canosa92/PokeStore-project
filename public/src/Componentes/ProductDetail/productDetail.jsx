@@ -4,7 +4,21 @@ import { useUser } from '../../usecontext/UserContext';
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ProductCommentForm from '../ProductComment/PorductComment.jsx';
-import './ProductDetail.css';
+import {
+  ChakraProvider,
+  Box,
+  Text,
+  Image,
+  Flex,
+  Stack,
+  Button,
+  Tag,
+  TagLabel,
+  TagLeftIcon,
+  Progress,
+  Divider,
+} from '@chakra-ui/react';
+import { StarIcon } from '@chakra-ui/icons';
 
 const ProductDetail = () => {
   const { añadir } = useCarrito();
@@ -22,7 +36,7 @@ const ProductDetail = () => {
   }, [product]);
 
   if (!product) {
-    return <div><h2>Producto no encontrado.</h2></div>;
+    return <Box textAlign="center"><Text fontSize="2xl">Producto no encontrado.</Text></Box>;
   }
 
   const handleCommentSubmit = (newComment) => {
@@ -30,100 +44,126 @@ const ProductDetail = () => {
   };
 
   return (
-    <>  
-      <div className='detail'>
-        <div className='detail_container'>
-           <h2>{product.id_pokedex} - {product.nombre}</h2>
-           <h4>Legendario: <span className='detail_result'> {product.legendario === true ? 'Sí' : 'No'}</span></h4>
-            <h4>Místico: <span className='detail_result'>{product.mythical === true ? 'Sí' : 'No'}</span></h4>
-            
-          <div className="product-detail"> 
-            <div>
-              <img src={product.imagen} alt={product.nombre} width='400px'/>
-            </div>
-              <div className='descripcion_detail'>
-                <h4>{product.descripcion}</h4>
-                <h4>{product.tipo.map(tipo => `${tipo}`).join('    ')}</h4>
-                <div>
-                <h4>{product.peso} kg</h4>
-                <h4>{product.altura} m</h4>
-                </div>
-                <div className='detail_habilidades'>
-            <h4>Habilidades:</h4>
-            <ul>
-              {product.habilidades.map((habilidad, index) => (
-                <li key={index}><span className='detail_stats_nombre'>{habilidad.nombre}:</span> {habilidad.descripcion}</li>
+    <ChakraProvider>
+      <Box p={4}>
+        <Flex direction="column" align="center">
+          <Text fontSize="2xl" fontWeight="bold">{product.id_pokedex} - {product.nombre}</Text>
+          <Flex mt={2}>
+            <Text mr={4}>
+              Legendario: <Tag colorScheme={product.legendario ? "yellow" : "gray"}>
+                {product.legendario ? <StarIcon /> : null} {product.legendario ? 'Sí' : 'No'}
+              </Tag>
+            </Text>
+            <Text>
+              Místico: <Tag colorScheme={product.mythical ? "purple" : "gray"}>
+                {product.mythical ? <StarIcon /> : null} {product.mythical ? 'Sí' : 'No'}
+              </Tag>
+            </Text>
+          </Flex>
+        </Flex>
+
+        <Flex direction={['column', 'row']} mt={4}>
+          <Image src={product.imagen} alt={product.nombre} boxSize="400px" mx="auto" />
+
+          <Stack spacing={4} p={4} flex="1">
+            <Text fontSize="lg">{product.descripcion}</Text>
+            <Flex wrap="wrap" gap={2}>
+              {product.tipo.map((tipo, index) => (
+                <Tag key={index} colorScheme="blue">
+                  {tipo}
+                </Tag>
               ))}
-            </ul>
-            </div>
-            <h4>Ratio de captura: <span className='detail_result'>{product.ratio_captura}</span></h4>
-            <h4>Experiencia Base:<span className='detail_result'> {product.base_experience} puntos</span></h4>
-          
-                <div className='detail_precio'>
-                  <h3>Precio: {product.precio} €</h3>
-                  <div className='btn_detail'>
-                    <button>Comprar ahora</button>
-                    <button onClick={() => añadir(product)}>Añadir a la lista</button>
-                  </div>
-                </div>
-              </div>
-        <div className='detail_pokemon'>
-          <div className='detail_habilidades'>
-            <h4>Estadísticas:</h4>
+            </Flex>
+            <Flex wrap="wrap" gap={2}>
+              <Tag colorScheme="green">{product.peso} kg</Tag>
+              <Tag colorScheme="green">{product.altura} m</Tag>
+            </Flex>
+            <Box>
+              <Text fontWeight="bold">Habilidades:</Text>
+              <ul>
+                {product.habilidades.map((habilidad, index) => (
+                  <li key={index}>
+                    <Text as="span" fontWeight="bold">{habilidad.nombre}:</Text> {habilidad.descripcion}
+                  </li>
+                ))}
+              </ul>
+            </Box>
+            <Text>Ratio de captura: <Tag colorScheme="blue">{product.ratio_captura}</Tag></Text>
+            <Text>Experiencia Base: <Tag colorScheme="blue">{product.base_experience} puntos</Tag></Text>
+
+            <Box>
+              <Text fontSize="xl" fontWeight="bold">Precio: {product.precio} €</Text>
+              <ButtonGroup mt={2}>
+                <Button colorScheme="blue">Comprar ahora</Button>
+                <Button onClick={() => añadir(product)}>Añadir a la lista</Button>
+              </ButtonGroup>
+            </Box>
+          </Stack>
+        </Flex>
+
+        <Box mt={4}>
+          <Divider />
+          <Box mt={4}>
+            <Text fontWeight="bold">Estadísticas:</Text>
             <ul>
               {product.estadisticas.map((stat, index) => (
                 <li key={index}>
-                  <span className='detail_stats_nombre'>{stat.nombre}: </span>
-                  <progress value={stat.valor} max="200"> </progress>{stat.valor}
+                  <Text as="span" fontWeight="bold">{stat.nombre}: </Text>
+                  <Progress value={stat.valor} max="200" colorScheme="green" size="sm" borderRadius="md" />
+                  {stat.valor}
                 </li>
               ))}
             </ul>
-          </div>
-          </div>
-          <div className='detail_caracteristicas'>
-            {product.cadena_evoluciones.length > 1 && (
-              <>
-                <h4>Cadena Evolutiva:</h4>
-                <ul>
-                  {product.cadena_evoluciones.map((evolucion, index) => (
-                    <li key={index}><span className='detail_stats_nombre'>
-                      <Link to={`/product/${evolucion.especie.charAt(0).toUpperCase() + evolucion.especie.slice(1)}`}>
-                        {evolucion.especie.charAt(0).toUpperCase() + evolucion.especie.slice(1)}
-                      </Link> </span>
-                      Nivel: {evolucion.nivel === null ? 0 : evolucion.nivel}
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-         </div>
-        </div>
-      <div>
-        <div className='card_likes'>
-          {product.likes.length > 0 && <p>Valor: {product.likes[0].star} Likes: {product.likes[0].likesCount}</p>}
-          {comments.length > 0 && (
-            <div>
-              <h3>Reviews:</h3>
-              {comments.map((review, index) => (
-                <div key={index}>
-                  <p><strong>{review.username || 'Usuario desconocido'}</strong>: {review.comment}</p>
-                  <p>{review.rating}</p>
-                </div>
+          </Box>
+        </Box>
+
+        {product.cadena_evoluciones.length > 1 && (
+          <Box mt={4}>
+            <Text fontWeight="bold">Cadena Evolutiva:</Text>
+            <ul>
+              {product.cadena_evoluciones.map((evolucion, index) => (
+                <li key={index}>
+                  <Link to={`/product/${evolucion.especie.charAt(0).toUpperCase() + evolucion.especie.slice(1)}`}>
+                    <Text as="span" fontWeight="bold">
+                      {evolucion.especie.charAt(0).toUpperCase() + evolucion.especie.slice(1)}
+                    </Text>
+                  </Link> 
+                  Nivel: {evolucion.nivel === null ? 0 : evolucion.nivel}
+                </li>
               ))}
-            </div>
+            </ul>
+          </Box>
+        )}
+
+        <Box mt={4}>
+          {product.likes.length > 0 && (
+            <Text>Valor: {product.likes[0].star} Likes: {product.likes[0].likesCount}</Text>
           )}
-          {!comments.length && !product.likes.length && ( 
-            <div className='no_reviews'>
-              <h4>Este producto aún no tiene ni likes ni reviews.<Link to='/register'> Regístrate</Link> o <Link to='/login'> inicia sesión </Link>para ser el primero.</h4>
-            </div>
+          {comments.length > 0 ? (
+            <Box mt={4}>
+              <Text fontSize="xl" fontWeight="bold">Reviews:</Text>
+              {comments.map((review, index) => (
+                <Box key={index} p={4} bg="gray.100" borderRadius="md" mt={2}>
+                  <Text fontWeight="bold">{review.username || 'Usuario desconocido'}</Text>
+                  <Text>{review.comment}</Text>
+                  <Text>{review.rating}</Text>
+                </Box>
+              ))}
+            </Box>
+          ) : (
+            <Box mt={4} textAlign="center">
+              <Text fontSize="lg">
+                Este producto aún no tiene ni likes ni reviews.
+                <Link to='/register' style={{ color: 'blue' }}> Regístrate</Link> o
+                <Link to='/login' style={{ color: 'blue' }}> inicia sesión </Link>para ser el primero.
+              </Text>
+            </Box>
           )}
-        </div>
-      </div>
-      </div>
-          </div>
-        <div></div>
+        </Box>
+      </Box>
+
       {user && <ProductCommentForm productId={product._id} onCommentSubmit={handleCommentSubmit} />}
-    </>
+    </ChakraProvider>
   );
 };
 
