@@ -76,7 +76,12 @@ const Cards = ({ products, showSort }) => {
         {showSort && (
           <Flex mb={4} align="center">
             <Text mr={2}>Ordenar por:</Text>
-            <Select value={orden} onChange={handleChangeOrden}>
+            <Select 
+              value={orden} 
+              onChange={handleChangeOrden} 
+              maxW="200px" // Ancho máximo de 200px para el Select
+              w="100%" // Ancho del 100% de su contenedor
+            >
               <option value="nombreAsc">Nombre (A-Z)</option>
               <option value="nombreDesc">Nombre (Z-A)</option>
               <option value="precioAsc">Precio (Menor a Mayor)</option>
@@ -90,22 +95,23 @@ const Cards = ({ products, showSort }) => {
         )}
         <Flex wrap="wrap" justify="center">
           {productosOrdenados.map((product) => (
-            <Card key={product._id} maxW="sm" m={4}>
+            <Card 
+              key={product._id} 
+              maxW="sm" 
+              m={4} 
+              boxShadow="lg" // Añade sombra a la tarjeta
+              border="none" // Elimina el borde de la tarjeta
+            >
               <CardBody>
                 <Image
                   src={product.imagen}
                   alt={product.nombre}
                   borderRadius="lg"
+                  boxShadow="md" // Añade sombra a la imagen
                 />
                 <Stack mt="6" spacing="3">
                   <Heading size="md">{product.id_pokedex} - {product.nombre}</Heading>
-                  <Text>{product.descripcion}</Text>
-                  <Text color="blue.600" fontSize="2xl">
-                    {product.precio} €
-                  </Text>
-                </Stack>
-                {product.likes[0].likesCount > 0 ? (
-                  <Box mt={2} display="flex" alignItems="center">
+                  {product.likes[0].likesCount > 0 ? (
                     <Box display="flex" alignItems="center">
                       {[...Array(5)].map((_, index) => (
                         <Box
@@ -117,12 +123,16 @@ const Cards = ({ products, showSort }) => {
                           ★
                         </Box>
                       ))}
+                      <Text ml={2}>({product.likes[0].likes})</Text>
                     </Box>
-                    <Text ml={2}>({product.likes[0].likes})</Text>
-                  </Box>
-                ) : (
-                  <Text mt={2}>Este producto aún no tiene valoración.</Text>
-                )}
+                  ) : (
+                    <Text>Este producto aún no tiene valoración.</Text>
+                  )}
+                  <Text>{product.descripcion}</Text>
+                  <Text color="blue.600" fontSize="2xl">
+                    {product.precio} €
+                  </Text>
+                </Stack>
               </CardBody>
               <Divider />
               <CardFooter>
