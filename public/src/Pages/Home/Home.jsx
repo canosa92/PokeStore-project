@@ -1,18 +1,10 @@
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useProducts } from '../../usecontext/ProductContext';
 import Cards from '../../Componentes/Cards/Cards.jsx';
-import PokemonBanner from '../../assets/Imagenes/pokemonBaner.jpeg';
-import {
-  Box,
-  Heading,
-  Text,
-  Image,
-  Flex,
-  Grid,
-  GridItem,
-  Link as ChakraLink
-} from '@chakra-ui/react';
+import { Box, Input, VStack, Text, Image, Flex } from '@chakra-ui/react';
+import PokemonBaner from '../../assets/Imagenes/pokemonBaner.jpeg'; 
 
 const Home = () => {
   const products = useProducts();
@@ -20,6 +12,8 @@ const Home = () => {
   const [mostCommented, setMostCommented] = useState([]);
   const [newest, setNewest] = useState([]);
   const [topTypes, setTopTypes] = useState([]);
+  const [query, setQuery] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
     if (products.length > 0) {
@@ -27,7 +21,6 @@ const Home = () => {
       setMostCommented(products.filter(p => p.reviews.length > 0).sort((a, b) => b.reviews.length - a.reviews.length).slice(0, 5));
       setNewest(products.slice(-5).reverse());
 
-      // Obtener tipos más vendidos al azar
       const uniqueTypes = [...new Set(products.map(product => product.tipo[0]))];
       const randomTypes = uniqueTypes.sort(() => 0.5 - Math.random()).slice(0, 5);
       const topTypesProducts = randomTypes.map(type => ({
@@ -38,37 +31,78 @@ const Home = () => {
     }
   }, [products]);
 
+  const handleSearchChange = (event) => {
+    const value = event.target.value;
+    setQuery(value);
+    if (value.length > 1) {
+      const filteredProducts = products.filter(product =>
+        product.nombre.toLowerCase().includes(value.toLowerCase())
+      );
+      setSuggestions(filteredProducts);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
   return (
-    <Box bg="gray.50" p={4}>
-      <Image src={PokemonBanner} alt="Background" width="100%" mb={6} borderRadius="md" />
-      <Box textAlign="center" mb={6}>
-        <Heading as="h1" size="xl" mb={2}>¡Bienvenido a nuestra tienda exclusiva de Pokémon!</Heading>
-        <Text fontSize="lg">En nuestro mundo, los Pokémon son más que simples criaturas: son compañeros de aventuras, amigos leales y poderosos aliados en tu viaje para convertirte en el mejor entrenador. En nuestra tienda, te ofrecemos la oportunidad de llevar a casa a tus Pokémon favoritos, desde los más populares hasta los legendarios más raros.</Text>
+    <Box>
+      <Box position="relative" textAlign="center">
+        <Image src={PokemonBaner} alt="Background" objectFit="cover" w="100%" h="400px" />
+        <Box position="absolute" top="0" left="0" w="100%" h="100%" bg="rgba(0, 0, 0, 0.5)" color="white">
+          <VStack spacing={4} align="center" justify="center" h="100%">
+            <Text fontSize="3xl" fontWeight="bold">
+              ¡Bienvenido a nuestra tienda exclusiva de Pokémon!
+            </Text>
+            <Text fontSize="xl">
+              En nuestro mundo, los Pokémon son más que simples criaturas: son compañeros de aventuras, amigos leales y poderosos aliados en tu viaje para convertirte en el mejor entrenador.
+            </Text>
+            <Box width="300px">
+              <Input
+                placeholder="Buscar Pokémon..."
+                value={query}
+                onChange={handleSearchChange}
+                bg="white"
+                color="black"
+              />
+              {suggestions.length > 0 && (
+                <Box bg="white" color="black" mt={2} p={2} borderRadius="md">
+                  {suggestions.map((product) => (
+                    <Link key={product.id} to={`/pokemon/${product.nombre}`}>
+                      <Text>{product.nombre}</Text>
+                    </Link>
+                  ))}
+                </Box>
+              )}
+            </Box>
+          </VStack>
+        </Box>
       </Box>
-      <Box mb={6}>
-        <Heading as="h2" size="lg" mb={4}>Novedades</Heading>
-        <Cards products={newest} />
-      </Box>
-      <Box mb={6}>
-        <Heading as="h2" size="lg" mb={4}>Pokémon Mejor Valorados</Heading>
-        <Cards products={bestRated} />
-      </Box>
-      <Box mb={6}>
-        <Heading as="h2" size="lg" mb={4}>Pokémon con Más Comentarios</Heading>
-        <Cards products={mostCommented} />
-      </Box>
-      <Box>
-        <Heading as="h2" size="lg" mb={4}>Tipos Más Vendidos</Heading>
-        <Grid templateColumns="repeat(auto-fill, minmax(150px, 1fr))" gap={6}>
-          {topTypes.map(({ type, image }) => (
-            <GridItem key={type} textAlign="center">
-              <ChakraLink as={Link} to={`/pokemon/tipo/${type}`}>
-                <Image src={image} alt={type} borderRadius="md" mb={2} />
-                <Heading as="h3" size="md">{type}</Heading>
-              </ChakraLink>
-            </GridItem>
-          ))}
-        </Grid>
+      <Box p={4}>
+        <Box className="home-section">
+          <Text fontSize="2xl" fontWeight="bold">Novedades</Text>
+          <Cards products={newest} />
+        </Box>
+        <Box className="home-section">
+          <Text fontSize="2xl" fontWeight="bold">Pokémon Mejor Valorados</Text>
+          <Cards products={bestRated} />
+        </Box>
+        <Box className="home-section">
+          <Text fontSize="2xl" fontWeight="bold">Pokémon con Más Comentarios</Text>
+          <Cards products={mostCommented} />
+        </Box>
+        <Box className="home-section">
+          <Text fontSize="2xl" fontWeight="bold">Tipos Más Vendidos</Text>
+          <Flex wrap="wrap" justify="center">
+            {topTypes.map(({ type, image }) => (
+              <Box key={type} m={2}>
+                <Link to={`/pokemon/tipo/${type}`}>
+                  <Image src={image} alt={type} boxSize="150px" borderRadius="md" />
+                  <Text textAlign="center">{type}</Text>
+                </Link>
+              </Box>
+            ))}
+          </Flex>
+        </Box>
       </Box>
     </Box>
   );
