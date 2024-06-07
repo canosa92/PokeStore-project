@@ -12,6 +12,7 @@ const Footer = () => {
           <Link as={RouterLink} to="/contact" color="white">Contact</Link>
         </Stack>
         <Text mt={2}>&copy; {new Date().getFullYear()} My Pokemon Store. All rights reserved.</Text>
+        <Text mt={2}>Proyecto creado para el bootcamp online Desarrollar FullStack web de The Bridge</Text>
       </Flex>
     </Box>
   );
