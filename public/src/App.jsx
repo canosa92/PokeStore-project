@@ -1,21 +1,22 @@
-import './App.css'
-import Rutas from './Ruotes/Routes.jsx'
+import React from 'react';
+import './App.css';
+import Rutas from './Routes/Routes.jsx';
 import { ProductProvider } from './usecontext/ProductContext.jsx';
 import { CarritoProvider } from './usecontext/CarritoContext.jsx';
 import { UserProvider } from './usecontext/UserContext.jsx';
+import { ChakraProvider } from '@chakra-ui/react';
 
 function App() {
-
   return (
-    <>
-         <UserProvider>
+    <ChakraProvider>
+      <UserProvider>
         <ProductProvider>
           <CarritoProvider>
-            <Rutas/>
+            <Rutas />
           </CarritoProvider>
         </ProductProvider>
-      </UserProvider>  
-    </>
+      </UserProvider>
+    </ChakraProvider>
   );
 }
 
