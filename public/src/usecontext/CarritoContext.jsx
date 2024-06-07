@@ -38,16 +38,17 @@ export const CarritoProvider = ({ children }) => {
     }
   };
 
-  const ajustarCantidad = (id, cantidad) => {
-    const nuevoCarrito = carrito.map((producto) => {
-      if (producto.id === id) { // Corregir esta línea
-        return { ...producto, cantidad: Math.max(1, cantidad) }; // Asegurar que la cantidad no sea menor que 1
-      }
-      return producto;
-    });
-    setCarrito(nuevoCarrito);
-  };
   
+  ajustarCantidad = (productoId, cantidad) => {
+  const nuevoCarrito = carrito.map((producto) => {
+    if (producto.id === productoId) { // Corrected line
+      return { ...producto, cantidad: Math.max(1, cantidad) };
+    }
+    return producto;
+  });
+  setCarrito(nuevoCarrito);
+};
+
 
   const vaciarCarrito = () => {
     setCarrito([]);
