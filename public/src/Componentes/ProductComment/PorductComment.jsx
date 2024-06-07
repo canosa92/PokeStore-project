@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { useUser } from '../../usecontext/UserContext.jsx';
+import { Box, Button, FormControl, FormLabel, Textarea, Text, VStack, HStack, Icon } from '@chakra-ui/react';
+import { StarIcon } from '@chakra-ui/icons';
 
 const ProductCommentForm = ({ productId, onCommentSubmit }) => {
-  const { user } = useUser();
+  const { user, token } = useUser();
   const [comment, setComment] = useState('');
-  const [rating, setRating] = useState(0); 
+  const [rating, setRating] = useState(0);
+  const [hover, setHover] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -13,24 +16,31 @@ const ProductCommentForm = ({ productId, onCommentSubmit }) => {
     setLoading(true);
     setError(null);
 
+    if (!comment || rating === 0) {
+      setError('Por favor, completa todos los campos');
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch(`http://localhost:2999/productos/${productId}/comentario`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}` // Añadir token de autenticación si es necesario
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ 
-          userId: user.id, 
-          comment: comment, 
-          rating: rating,
-          username: user.username 
-        }) 
+        body: JSON.stringify({
+          userId: user.id,
+          comment,
+          rating,
+          username: user.username
+        })
       });
 
       if (!response.ok) {
         throw new Error('Error al enviar el comentario');
       }
+
       const newComment = await response.json();
 
       if (typeof onCommentSubmit === 'function') {
@@ -38,7 +48,7 @@ const ProductCommentForm = ({ productId, onCommentSubmit }) => {
       }
 
       setComment('');
-      setRating(0); // Restablecer la calificación después de enviar el comentario
+      setRating(0);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -47,34 +57,40 @@ const ProductCommentForm = ({ productId, onCommentSubmit }) => {
   };
 
   return (
-    <div className="comment-form">
-      <h2>Dejar un comentario</h2>
-      {error && <div className="error-message">{error}</div>}
+    <Box className="comment-form" p={4} borderWidth={1} borderRadius="md">
+      <Text fontSize="2xl" mb={4}>Dejar un comentario</Text>
+      {error && <Text color="red.500">{error}</Text>}
       <form onSubmit={handleSubmit}>
-        <label htmlFor="rating">Calificación:</label>
-        <div id="rating">
-          {[1, 2, 3, 4, 5].map(star => (
-            <span 
-              key={star} 
-              onClick={() => setRating(star)} 
-              style={{ cursor: 'pointer', color: star <= rating ? 'gold' : 'gray' }}
-            >
-              ★
-            </span>
-          ))}
-        </div>
-        <label htmlFor="comment">Comentario:</label>
-        <textarea
-          id="comment"
-          value={comment}
-          onChange={(event) => setComment(event.target.value)}
-          required
-        ></textarea>
-        <button type="submit" disabled={loading}>{loading ? 'Cargando...' : 'Enviar'}</button>
+        <FormControl id="rating" mb={4}>
+          <FormLabel>Calificación:</FormLabel>
+          <HStack>
+            {[1, 2, 3, 4, 5].map(star => (
+              <Icon
+                as={StarIcon}
+                key={star}
+                onClick={() => setRating(star)}
+                onMouseEnter={() => setHover(star)}
+                onMouseLeave={() => setHover(0)}
+                cursor="pointer"
+                color={star <= (hover || rating) ? 'gold' : 'gray.300'}
+              />
+            ))}
+          </HStack>
+        </FormControl>
+        <FormControl id="comment" mb={4}>
+          <FormLabel>Comentario:</FormLabel>
+          <Textarea
+            value={comment}
+            onChange={(event) => setComment(event.target.value)}
+            required
+          />
+        </FormControl>
+        <Button type="submit" colorScheme="blue" isLoading={loading}>
+          {loading ? 'Cargando...' : 'Enviar'}
+        </Button>
       </form>
-    </div>
+    </Box>
   );
 };
 
 export default ProductCommentForm;
-
