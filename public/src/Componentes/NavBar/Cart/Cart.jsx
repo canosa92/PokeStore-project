@@ -50,14 +50,16 @@ const Cart = () => {
                   <IconButton
                     icon={<MinusIcon />}
                     size="sm"
-                    onClick={() => ajustarCantidad(producto.id_pokedex, producto.cantidad - 1)}
+                    onClick={() => ajustarCantidad(producto.id, producto.cantidad - 1)}
                   />
                   <Text mx={2}>{producto.cantidad}</Text>
                   <IconButton
-                    icon={<AddIcon />}
-                    size="sm"
-                    onClick={() => ajustarCantidad(producto.id_pokedex, producto.cantidad + 1)}
-                  />
+  icon={<AddIcon />}
+  size="sm"
+  onClick={() => ajustarCantidad(producto.id, producto.cantidad + 1)} // Pass producto.id
+/>
+
+
                 </Flex>
               </Box>
               <IconButton
