@@ -15,45 +15,46 @@ import TypeComponent from '../Pages/TypesPages/TypesPages.jsx';
 import ProductForm from '../Pages/ProductForm/ProductForm.jsx';
 import TypePages from '../Pages/TypesPages/TypesPages.jsx';
 import CarritoPages from '../Pages/CarritoPages/CarritoPages.jsx';
+import AboutPage from '../Pages/About.jsx';
 
+const ScrollTop = () => {
+  const location = useLocation();
 
-const ScrollTop=()=>{
-    const location = useLocation(); 
-
-    useEffect(()=>{
-        window.scrollTo(0, 0);
-      },[location.pathname])
-      return null
-    }
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+  return null;
+};
 
 function Rutas() {
-    const products = useProducts();
+  const products = useProducts();
 
-    return (
-        <>
-        <Router>
-            <ScrollTop/>
-            <Nav />
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/todos" element={<Cards products={products} showSort={true} />} />
-                <Route path="/pokemon/legendarios" element={<Legendarios />} />
-                <Route path="/pokemon/misticos" element={<Mythical />} />
-                <Route path="/pokemon/tipo" element={ <TypeComponent/>} />
-                <Route path="/tipos" element={<TypePages/>}/>
-                <Route path="/pokemon/tipo/:tipo" element={<ProductType />} />
-                <Route path="/pokemon/:nombre" element={<ProductDetail />} />
-                <Route path="/user/register" element={<RegisterForm role='user'/>} />
-                <Route path="/login" element={<LoginForm />} />
-                <Route path="/admin/register" element={<RegisterForm role='admin' />} />
-                <Route path="/pokemon/new" element={<ProductForm isEdit={false} />} />
-                <Route path="/pokemon/edit/:nombre" element={<ProductForm isEdit={true} />} />
-                <Route path='/carrito' element={<CarritoPages/>}/>
-            </Routes>
-            <Footer/>   
-        </Router>
-        </>
-    );
+  return (
+    <>
+      <Router>
+        <ScrollTop />
+        <Nav />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/todos" element={<Cards products={products} showSort={true} />} />
+          <Route path="/pokemon/legendarios" element={<Legendarios />} />
+          <Route path="/pokemon/misticos" element={<Mythical />} />
+          <Route path="/pokemon/tipo" element={<TypeComponent />} />
+          <Route path="/tipos" element={<TypePages />} />
+          <Route path="/pokemon/tipo/:tipo" element={<ProductType />} />
+          <Route path="/pokemon/:nombre" element={<ProductDetail />} />
+          <Route path="/user/register" element={<RegisterForm role="user" />} />
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/admin/register" element={<RegisterForm role="admin" />} />
+          <Route path="/pokemon/new" element={<ProductForm isEdit={false} />} />
+          <Route path="/pokemon/edit/:nombre" element={<ProductForm isEdit={true} />} />
+          <Route path="/carrito" element={<CarritoPages />} />
+          <Route path="/about" element={<AboutPage />} />
+        </Routes>
+        <Footer />
+      </Router>
+    </>
+  );
 }
 
 export default Rutas;
