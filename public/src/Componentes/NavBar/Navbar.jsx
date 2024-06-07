@@ -25,24 +25,28 @@ const Navbar = () => {
             onClick={isOpen ? onClose : onOpen}
           />
 
-          {/* NavLinks */}
-          <HStack as="nav" spacing={4} display={{ base: 'none', md: 'flex' }}>
-            <NavLinks />
-          </HStack>
-
           {/* Logo */}
-          <Link as={RouterLink} to="/" style={{ color: 'white', fontWeight: 'bold', fontSize: 'lg', marginRight: 'auto' }}>
+          <Link as={RouterLink} to="/" style={{ color: 'white', fontWeight: 'bold', fontSize: 'lg' }}>
             MyLogo
           </Link>
 
           {/* SearchBar or Search Icon */}
-          <Box flex="1" textAlign="center" display={{ base: 'none', md: 'block' }}>
+          <Box flex="1" textAlign="center">
             <SearchBar />
           </Box>
 
           {/* Login and Cart */}
           <Flex alignItems="center" ml="auto">
-            <LoginForm />
+            {user ? (
+              <>
+                <Text color="white" mr={4}>Welcome, {user.name}</Text>
+                <Button variant="link" color="white" onClick={() => Logout()}>
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <LoginForm />
+            )}
             <Cart />
           </Flex>
         </Flex>
