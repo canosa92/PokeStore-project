@@ -30,16 +30,19 @@ export const CarritoProvider = ({ children }) => {
     }
   };
 
-  const eliminar = (id) => {
-    const productoEliminado = carrito.find((producto) => producto.id === id);
-    setCarrito(carrito.filter((producto) => producto.id !== id));
-    if (productoEliminado) {
-      setMensaje(`Has eliminado ${productoEliminado.nombre} del carrito.`);
-    }
-  };
+ const eliminar = (id) => {
+  const index = carrito.findIndex((producto) => producto.id === id);
+  if (index !== -1) { // Check if product is found
+    const nuevoCarrito = [...carrito];
+    nuevoCarrito.splice(index, 1);
+    setCarrito(nuevoCarrito);
+    setMensaje(`Has eliminado ${carrito[index].nombre} del carrito.`); // Use carrito[index].nombre
+  }
+};
+
 
   
-  ajustarCantidad = (productoId, cantidad) => {
+const  ajustarCantidad = (productoId, cantidad) => {
   const nuevoCarrito = carrito.map((producto) => {
     if (producto.id === productoId) { // Corrected line
       return { ...producto, cantidad: Math.max(1, cantidad) };
