@@ -1,7 +1,12 @@
 import React from 'react';
 import { Box, Image, Text, Badge, Flex, VStack, HStack, Stack, SimpleGrid } from '@chakra-ui/react';
+import ProductCommentForm from './ProductCommentForm'; // Asegúrate de ajustar la ruta según tu estructura de proyecto
 
 const ProductDetail = ({ product }) => {
+  const handleCommentSubmit = (newComment) => {
+    // Actualizar la lista de comentarios con el nuevo comentario
+  };
+
   return (
     <Box p={4}>
       <Flex direction={{ base: 'column', md: 'row' }} align="center">
@@ -32,6 +37,7 @@ const ProductDetail = ({ product }) => {
               ))}
             </SimpleGrid>
           </Box>
+          <ProductCommentForm productId={product.id} onCommentSubmit={handleCommentSubmit} />
         </VStack>
       </Flex>
     </Box>
