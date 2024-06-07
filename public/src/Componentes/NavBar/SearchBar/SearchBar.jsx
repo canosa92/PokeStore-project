@@ -1,38 +1,36 @@
 import React, { useState } from 'react';
-import { Box, Input, IconButton } from '@chakra-ui/react';
+import { Box, Input, InputGroup, InputLeftElement, IconButton } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
 
 const SearchBar = () => {
   const [query, setQuery] = useState('');
-  const [showInput, setShowInput] = useState(false);
   const navigate = useNavigate();
 
-  const handleSearch = (event) => {
-    event.preventDefault();
-    if (query) {
+  const handleSearch = () => {
+    if (query.trim()) {
       navigate(`/pokemon/${query}`);
     }
   };
 
   return (
-    <Box textAlign="center">
-      {showInput || window.innerWidth >= 768 ? (
-        <form onSubmit={handleSearch}>
-          <Input
-            placeholder="Buscar..."
-            width="200px"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </form>
-      ) : (
-        <IconButton
-          icon={<SearchIcon />}
-          onClick={() => setShowInput(!showInput)}
-        />
-      )}
-    </Box>
+    <InputGroup>
+      <InputLeftElement pointerEvents="none">
+        <SearchIcon color="gray.300" />
+      </InputLeftElement>
+      <Input
+        placeholder="Buscar Pokémon"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+      />
+      <IconButton
+        aria-label="Search Pokémon"
+        icon={<SearchIcon />}
+        onClick={handleSearch}
+        display={{ base: 'block', md: 'none' }}
+      />
+    </InputGroup>
   );
 };
 
