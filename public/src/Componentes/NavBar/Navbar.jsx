@@ -1,7 +1,7 @@
 import React from 'react';
-import { ChakraProvider, Box, Flex, HStack, IconButton, useDisclosure, Stack, Text, Button } from '@chakra-ui/react';
+import { ChakraProvider, Box, Flex, IconButton, useDisclosure, HStack, Link, Spacer } from '@chakra-ui/react';
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { useUser } from '../../usecontext/UserContext.jsx';
 import Cart from './Cart/Cart.jsx';
 import SearchBar from './SearchBar/SearchBar.jsx';
@@ -16,6 +16,7 @@ const Navbar = () => {
     <ChakraProvider>
       <Box bg="gray.800" px={4}>
         <Flex h={16} alignItems="center" justifyContent="space-between">
+          {/* Hamburger Icon for Mobile */}
           <IconButton
             size="md"
             icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
@@ -23,39 +24,33 @@ const Navbar = () => {
             display={{ md: 'none' }}
             onClick={isOpen ? onClose : onOpen}
           />
-          <HStack spacing={8} alignItems="center">
-            <Box>
-              <Link to="/" style={{ color: 'white', fontWeight: 'bold', fontSize: 'lg' }}>
-                MyLogo
-              </Link>
-            </Box>
-            <HStack as="nav" spacing={4} display={{ base: 'none', md: 'flex' }}>
-              <NavLinks />
-            </HStack>
+
+          {/* NavLinks */}
+          <HStack as="nav" spacing={4} display={{ base: 'none', md: 'flex' }}>
+            <NavLinks />
           </HStack>
-          <Flex alignItems="center">
+
+          {/* Logo */}
+          <Link as={RouterLink} to="/" style={{ color: 'white', fontWeight: 'bold', fontSize: 'lg', marginRight: 'auto' }}>
+            MyLogo
+          </Link>
+
+          {/* SearchBar or Search Icon */}
+          <Box flex="1" textAlign="center" display={{ base: 'none', md: 'block' }}>
             <SearchBar />
+          </Box>
+
+          {/* Login and Cart */}
+          <Flex alignItems="center" ml="auto">
+            <LoginForm />
             <Cart />
-            <Box ml={4}>
-              {user ? (
-                <>
-                  <Text color="white">Welcome, {user.name}</Text>
-                  <Button variant="link" color="white" onClick={() => Logout()}>
-                    Cerrar sesión
-                  </Button>
-                </>
-              ) : (
-                <LoginForm />
-              )}
-            </Box>
           </Flex>
         </Flex>
 
+        {/* Responsive Navigation Links */}
         {isOpen ? (
           <Box pb={4} display={{ md: 'none' }}>
-            <Stack as="nav" spacing={4}>
-              <NavLinks />
-            </Stack>
+            <NavLinks />
           </Box>
         ) : null}
       </Box>
