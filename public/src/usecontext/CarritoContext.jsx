@@ -40,13 +40,14 @@ export const CarritoProvider = ({ children }) => {
 
   const ajustarCantidad = (id, cantidad) => {
     const nuevoCarrito = carrito.map((producto) => {
-      if (producto.pokedex_id === id) {
+      if (producto.id === id) { // Corregir esta línea
         return { ...producto, cantidad: Math.max(1, cantidad) }; // Asegurar que la cantidad no sea menor que 1
       }
       return producto;
     });
     setCarrito(nuevoCarrito);
   };
+  
 
   const vaciarCarrito = () => {
     setCarrito([]);

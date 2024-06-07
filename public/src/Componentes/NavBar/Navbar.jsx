@@ -26,7 +26,7 @@ const Navbar = () => {
           <HStack spacing={8} alignItems="center">
             <Box>
               <Link to="/" style={{ color: 'white', fontWeight: 'bold', fontSize: 'lg' }}>
-                MyLogo
+               PokeStore
               </Link>
             </Box>
             <HStack as="nav" spacing={4} display={{ base: 'none', md: 'flex' }}>

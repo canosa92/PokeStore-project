@@ -1,46 +1,87 @@
-import React from 'react';
-import { Box, Button, Flex, Image, Stack, Text, IconButton } from '@chakra-ui/react';
-import { useCarrito } from '../../usecontext/CarritoContext.jsx';
-import { CloseIcon, AddIcon, MinusIcon } from '@chakra-ui/icons';
+import React, { useState } from 'react';
+import { useCarrito } from '../../../usecontext/CarritoContext';
 import { Link } from 'react-router-dom';
+import { Box, Button, Flex, Text, Image, IconButton, Badge } from '@chakra-ui/react';
+import { DeleteIcon, AddIcon, MinusIcon } from '@chakra-ui/icons';
 
 const Cart = () => {
-  const { carrito, eliminar, ajustarCantidad, mensaje } = useCarrito();
+  const { carrito, eliminar, vaciarCarrito, ajustarCantidad, mensaje } = useCarrito();
+  const [mostrarCarrito, setMostrarCarrito] = useState(false);
+
+  const handleEliminarProducto = (id) => {
+    eliminar(id);
+  };
 
   const totalPrecio = carrito.reduce((total, producto) => total + producto.precio * producto.cantidad, 0);
 
   return (
-    <Box>
-      {mensaje && <Text>{mensaje}</Text>}
-      <Box bg="white" p={4} rounded="md" boxShadow="md">
-        {carrito.map((producto, index) => (
-          <Flex key={index} align="center" justify="space-between" mb={4}>
-            <Image src={producto.imagen} alt={producto.nombre} boxSize="50px" objectFit="cover" mr={4} />
-            <Text flex="1">{producto.nombre}</Text>
-            <Flex align="center">
+    <Box
+      className="Cart-container"
+      position="relative"
+    >
+      <Button
+        className="Cart-toggle"
+        onClick={() => setMostrarCarrito(!mostrarCarrito)}
+        position="relative"
+        zIndex="2"
+      >
+        🛒 <Badge ml={1}>{carrito.length}</Badge>
+      </Button>
+      {mostrarCarrito && (
+        <Box
+          bg="white"
+          p={4}
+          borderRadius="md"
+          boxShadow="lg"
+          position="absolute"
+          top="100%"
+          right="0"
+          zIndex="1"
+          minWidth="300px"
+        >
+          {mensaje && <Text color="red.500">{mensaje}</Text>}
+          {carrito.map((producto) => (
+            <Flex key={producto.id_pokedex} align="center" mb={4}>
+              <Image src={producto.imagen} alt={producto.nombre} width="50px" mr={4} />
+              <Box flex="1">
+                <Text fontWeight="bold">{producto.nombre}</Text>
+                <Text>{producto.precio} €</Text>
+                <Flex align="center">
+                  <IconButton
+                    icon={<MinusIcon />}
+                    size="sm"
+                    onClick={() => ajustarCantidad(producto.id_pokedex, producto.cantidad - 1)}
+                  />
+                  <Text mx={2}>{producto.cantidad}</Text>
+                  <IconButton
+                    icon={<AddIcon />}
+                    size="sm"
+                    onClick={() => ajustarCantidad(producto.id_pokedex, producto.cantidad + 1)}
+                  />
+                </Flex>
+              </Box>
               <IconButton
-                icon={<MinusIcon />}
-                onClick={() => ajustarCantidad(producto.id_pokedex, producto.cantidad - 1)}
-              />
-              <Text mx={2}>{producto.cantidad}</Text>
-              <IconButton
-                icon={<AddIcon />}
-                onClick={() => ajustarCantidad(producto.id_pokedex, producto.cantidad + 1)}
+                icon={<DeleteIcon />}
+                size="sm"
+                onClick={() => handleEliminarProducto(producto.id_pokedex)}
               />
             </Flex>
-            <IconButton
-              icon={<CloseIcon />}
-              onClick={() => eliminar(producto.id_pokedex)}
-              colorScheme="red"
-              ml={2}
-            />
-          </Flex>
-        ))}
-        <Text>Total: {totalPrecio.toFixed(2)}€</Text>
-        <Button colorScheme="teal" as={Link} to="/carrito">
-          Comprar
-        </Button>
-      </Box>
+          ))}
+          {carrito.length > 0 && (
+            <Flex justify="space-between" align="center" mt={4}>
+              <Button onClick={vaciarCarrito} colorScheme="red" size="sm">
+                Vaciar Carrito
+              </Button>
+              <Link to="/carrito">
+                <Button colorScheme="blue" size="sm">
+                  Ir al Carrito
+                </Button>
+              </Link>
+              <Text fontWeight="bold">Total: {totalPrecio} €</Text>
+            </Flex>
+          )}
+        </Box>
+      )}
     </Box>
   );
 };

@@ -1,5 +1,6 @@
+// SearchBar.jsx
 import React, { useState } from 'react';
-import { Box, Input, InputGroup, InputLeftElement, IconButton } from '@chakra-ui/react';
+import { InputGroup, InputLeftElement, Input, IconButton } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
 
@@ -23,6 +24,7 @@ const SearchBar = () => {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+        color="white" // Cambiar color del texto a blanco
       />
       <IconButton
         aria-label="Search Pokémon"
