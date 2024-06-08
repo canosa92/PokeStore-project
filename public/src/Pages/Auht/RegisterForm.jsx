@@ -1,23 +1,31 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../usecontext/UserContext.jsx';
-import './AuthForm.css';
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  VStack,
+  Text,
+  Alert,
+  AlertIcon,
+} from '@chakra-ui/react';
 
 const RegisterForm = ({ role }) => {
-  const { user,setUser,register } = useUser();
+  const { user, setUser, register } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  let rol = role;
-
   const [formData, setFormData] = useState({
     name: '',
     username: '',
     email: '',
     password: '',
-    role: rol,
+    role: role,
     wishList: [],
-    comments:[]
+    comments: []
   });
 
   const handleChange = (e) => {
@@ -44,45 +52,88 @@ const RegisterForm = ({ role }) => {
         throw new Error('Error al registrar usuario');
       }
       const userData = await response.json();
-     register(userData.user,userData.token
-
-     )
+      register(userData.user, userData.token);
       setUser(userData.user);
       navigate('/myprofile');
     } catch (error) {
       console.error('Error al registrar usuario:', error.message);
-      setError(error);
+      setError(error.message);
     }
     setIsSubmitting(false);
   };
 
   return (
-    <>
-    {user ?(
-      <h3>No te puedes registrar dos veces</h3>
-    ):(
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="name">Nombre:</label>
-        <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required />
-      </div>
-      <div>
-        <label htmlFor="username">Username:</label>
-        <input type="text" id="username" name="username" value={formData.username} onChange={handleChange} required />
-      </div>
-      <div>
-        <label htmlFor="email">Correo electrónico:</label>
-        <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required />
-      </div>
-      <div>
-        <label htmlFor="password">Contraseña:</label>
-        <input type="password" id="password" name="password" value={formData.password} onChange={handleChange} required />
-      </div>
-      {error && <p className="error-message">{error}</p>}
-      <button type="submit" disabled={isSubmitting}>Registrarse</button>
-    </form>
-    )}
-    </>
+    <Box p={6} bg="gray.700" borderRadius="md" boxShadow="md">
+      {user ? (
+        <Text color="white">No te puedes registrar dos veces</Text>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          <VStack spacing={4}>
+            <FormControl id="name" isRequired>
+              <FormLabel color="white">Nombre</FormLabel>
+              <Input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Nombre"
+                bg="gray.800"
+                color="white"
+                _placeholder={{ color: 'gray.400' }}
+              />
+            </FormControl>
+            <FormControl id="username" isRequired>
+              <FormLabel color="white">Username</FormLabel>
+              <Input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                placeholder="Username"
+                bg="gray.800"
+                color="white"
+                _placeholder={{ color: 'gray.400' }}
+              />
+            </FormControl>
+            <FormControl id="email" isRequired>
+              <FormLabel color="white">Correo electrónico</FormLabel>
+              <Input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Correo electrónico"
+                bg="gray.800"
+                color="white"
+                _placeholder={{ color: 'gray.400' }}
+              />
+            </FormControl>
+            <FormControl id="password" isRequired>
+              <FormLabel color="white">Contraseña</FormLabel>
+              <Input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Contraseña"
+                bg="gray.800"
+                color="white"
+                _placeholder={{ color: 'gray.400' }}
+              />
+            </FormControl>
+            {error && (
+              <Alert status="error">
+                <AlertIcon />
+                {error}
+              </Alert>
+            )}
+            <Button type="submit" colorScheme="blue" isLoading={isSubmitting}>
+              Registrarse
+            </Button>
+          </VStack>
+        </form>
+      )}
+    </Box>
   );
 };
 
