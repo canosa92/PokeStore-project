@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ChakraProvider, Box, Flex, HStack, IconButton, useDisclosure, Stack, Text, Button } from '@chakra-ui/react';
+import React from 'react';
+import { Box, Flex, IconButton, useDisclosure, VStack, Text, Button } from '@chakra-ui/react';
 import { HamburgerIcon, CloseIcon, SearchIcon } from '@chakra-ui/icons';
 import { Link } from 'react-router-dom';
 import { useUser } from '../../usecontext/UserContext.jsx';
@@ -11,32 +11,17 @@ import NavLinks from './NavLinks/NavLinks.jsx';
 const Navbar = () => {
   const { user, Logout } = useUser();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [searchOpen, setSearchOpen] = useState(false);
-
-  const handleSearchToggle = () => {
-    if (!searchOpen) {
-      onClose(); // Cerrar NavLinks si se abre SearchBar
-    }
-    setSearchOpen(!searchOpen);
-  };
-
-  const handleNavLinksToggle = () => {
-    if (!isOpen) {
-      setSearchOpen(false); // Cerrar SearchBar si se abre NavLinks
-    }
-    isOpen ? onClose() : onOpen();
-  };
 
   return (
     <>
-      <Box bg="gray.800" px={4}>
+      <Box bg="gray.800" px={4} py={2}>
         <Flex h={16} alignItems="center" justifyContent="space-between">
           <IconButton
             size="md"
             icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
             aria-label="Open Menu"
             display={{ md: 'none' }}
-            onClick={handleNavLinksToggle}
+            onClick={isOpen ? onClose : onOpen}
           />
           <HStack spacing={8} alignItems="center">
             <Box>
@@ -48,39 +33,41 @@ const Navbar = () => {
               <NavLinks />
             </HStack>
           </HStack>
-          <Flex alignItems="center" flex="1" justifyContent="center">
-            <Box display={{ base: 'none', md: 'block' }}>
-              <SearchBar />
-            </Box>
-          </Flex>
           <Flex alignItems="center">
+            {!isOpen && ( // Solo muestra el formulario de inicio de sesión si el menú no está abierto
+              <Box display={{ base: 'none', md: 'block' }}>
+                <SearchBar />
+              </Box>
+            )}
             <Box display={{ base: 'block', md: 'none' }}>
               <IconButton
                 icon={<SearchIcon />}
-                onClick={handleSearchToggle}
+                onClick={onOpen}
                 variant="ghost"
                 aria-label="Search Pokémon"
                 color="white"
               />
-              {searchOpen && (
-                <Box position="absolute" top="60px" left="0" right="0" bg="gray.800" p={4} zIndex={10}>
-                  <SearchBar isMobile />
-                </Box>
-              )}
             </Box>
             <Box ml={4}>
-              <LoginForm />
+              {user ? (
+                <>
+                  <Text color="white">Welcome, {user.name}</Text>
+                  <Button variant="link" color="white" onClick={() => Logout()}>
+                    Cerrar sesión
+                  </Button>
+                </>
+              ) : (
+                <LoginForm isOpen={isOpen} onClose={onClose} />
+              )}
             </Box>
             <Cart />
           </Flex>
         </Flex>
 
         {isOpen && (
-          <Box pb={4} display={{ md: 'none' }}>
-            <Stack as="nav" spacing={4}>
-              <NavLinks />
-            </Stack>
-          </Box>
+          <VStack p={2} pb={4} display={{ md: 'none' }} alignItems="flex-start">
+            <NavLinks />
+          </VStack>
         )}
       </Box>
     </>
