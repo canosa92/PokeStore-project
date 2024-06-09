@@ -13,11 +13,11 @@ import {
   Stack,
   Button,
   Tag,
-  TagLabel,
-  TagLeftIcon,
   Progress,
   Divider,
-  ButtonGroup
+  ButtonGroup,
+  HStack,
+  VStack
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 
@@ -29,7 +29,7 @@ const ProductDetail = () => {
   const [comments, setComments] = useState([]);
 
   const product = products.find(product => product.nombre === nombre);
-  
+
   useEffect(() => {
     if (product) {
       setComments(product.reviews);
@@ -42,6 +42,14 @@ const ProductDetail = () => {
 
   const handleCommentSubmit = (newComment) => {
     setComments([...comments, newComment]);
+  };
+
+  const renderStars = (rating) => {
+    return Array(5)
+      .fill('')
+      .map((_, i) => (
+        <StarIcon key={i} color={i < rating ? 'yellow.400' : 'gray.300'} />
+      ));
   };
 
   return (
@@ -64,7 +72,7 @@ const ProductDetail = () => {
         </Flex>
 
         <Flex direction={['column', 'row']} mt={4}>
-          <Image src={product.imagen} alt={product.nombre} boxSize="400px" mx="auto" />
+          <Image src={product.imagen} alt={product.nombre} boxSize={['100%', '400px']} mx="auto" />
 
           <Stack spacing={4} p={4} flex="1">
             <Text fontSize="lg">{product.descripcion}</Text>
@@ -145,9 +153,11 @@ const ProductDetail = () => {
               <Text fontSize="xl" fontWeight="bold">Reviews:</Text>
               {comments.map((review, index) => (
                 <Box key={index} p={4} bg="gray.100" borderRadius="md" mt={2}>
-                  <Text fontWeight="bold">{review.username || 'Usuario desconocido'}</Text>
+                  <Flex justify="space-between" align="center">
+                    <Text fontWeight="bold">{review.username || 'Usuario desconocido'}</Text>
+                    <HStack spacing={1}>{renderStars(review.rating)}</HStack>
+                  </Flex>
                   <Text>{review.comment}</Text>
-                  <Text>{review.rating}</Text>
                 </Box>
               ))}
             </Box>
