@@ -1,8 +1,9 @@
+// Cards.jsx
+
 import React from 'react';
 import { useCarrito } from '../../usecontext/CarritoContext';
 import { Link } from 'react-router-dom';
-import { Box, Button, Flex, Text, Heading, Image, VStack, HStack, Divider, Spacer, IconButton } from '@chakra-ui/react';
-import { FaTrash } from 'react-icons/fa';
+import { Box, Button, Flex, Text, Heading, Image, VStack, HStack, Divider, Spacer } from '@chakra-ui/react';
 
 const Cards = ({ products, showSort }) => {
   const { añadir, mensaje, carrito } = useCarrito();
@@ -27,7 +28,7 @@ const Cards = ({ products, showSort }) => {
       )}
       <Flex wrap="wrap" justify="center">
         {products.map((producto) => (
-          <Box key={producto._id} maxW="sm" m={4} boxShadow="lg" borderRadius="md" overflow="hidden" bg="white" transition="background 0.3s ease">
+          <Box key={producto._id} maxW="sm" m={4} boxShadow="lg" borderRadius="md" overflow="hidden">
             <Image src={producto.imagen} alt={producto.nombre} />
             <Box p={4}>
               <Heading as="h3" size="md" mb={2}>{producto.nombre}</Heading>
@@ -37,14 +38,6 @@ const Cards = ({ products, showSort }) => {
               <Link to={`/producto/${producto._id}`}>
                 <Button variant="outline" colorScheme="blue">Detalles</Button>
               </Link>
-              <IconButton
-                aria-label="Eliminar"
-                icon={<FaTrash />}
-                size="sm"
-                colorScheme="red"
-                ml={2}
-                onClick={() => eliminarProducto(producto._id)}
-              />
             </Box>
           </Box>
         ))}
