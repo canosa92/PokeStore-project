@@ -17,8 +17,8 @@ const CarritoPages = () => {
         <Text>No hay productos en el carrito. <Link to="/">Vuelve a la tienda</Link></Text>
       ) : (
         <VStack spacing={4}>
-          {carrito.map((producto, index) => (
-            <Flex key={index} p={4} bg="white" borderRadius="md" boxShadow="md" width="100%" direction={{ base: 'column', md: 'row' }} alignItems="center">
+          {carrito.map((producto) => (
+            <Flex key={producto.id} p={4} bg="white" borderRadius="md" boxShadow="md" width="100%" direction={{ base: 'column', md: 'row' }} alignItems="center">
               <Image src={producto.imagen} alt={producto.nombre} boxSize="100px" objectFit="cover" />
               <Box ml={{ base: 0, md: 4 }} mt={{ base: 4, md: 0 }} flex="1">
                 <Heading as="h2" size="md">{producto.nombre}</Heading>
