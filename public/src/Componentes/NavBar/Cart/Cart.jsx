@@ -1,7 +1,7 @@
 // components/Cart.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useCarrito } from '../../usecontext/CarritoContext';
+import { useCarrito } from '../../../usecontext/CarritoContext';
 import {
   Box,
   Flex,

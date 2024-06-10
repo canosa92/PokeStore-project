@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { Box, Button, Flex, Heading, Image, Text, VStack, HStack } from '@chakra-ui/react';
 
 const CarritoPages = () => {
-  const { carrito, ajustarCantidad, eliminarProducto, vaciarCarrito } = useCarrito();
+  const { carrito, ajustarCantidad, eliminar, vaciarCarrito } = useCarrito();
 
   const calcularTotal = () => {
     return carrito.reduce((total, producto) => total + (producto.precio * producto.cantidad), 0);
@@ -32,7 +32,7 @@ const CarritoPages = () => {
                   <Text>{producto.cantidad}</Text>
                   <Button size="sm" onClick={() => ajustarCantidad(producto._id, 1)}>+</Button>
                 </HStack>
-                <Button mt={2} colorScheme="red" onClick={() => eliminarProducto(producto._id)}>Eliminar</Button>
+                <Button mt={2} colorScheme="red" onClick={() => eliminar(producto._id)}>Eliminar</Button>
               </Box>
             </Flex>
           ))}
