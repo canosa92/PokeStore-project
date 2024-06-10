@@ -1,10 +1,12 @@
+// CarritoPages.jsx
+
 import React from 'react';
 import { useCarrito } from '../../usecontext/CarritoContext';
 import { Link } from 'react-router-dom';
 import { Box, Button, Flex, Heading, Image, Text, VStack, HStack } from '@chakra-ui/react';
 
 const CarritoPages = () => {
-  const { carrito, eliminar, vaciarCarrito } = useCarrito();
+  const { carrito, ajustarCantidad, eliminarProducto, vaciarCarrito } = useCarrito();
 
   const calcularTotal = () => {
     return carrito.reduce((total, producto) => total + (producto.precio * producto.cantidad), 0);
@@ -18,14 +20,19 @@ const CarritoPages = () => {
       ) : (
         <VStack spacing={4}>
           {carrito.map((producto) => (
-            <Flex key={producto.id} p={4} bg="white" borderRadius="md" boxShadow="md" width="100%" direction={{ base: 'column', md: 'row' }} alignItems="center">
+            <Flex key={producto._id} p={4} bg="white" borderRadius="md" boxShadow="md" width="100%" direction={{ base: 'column', md: 'row' }} alignItems="center">
               <Image src={producto.imagen} alt={producto.nombre} boxSize="100px" objectFit="cover" />
               <Box ml={{ base: 0, md: 4 }} mt={{ base: 4, md: 0 }} flex="1">
                 <Heading as="h2" size="md">{producto.nombre}</Heading>
                 <Text>{producto.descripcion}</Text>
                 <Text>Precio: {producto.precio} €</Text>
                 <Text>Cantidad: {producto.cantidad}</Text>
-                <Button mt={2} colorScheme="red" onClick={() => eliminar(producto.id)}>Eliminar</Button>
+                <HStack mt={2}>
+                  <Button size="sm" onClick={() => ajustarCantidad(producto._id, -1)}>-</Button>
+                  <Text>{producto.cantidad}</Text>
+                  <Button size="sm" onClick={() => ajustarCantidad(producto._id, 1)}>+</Button>
+                </HStack>
+                <Button mt={2} colorScheme="red" onClick={() => eliminarProducto(producto._id)}>Eliminar</Button>
               </Box>
             </Flex>
           ))}
