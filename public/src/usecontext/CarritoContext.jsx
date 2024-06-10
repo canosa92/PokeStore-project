@@ -1,76 +1,32 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
 
 const CarritoContext = createContext();
 
 export const CarritoProvider = ({ children }) => {
-  const [carrito, setCarrito] = useState(() => {
-    try {
-      const storedCarrito = localStorage.getItem('carrito');
-      return storedCarrito ? JSON.parse(storedCarrito) : [];
-    } catch (error) {
-      return [];
-    }
-  });
+  const [carrito, setCarrito] = useState([]);
 
-  const [mensaje, setMensaje] = useState('');
-
-  const añadir = (producto) => {
-    let productosEnCarrito = carrito.find((p) => p.id === producto.id_pokedex);
-
-    if (!productosEnCarrito) {
-      setCarrito([...carrito, { ...producto, cantidad: 1 }]);
-      setMensaje(`Has añadido ${producto.nombre} al carrito.`);
-    } else {
-      productosEnCarrito.cantidad += 1;
-      const index = carrito.indexOf(productosEnCarrito);
-      const nuevoCarrito = [...carrito];
-      nuevoCarrito[index] = productosEnCarrito;
-      setCarrito(nuevoCarrito);
-      setMensaje(`Has añadido un ${producto.nombre} más al carrito.`);
-    }
+  const ajustarCantidad = (id, nuevaCantidad) => {
+    setCarrito(prevCarrito => {
+      return prevCarrito.map(producto => {
+        if (producto.id === id) {
+          const cantidadActualizada = nuevaCantidad <= 0 ? 0 : nuevaCantidad;
+          return { ...producto, cantidad: cantidadActualizada };
+        }
+        return producto;
+      }).filter(producto => producto.cantidad > 0); // Eliminar productos con cantidad 0
+    });
   };
 
   const eliminar = (id) => {
-    const nuevoCarrito = carrito.filter((producto) => producto.id !== id); // Use filter to remove the product
-    const productoEliminado = carrito.find((producto) => producto.id === id); // Find the deleted product
-    setCarrito(nuevoCarrito);
-    setMensaje(`Has eliminado ${productoEliminado.nombre} del carrito.`);
-  };
-
-  const ajustarCantidad = (productoId, cantidad) => {
-    const nuevoCarrito = carrito.map((producto) => {
-      if (producto.id === productoId) {
-        return { ...producto, cantidad: Math.max(1, cantidad) };
-      }
-      return producto;
-    });
-    setCarrito(nuevoCarrito);
+    setCarrito(prevCarrito => prevCarrito.filter(producto => producto.id !== id));
   };
 
   const vaciarCarrito = () => {
     setCarrito([]);
-    setMensaje('Has vaciado el carrito.');
   };
-
-  const guardarCarritoLocalStorage = () => {
-    localStorage.setItem('carrito', JSON.stringify(carrito));
-  };
-
-  useEffect(() => {
-    guardarCarritoLocalStorage();
-  }, [carrito]);
-
-  useEffect(() => {
-    if (mensaje) {
-      const timer = setTimeout(() => {
-        setMensaje('');
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [mensaje]);
 
   return (
-    <CarritoContext.Provider value={{ carrito, añadir, eliminar, ajustarCantidad, vaciarCarrito, mensaje }}>
+    <CarritoContext.Provider value={{ carrito, ajustarCantidad, eliminar, vaciarCarrito }}>
       {children}
     </CarritoContext.Provider>
   );
