@@ -1,68 +1,48 @@
-// components/Cart.jsx
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { useCarrito } from '../../../usecontext/CarritoContext';
-import {
-  Box,
-  Flex,
-  IconButton,
-  Text,
-  Stack,
-  Image,
-  Badge,
-  Button,
-} from '@chakra-ui/react';
-import { FaShoppingCart } from 'react-icons/fa';
+import { useCarrito } from '../../usecontext/CarritoContext';
+import { Box, Button, Flex, Heading, Image, Text, VStack, HStack, IconButton } from '@chakra-ui/react';
+import { FaTrash } from 'react-icons/fa';
 
 const Cart = () => {
-  const { carrito, ajustarCantidad, eliminar, mensaje } = useCarrito();
+  const { carrito, eliminar, vaciarCarrito } = useCarrito();
+
+  const calcularTotal = () => {
+    return carrito.reduce((total, producto) => total + (producto.precio * producto.cantidad), 0);
+  };
 
   return (
-    <Box position="relative">
-      <IconButton
-        as={Link}
-        to="/carrito"
-        icon={<FaShoppingCart />}
-        aria-label="Carrito"
-        variant="outline"
-      />
-      {carrito.length > 0 && (
-        <Badge
-          colorScheme="red"
-          borderRadius="full"
-          position="absolute"
-          top="-1"
-          right="-1"
-        >
-          {carrito.length}
-        </Badge>
+    <Box p={4} bg="white" borderRadius="md" boxShadow="md" zIndex="1000">
+      <Heading as="h1" mb={6}>Mi Carrito</Heading>
+      {carrito.length === 0 ? (
+        <Text>No hay productos en el carrito.</Text>
+      ) : (
+        <VStack spacing={4} alignItems="flex-start">
+          {carrito.map((producto) => (
+            <Flex key={producto._id} w="100%" bg="gray.100" borderRadius="md" p={2} alignItems="center">
+              <Image src={producto.imagen} alt={producto.nombre} boxSize="50px" objectFit="cover" />
+              <VStack ml={2} alignItems="flex-start">
+                <Text>{producto.nombre}</Text>
+                <Text>Precio: {producto.precio} €</Text>
+                <Text>Cantidad: {producto.cantidad}</Text>
+                <IconButton
+                  aria-label="Eliminar"
+                  icon={<FaTrash />}
+                  size="sm"
+                  colorScheme="red"
+                  onClick={() => eliminar(producto._id)}
+                />
+              </VStack>
+            </Flex>
+          ))}
+          <Box width="100%" textAlign="center">
+            <Heading as="h3" size="lg">Total: {calcularTotal()} €</Heading>
+            <HStack spacing={4} mt={4} justifyContent="center">
+              <Button colorScheme="red" onClick={vaciarCarrito}>Vaciar Carrito</Button>
+              <Button colorScheme="green">Proceder al Pago</Button>
+            </HStack>
+          </Box>
+        </VStack>
       )}
-      <Box position="absolute" right={0} bg="white" p={4} borderRadius="md" boxShadow="md" w="300px" mt={2} zIndex={10}>
-        {carrito.length === 0 ? (
-          <Text>No hay productos en el carrito.</Text>
-        ) : (
-          <Stack spacing={4}>
-            {carrito.map((product) => (
-              <Flex key={product._id} align="center">
-                <Image src={product.imagen} alt={product.nombre} boxSize="50px" borderRadius="md" />
-                <Stack spacing={1} ml={2}>
-                  <Text fontWeight="bold">{product.nombre}</Text>
-                  <Text>{product.precio} €</Text>
-                  <Flex align="center">
-                    <Button size="xs" onClick={() => ajustarCantidad(product._id, -1)}>-</Button>
-                    <Text mx={2}>{product.cantidad}</Text>
-                    <Button size="xs" onClick={() => ajustarCantidad(product._id, 1)}>+</Button>
-                  </Flex>
-                  <Button size="xs" colorScheme="red" onClick={() => eliminar(product._id)}>Eliminar</Button>
-                </Stack>
-              </Flex>
-            ))}
-            <Button as={Link} to="/carrito" colorScheme="blue" size="sm" mt={4}>
-              Ver Carrito
-            </Button>
-          </Stack>
-        )}
-      </Box>
     </Box>
   );
 };
