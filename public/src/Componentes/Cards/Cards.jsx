@@ -1,3 +1,4 @@
+// components/Cards.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCarrito } from '../../usecontext/CarritoContext';
@@ -19,7 +20,6 @@ import {
   CardBody,
   CardFooter,
 } from '@chakra-ui/react';
-
 
 const Cards = ({ products, showSort }) => {
   const { user } = useUser();
@@ -78,8 +78,8 @@ const Cards = ({ products, showSort }) => {
             <Select 
               value={orden} 
               onChange={handleChangeOrden} 
-              maxW="200px" // Ancho máximo de 200px para el Select
-              w="100%" // Ancho del 100% de su contenedor
+              maxW="200px" 
+              w="100%" 
             >
               <option value="nombreAsc">Nombre (A-Z)</option>
               <option value="nombreDesc">Nombre (Z-A)</option>
@@ -98,8 +98,8 @@ const Cards = ({ products, showSort }) => {
               key={product._id} 
               maxW="sm" 
               m={4} 
-              boxShadow="lg" // Añade sombra a la tarjeta
-              border="none" // Elimina el borde de la tarjeta
+              boxShadow="lg" 
+              border="none"
             >
               <CardBody>
                 <Image
@@ -151,7 +151,7 @@ const Cards = ({ products, showSort }) => {
                         colorScheme="blue"
                         onClick={() => {
                           añadir(product);
-                          setProductoAñadido(product.id_pokedex);
+                          setProductoAñadido(product._id);
                         }}
                       >
                         Añadir al carrito
@@ -160,7 +160,7 @@ const Cards = ({ products, showSort }) => {
                   )}
                 </ButtonGroup>
               </CardFooter>
-              {productoAñadido === product.id_pokedex && mensaje && (
+              {productoAñadido === product._id && mensaje && (
                 <Box p={2} bg="green.100" borderRadius="md" mt={2}>
                   <Text>{mensaje}</Text>
                 </Box>
