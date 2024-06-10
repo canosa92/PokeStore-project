@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useUser } from '../../usecontext/UserContext.jsx';
+import { useUser } from '../../../usecontext/UserContext.jsx';
 import {
   Box,
   Button,
@@ -41,6 +41,7 @@ const LoginForm = ({ isOpen, onClose }) => {
       setUser(data.user);
       login(data.user, data.user.token);
       navigate('/myprofile');
+      onClose(); // Cerrar el menú después del login exitoso
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
       setError(error.message);
@@ -49,43 +50,25 @@ const LoginForm = ({ isOpen, onClose }) => {
   };
 
   return (
-    <Box
-      p={6}
-      bg="gray.700"
-      borderRadius="md"
-      boxShadow="md"
-      mx="auto"
-      width={{ base: '90%', md: 'auto' }} // Ajustamos el ancho en dispositivos móviles
-      position="absolute" // Posición absoluta para centrar verticalmente
-      top="50%" // Posición vertical centrada
-      left="50%" // Posición horizontal centrada
-      transform="translate(-50%, -50%)" // Centrado exacto en el medio
-      display={isOpen ? 'block' : 'none'} // Mostrar solo cuando isOpen es true
-    >
+    <Box p={4} bg="white" borderRadius="md" boxShadow="md" display={isOpen ? 'block' : 'none'}>
       <form onSubmit={handleSubmit}>
         <VStack spacing={4}>
           <FormControl id="email" isRequired>
-            <FormLabel color="white">Correo electrónico</FormLabel>
+            <FormLabel>Correo electrónico</FormLabel>
             <Input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Correo electrónico"
-              bg="gray.800"
-              color="white"
-              _placeholder={{ color: 'gray.400' }}
             />
           </FormControl>
           <FormControl id="password" isRequired>
-            <FormLabel color="white">Contraseña</FormLabel>
+            <FormLabel>Contraseña</FormLabel>
             <Input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Contraseña"
-              bg="gray.800"
-              color="white"
-              _placeholder={{ color: 'gray.400' }}
             />
           </FormControl>
           {error && (
@@ -97,7 +80,7 @@ const LoginForm = ({ isOpen, onClose }) => {
           <Button type="submit" colorScheme="blue" isLoading={isSubmitting} width="100%">
             Iniciar sesión
           </Button>
-          <Text color="white">
+          <Text>
             <ChakraLink as={Link} to="/user/register">
               ¿No estás registrado?
             </ChakraLink>

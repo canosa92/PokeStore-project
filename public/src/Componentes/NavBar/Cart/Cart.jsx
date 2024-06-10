@@ -50,7 +50,7 @@ const Cart = () => {
                   <IconButton
                     icon={<MinusIcon />}
                     size="sm"
-                    onClick={() => ajustarCantidad(producto.id, producto.cantidad - 1)}
+                    onClick={() => ajustarCantidad(producto.pokedex_id, producto.cantidad - 1)}
                   />
                   <Text mx={2}>{producto.cantidad}</Text>
                   <IconButton
@@ -70,7 +70,8 @@ const Cart = () => {
             </Flex>
           ))}
           {carrito.length > 0 && (
-            <Flex justify="space-between" align="center" mt={4}>
+            <Flex  flexDirection={'column'} mt={4} gap={3}>
+              <Flex justify="space-around" >
               <Button onClick={vaciarCarrito} colorScheme="red" size="sm">
                 Vaciar Carrito
               </Button>
@@ -79,6 +80,7 @@ const Cart = () => {
                   Ir al Carrito
                 </Button>
               </Link>
+              </Flex>
               <Text fontWeight="bold">Total: {totalPrecio} €</Text>
             </Flex>
           )}

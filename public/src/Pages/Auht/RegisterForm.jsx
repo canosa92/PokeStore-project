@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from '../../usecontext/UserContext.jsx';
 import { Box, Button, FormControl, FormLabel, Input, VStack, Text, Alert, AlertIcon, Link as ChakraLink, Image } from '@chakra-ui/react';
-import registrationIllustration from './registrationIllustration.png';
 
 const RegisterForm = ({ isMobile }) => {
   const { user, setUser, register } = useUser();
@@ -57,13 +56,11 @@ const RegisterForm = ({ isMobile }) => {
 
   return (
     <Box p={6} bg="gray.700" borderRadius="md" boxShadow="md" mx="auto" width={isMobile ? '90%' : 'auto'} textAlign={isMobile ? 'center' : 'left'}>
-      {isMobile ? (
-        <Image src={registrationIllustration} alt="Registration Illustration" mb={4} />
-      ) : (
+      
         <Text fontSize="xl" fontWeight="bold" mb={4}>
           ¡Regístrate ahora y descubre un mundo de posibilidades!
         </Text>
-      )}
+      
       <form onSubmit={handleSubmit}>
         <VStack spacing={4}>
           <FormControl id="name" isRequired>

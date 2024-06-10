@@ -27,8 +27,14 @@ const ProductDetail = () => {
   const { nombre } = useParams();
   const { user } = useUser();
   const [comments, setComments] = useState([]);
+  
 
-  const product = products.find(product => product.nombre === nombre);
+  const capitalizeName = (name) => {
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+  };
+  const capitalizedNombre = capitalizeName(nombre);
+
+  const product = products.find(product => product.nombre.toLowerCase() === capitalizedNombre.toLowerCase());
 
   useEffect(() => {
     if (product) {

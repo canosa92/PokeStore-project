@@ -14,7 +14,7 @@ const SearchBar = ({ isMobile }) => {
   };
 
   return (
-    <InputGroup zIndex={isMobile ? 10 : 1}>
+    <InputGroup zIndex={isMobile ? 10 : 1} justifyContent="center" mx="auto" maxW="300px">
       <InputLeftElement pointerEvents="none">
         <SearchIcon color="gray.300" />
       </InputLeftElement>
@@ -23,7 +23,7 @@ const SearchBar = ({ isMobile }) => {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-        color="white" // Cambiar color del texto a blanco
+        color="white"
         display={{ base: isMobile ? 'block' : 'none', md: 'block' }}
       />
       {isMobile && (
