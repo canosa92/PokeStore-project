@@ -50,9 +50,9 @@ const LoginForm = ({ isOpen, onClose }) => {
   };
 
   return (
-    <Box p={4} bg="white" borderRadius="md" boxShadow="md" display={isOpen ? 'block' : 'none'}>
+    <Box p={4} bg="white" borderRadius="md" boxShadow="md" display={isOpen ? 'block' : 'none'} zIndex="2000">
       <form onSubmit={handleSubmit}>
-        <VStack spacing={4}>
+        <VStack spacing={4} >
           <FormControl id="email" isRequired>
             <FormLabel>Correo electrónico</FormLabel>
             <Input

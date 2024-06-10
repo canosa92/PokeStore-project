@@ -30,28 +30,22 @@ export const CarritoProvider = ({ children }) => {
     }
   };
 
- const eliminar = (id) => {
-  const index = carrito.findIndex((producto) => producto.id === id);
-  if (index !== -1) { // Check if product is found
-    const nuevoCarrito = [...carrito];
-    nuevoCarrito.splice(index, 1);
+  const eliminar = (id) => {
+    const nuevoCarrito = carrito.filter((producto) => producto.id !== id); // Use filter to remove the product
+    const productoEliminado = carrito.find((producto) => producto.id === id); // Find the deleted product
     setCarrito(nuevoCarrito);
-    setMensaje(`Has eliminado ${carrito[index].nombre} del carrito.`); // Use carrito[index].nombre
-  }
-};
+    setMensaje(`Has eliminado ${productoEliminado.nombre} del carrito.`);
+  };
 
-
-  
-const  ajustarCantidad = (productoId, cantidad) => {
-  const nuevoCarrito = carrito.map((producto) => {
-    if (producto.id === productoId) { // Corrected line
-      return { ...producto, cantidad: Math.max(1, cantidad) };
-    }
-    return producto;
-  });
-  setCarrito(nuevoCarrito);
-};
-
+  const ajustarCantidad = (productoId, cantidad) => {
+    const nuevoCarrito = carrito.map((producto) => {
+      if (producto.id === productoId) {
+        return { ...producto, cantidad: Math.max(1, cantidad) };
+      }
+      return producto;
+    });
+    setCarrito(nuevoCarrito);
+  };
 
   const vaciarCarrito = () => {
     setCarrito([]);
@@ -66,7 +60,6 @@ const  ajustarCantidad = (productoId, cantidad) => {
     guardarCarritoLocalStorage();
   }, [carrito]);
 
-  // Opcional: Limpiar el mensaje después de un tiempo
   useEffect(() => {
     if (mensaje) {
       const timer = setTimeout(() => {

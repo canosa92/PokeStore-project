@@ -8,9 +8,7 @@ const Cart = () => {
   const { carrito, eliminar, vaciarCarrito, ajustarCantidad, mensaje } = useCarrito();
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
 
-  const handleEliminarProducto = (id) => {
-    eliminar(id);
-  };
+
 
   const totalPrecio = carrito.reduce((total, producto) => total + producto.precio * producto.cantidad, 0);
 
@@ -23,7 +21,7 @@ const Cart = () => {
         className="Cart-toggle"
         onClick={() => setMostrarCarrito(!mostrarCarrito)}
         position="relative"
-        zIndex="2"
+        zIndex="200"
       >
         🛒 <Badge ml={1}>{carrito.length}</Badge>
       </Button>
@@ -36,7 +34,7 @@ const Cart = () => {
           position="absolute"
           top="100%"
           right="0"
-          zIndex="1"
+          zIndex="2000"
           minWidth="300px"
         >
           {mensaje && <Text color="red.500">{mensaje}</Text>}
@@ -65,7 +63,7 @@ const Cart = () => {
               <IconButton
                 icon={<DeleteIcon />}
                 size="sm"
-                onClick={() => handleEliminarProducto(producto.id_pokedex)}
+                onClick={() => eliminar(producto.id_pokedex)}
               />
             </Flex>
           ))}

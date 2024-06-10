@@ -21,9 +21,10 @@ import Cart from './Cart/Cart.jsx';
 import SearchBar from './SearchBar/SearchBar.jsx';
 import LoginForm from './LoginForm/LoginForm.jsx';
 import NavLinks from './NavLinks/NavLinks.jsx';
+import { FaUserAlt } from "react-icons/fa";
 
 const Navbar = () => {
-  const { user, setUser, login, Logout } = useUser();
+  const { user, setUser, login, logout } = useUser(); // Cambio aquí
   const {
     isOpen: isMenuOpen,
     onOpen: onMenuOpen,
@@ -131,7 +132,7 @@ const Navbar = () => {
               {user ? (
                 <>
                   <Text color="white" mr={4} noOfLines={1} maxW="150px">Welcome, {user.name}</Text>
-                  <Button variant="link" color="white" onClick={() => Logout()}>
+                  <Button variant="link" color="white" onClick={() => logout()}> 
                     Cerrar sesión
                   </Button>
                 </>
@@ -139,11 +140,11 @@ const Navbar = () => {
                 <Menu isOpen={isProfileOpen} marginRight={15}>
                   <MenuButton
                     as={IconButton}
-                    icon={<FiUser />}
+                    icon={<FaUserAlt />}
                     variant="outline"
                     onClick={handleProfileToggle}
                     aria-label="User menu"
-                    color="white"
+                    color="black"
                     bg="white"
                   />
                   <MenuList>
