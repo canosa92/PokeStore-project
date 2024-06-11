@@ -8,12 +8,12 @@ import {
   Text,
   Stack,
   Image,
+  Badge,
   Button,
   HStack,
 } from '@chakra-ui/react';
 import { FaShoppingCart } from 'react-icons/fa';
 import { DeleteIcon, AddIcon, MinusIcon } from '@chakra-ui/icons';
-import CartBadge from './CartBadge'; // Reutilizamos el Badge del carrito
 
 const Cart = () => {
   const { carrito, ajustarCantidad, eliminar, vaciarCarrito } = useCarrito();
@@ -30,7 +30,18 @@ const Cart = () => {
         bg={mostrarCarrito ? 'white' : 'transparent'}
         onClick={() => setMostrarCarrito(!mostrarCarrito)}
       />
-      <CartBadge cantidad={carrito.length} /> {/* Utilizamos el mismo Badge del carrito */}
+      {carrito.length > 0 && (
+        <Badge
+          colorScheme="red"
+          borderRadius="full"
+          position="absolute"
+          top="-1"
+          right="-1"
+          onClick={() => setMostrarCarrito(!mostrarCarrito)}
+        >
+          {carrito.length}
+        </Badge>
+      )}
       {mostrarCarrito && (
         <Box
           position="absolute"
