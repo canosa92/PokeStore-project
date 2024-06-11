@@ -4,7 +4,7 @@ import { Box, Button, FormControl, FormLabel, Textarea, Text, VStack, HStack, Ic
 import { StarIcon } from '@chakra-ui/icons';
 
 const ProductCommentForm = ({ productId, onCommentSubmit }) => {
-  const { user, token } = useUser();
+  const { user, token, setUser } = useUser();
   const [comment, setComment] = useState('');
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -42,6 +42,19 @@ const ProductCommentForm = ({ productId, onCommentSubmit }) => {
       }
 
       const newComment = await response.json();
+
+      // Guardar el comentario en la base de datos del usuario a través del contexto
+      setUser(prevUser => ({
+        ...prevUser,
+        comments: [
+          ...prevUser.comments,
+          {
+            productId,
+            comment: newComment,
+            rating
+          }
+        ]
+      }));
 
       if (typeof onCommentSubmit === 'function') {
         onCommentSubmit(newComment);
