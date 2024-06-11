@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useCarrito } from '../../usecontext/CarritoContext';
+import { useCarrito } from '../../../usecontext/CarritoContext';
 import {
   Box,
   Flex,
@@ -8,12 +8,12 @@ import {
   Text,
   Stack,
   Image,
-  Badge,
   Button,
   HStack,
 } from '@chakra-ui/react';
 import { FaShoppingCart } from 'react-icons/fa';
 import { DeleteIcon, AddIcon, MinusIcon } from '@chakra-ui/icons';
+import CartBadge from './CartBadge'; // Reutilizamos el Badge del carrito
 
 const Cart = () => {
   const { carrito, ajustarCantidad, eliminar, vaciarCarrito } = useCarrito();
@@ -27,19 +27,10 @@ const Cart = () => {
         icon={<FaShoppingCart />}
         aria-label="Carrito"
         variant="outline"
+        bg={mostrarCarrito ? 'white' : 'transparent'}
         onClick={() => setMostrarCarrito(!mostrarCarrito)}
       />
-      {carrito.length > 0 && (
-        <Badge
-          colorScheme="red"
-          borderRadius="full"
-          position="absolute"
-          top="-1"
-          right="-1"
-        >
-          {carrito.length}
-        </Badge>
-      )}
+      <CartBadge cantidad={carrito.length} /> {/* Utilizamos el mismo Badge del carrito */}
       {mostrarCarrito && (
         <Box
           position="absolute"
@@ -47,8 +38,8 @@ const Cart = () => {
           bg="white"
           p={4}
           borderRadius="md"
-          boxShadow="md"
-          w="300px"
+          boxShadow="lg"
+          w="350px"
           mt={2}
           zIndex={10}
         >
@@ -57,35 +48,35 @@ const Cart = () => {
           ) : (
             <Stack spacing={4}>
               {carrito.map((producto) => (
-                <Flex key={producto._id} align="center">
+                <Flex key={producto._id} align="center" justify="space-between">
                   <Image src={producto.imagen} alt={producto.nombre} boxSize="50px" borderRadius="md" />
-                  <Stack spacing={1} ml={2}>
+                  <Box flex="1" ml={3}>
                     <Text fontWeight="bold">{producto.nombre}</Text>
                     <Text>{producto.precio} €</Text>
-                    <Flex align="center">
-                      <IconButton
-                        icon={<MinusIcon />}
-                        size="xs"
-                        onClick={() => ajustarCantidad(producto._id, producto.cantidad - 1)}
-                      />
-                      <Text mx={2}>{producto.cantidad}</Text>
-                      <IconButton
-                        icon={<AddIcon />}
-                        size="xs"
-                        onClick={() => ajustarCantidad(producto._id, producto.cantidad + 1)}
-                      />
-                    </Flex>
+                  </Box>
+                  <Flex align="center">
                     <IconButton
-                      icon={<DeleteIcon />}
-                      size="xs"
-                      colorScheme="red"
-                      onClick={() => eliminar(producto._id)}
+                      icon={<MinusIcon />}
+                      size="sm"
+                      onClick={() => ajustarCantidad(producto._id, producto.cantidad - 1)}
                     />
-                  </Stack>
+                    <Text mx={2}>{producto.cantidad}</Text>
+                    <IconButton
+                      icon={<AddIcon />}
+                      size="sm"
+                      onClick={() => ajustarCantidad(producto._id, producto.cantidad + 1)}
+                    />
+                  </Flex>
+                  <IconButton
+                    icon={<DeleteIcon />}
+                    size="sm"
+                    colorScheme="red"
+                    onClick={() => eliminar(producto._id)}
+                  />
                 </Flex>
               ))}
               <Box textAlign="center" mt={4}>
-                <Text fontWeight="bold">Total: {totalPrecio} €</Text>
+                <Text fontWeight="bold" fontSize="xl">Total: {totalPrecio} €</Text>
                 <HStack spacing={4} justifyContent="center" mt={2}>
                   <Button colorScheme="red" onClick={vaciarCarrito}>Vaciar Carrito</Button>
                   <Button as={Link} to="/carrito" colorScheme="blue">Ir al Carrito</Button>

@@ -1,4 +1,3 @@
-// usecontext/CarritoContext.jsx
 import React, { createContext, useContext, useState } from 'react';
 
 const CarritoContext = createContext();
@@ -22,11 +21,13 @@ export const CarritoProvider = ({ children }) => {
     }
   };
 
-  const ajustarCantidad = (id, cantidad) => {
+  const ajustarCantidad = (id, nuevaCantidad) => {
     setCarrito(
       carrito.map((producto) =>
-        producto._id === id ? { ...producto, cantidad: producto.cantidad + cantidad } : producto
-      ).filter(producto => producto.cantidad > 0)
+        producto._id === id
+          ? { ...producto, cantidad: Math.max(1, nuevaCantidad) }
+          : producto
+      )
     );
   };
 
