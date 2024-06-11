@@ -131,12 +131,12 @@ const RegisterForm = ({ isMobile, role }) => {
           ¡Únete a nuestra comunidad!
         </Text>
         <Text mb={2}>
-          Al registrarte, podrás disfrutar de múltiples beneficios:
+          ¡Descubre un mundo de ventajas al registrarte en nuestra plataforma!
         </Text>
         <ul>
-          <li>Poder comprar nuestros productos exclusivos</li>
-          <li>Valorar y comentar tus productos favoritos</li>
-          <li>Formar parte de una comunidad única y especial</li>
+          <li>Accede a productos exclusivos antes que nadie</li>
+          <li>Comenta y valora tus productos favoritos</li>
+          <li>Únete a una comunidad activa y participativa</li>
         </ul>
         <Text mt={4}>
           ¡No esperes más y forma parte de nuestra familia!
