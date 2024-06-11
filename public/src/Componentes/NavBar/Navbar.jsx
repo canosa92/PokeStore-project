@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   Box,
   Flex,
@@ -21,7 +21,7 @@ import LoginForm from './LoginForm/LoginForm.jsx';
 import NavLinks from './NavLinks/NavLinks.jsx';
 
 const Navbar = () => {
-  const { user, setUser, login, logout } = useUser();
+  const { user, logout } = useUser();
   const { carrito } = useCarrito();
   const {
     isOpen: isMenuOpen,
@@ -73,27 +73,6 @@ const Navbar = () => {
       onSearchClose();
     }
   };
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token && !user) {
-      fetch('http://localhost:2999/user/me', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.user) {
-            setUser(data.user);
-            login(data.user, token);
-          }
-        })
-        .catch(err => {
-          console.error('Error fetching user data:', err);
-        });
-    }
-  }, [user, setUser, login]);
 
   return (
     <>
