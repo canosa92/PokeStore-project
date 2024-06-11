@@ -172,6 +172,7 @@ const Navbar = () => {
                   position="absolute"
                   top="-1"
                   right="-1"
+                  onClick={isCartOpen ? onCartClose : onCartOpen}
                 >
                   {carrito.length}
                 </Badge>
