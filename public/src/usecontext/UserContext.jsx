@@ -63,11 +63,29 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const register = (userData, authToken) => {
-    setUser(userData);
-    setToken(authToken);
-    localStorage.setItem('user', JSON.stringify(userData));
-    localStorage.setItem('token', authToken);
+  const register = async (formData) => {
+    try {
+      const response = await fetch('http://localhost:2999/user/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al registrar usuario');
+      }
+
+      const userData = await response.json();
+      setUser(userData.user);
+      setToken(userData.token);
+      localStorage.setItem('user', JSON.stringify(userData.user));
+      localStorage.setItem('token', userData.token);
+      return { success: true, user: userData.user };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   };
 
   const logout = () => {
