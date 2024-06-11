@@ -27,7 +27,7 @@ const Cart = () => {
         icon={<FaShoppingCart />}
         aria-label="Carrito"
         variant="outline"
-        bg={mostrarCarrito ? 'white' : 'transparent'}
+        bg={'white'}
         onClick={() => setMostrarCarrito(!mostrarCarrito)}
       />
       {carrito.length > 0 && (
@@ -46,11 +46,12 @@ const Cart = () => {
         <Box
           position="absolute"
           right={0}
-          bg="white"
           p={4}
           borderRadius="md"
           boxShadow="lg"
           w="350px"
+          color="black"
+          bg="white"
           mt={2}
           zIndex={10}
         >
@@ -76,7 +77,7 @@ const Cart = () => {
                       icon={<AddIcon />}
                       size="sm"
                       onClick={() => ajustarCantidad(producto._id, producto.cantidad + 1)}
-                    />
+                         />
                   </Flex>
                   <IconButton
                     icon={<DeleteIcon />}

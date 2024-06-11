@@ -71,18 +71,19 @@ const UserController = {async register(req, res, next) {
         }
     },
 
-    async getUserProfile (req, res){
-        try {
-          const userDoc = await getDoc(doc(fireDb, 'usuario', req.user.uid));
-          if (!userDoc.exists) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
-          }
-          const userData = userDoc.data();
-          res.json({ user: userData });
-        } catch (error) {
-          res.status(500).json({ message: 'Error del servidor', error });
+    async getUserProfile(req, res) {
+      try {
+        const userDoc = await getDoc(doc(fireDb, 'usuario', req.user.uid));
+        if (!userDoc.exists()) {
+          return res.status(404).json({ message: 'Usuario no encontrado' });
         }
-    }
+        const userData = userDoc.data();
+        res.json({ user: userData });
+      } catch (error) {
+        console.error('Error al obtener el perfil del usuario:', error);
+        res.status(500).json({ message: 'Error del servidor' });
+      }
+    }    
 };
 
 module.exports = UserController;

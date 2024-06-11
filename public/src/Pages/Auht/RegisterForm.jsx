@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from '../../usecontext/UserContext.jsx';
 import { Box, Button, FormControl, FormLabel, Input, VStack, Text, Alert, AlertIcon, Flex } from '@chakra-ui/react';
 
-const RegisterForm = ({ isMobile }) => {
+const RegisterForm = ({ isMobile, role }) => {
   const { register } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -13,7 +13,7 @@ const RegisterForm = ({ isMobile }) => {
     username: '',
     email: '',
     password: '',
-    role: 'user',
+    role: role === 'admin' ? 'admin' : 'user', // Set role based on prop or default to 'user'
     wishList: [],
     comments: [],
   });
@@ -75,6 +75,7 @@ const RegisterForm = ({ isMobile }) => {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Nombre"
+                name="name"
               />
             </FormControl>
             <FormControl id="username" isRequired>
@@ -84,6 +85,7 @@ const RegisterForm = ({ isMobile }) => {
                 value={formData.username}
                 onChange={handleChange}
                 placeholder="Usuario"
+                name="username"
               />
             </FormControl>
             <FormControl id="email" isRequired>
@@ -93,6 +95,7 @@ const RegisterForm = ({ isMobile }) => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Correo electrónico"
+                name="email"
               />
             </FormControl>
             <FormControl id="password" isRequired>
@@ -102,6 +105,7 @@ const RegisterForm = ({ isMobile }) => {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Contraseña"
+                name="password"
               />
             </FormControl>
             {error && (
@@ -123,7 +127,7 @@ const RegisterForm = ({ isMobile }) => {
         maxWidth={isMobile ? '90%' : '400px'}
         textAlign={isMobile ? 'center' : 'left'}
       >
-        <Text fontSize="xl" fontWeight="bold" mb={4}>
+        <Text fontSize={isMobile ? '2xl' : 'xl'} fontWeight="bold" mb={4}>
           ¡Únete a nuestra comunidad!
         </Text>
         <Text mb={2}>

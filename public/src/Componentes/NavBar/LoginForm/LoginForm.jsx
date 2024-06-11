@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react';
 
 const LoginForm = ({ isOpen, onClose }) => {
-  const { login } = useUser();
+  const { setUser, login } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,24 +25,34 @@ const LoginForm = ({ isOpen, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setError('');
-    
-    const result = await login(email, password);
-    
-    if (result.success) {
+    try {
+      const response = await fetch('http://localhost:2999/user/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!response.ok) {
+        throw new Error('Error al iniciar sesión');
+      }
+      const data = await response.json();
+      localStorage.setItem('token', data.user.token);
+      setUser(data.user);
+      login(data.user, data.user.token);
       navigate('/myprofile');
-      onClose();
-    } else {
-      setError(result.message);
+      onClose(); // Cerrar el menú después del login exitoso
+    } catch (error) {
+      console.error('Error al iniciar sesión:', error);
+      setError(error.message);
     }
-
     setIsSubmitting(false);
   };
 
   return (
     <Box p={4} bg="white" borderRadius="md" boxShadow="md" display={isOpen ? 'block' : 'none'} zIndex="2000">
       <form onSubmit={handleSubmit}>
-        <VStack spacing={4}>
+        <VStack spacing={4} >
           <FormControl id="email" isRequired>
             <FormLabel>Correo electrónico</FormLabel>
             <Input

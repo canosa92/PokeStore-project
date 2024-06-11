@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Box,
   Flex,
@@ -8,21 +8,23 @@ import {
   Text,
   Button,
   HStack,
-  Badge,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from '@chakra-ui/react';
 import { HamburgerIcon, CloseIcon, SearchIcon } from '@chakra-ui/icons';
 import { Link } from 'react-router-dom';
 import { useUser } from '../../usecontext/UserContext.jsx';
-import { useCarrito } from '../../usecontext/CarritoContext.jsx';
-import { FaUserAlt, FaShoppingCart } from "react-icons/fa";
+import { FiUser } from 'react-icons/fi';
 import Cart from './Cart/Cart.jsx';
 import SearchBar from './SearchBar/SearchBar.jsx';
 import LoginForm from './LoginForm/LoginForm.jsx';
 import NavLinks from './NavLinks/NavLinks.jsx';
+import { FaUserAlt } from "react-icons/fa";
 
 const Navbar = () => {
-  const { user, logout } = useUser();
-  const { carrito } = useCarrito();
+  const { user, setUser, login, logout } = useUser(); // Cambio aquí
   const {
     isOpen: isMenuOpen,
     onOpen: onMenuOpen,
@@ -37,11 +39,6 @@ const Navbar = () => {
     isOpen: isProfileOpen,
     onOpen: onProfileOpen,
     onClose: onProfileClose,
-  } = useDisclosure();
-  const {
-    isOpen: isCartOpen,
-    onOpen: onCartOpen,
-    onClose: onCartClose,
   } = useDisclosure();
 
   const handleMenuToggle = () => {
@@ -73,6 +70,27 @@ const Navbar = () => {
       onSearchClose();
     }
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token && !user) {
+      fetch('http://localhost:2999/user/me', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.user) {
+            setUser(data.user);
+            login(data.user, token);
+          }
+        })
+        .catch(err => {
+          console.error('Error fetching user data:', err);
+        });
+    }
+  }, [user, setUser, login]);
 
   return (
     <>
@@ -109,17 +127,19 @@ const Navbar = () => {
                 color="white"
               />
             </Box>
-            <Box ml={4} display="flex" alignItems="center" flexDirection={'column'} marginRight={15}>
+            <Box ml={4} display="flex" alignItems="center"
+            flexDirection={'column'} marginRight={15}>
               {user ? (
                 <>
                   <Text color="white" mr={4} noOfLines={1} maxW="150px">Welcome, {user.name}</Text>
-                  <Button variant="link" color="white" onClick={() => logout()}>
+                  <Button variant="link" color="white" onClick={() => logout()}> 
                     Cerrar sesión
                   </Button>
                 </>
               ) : (
-                <Box marginRight={15}>
-                  <IconButton
+                <Menu isOpen={isProfileOpen} marginRight={15}>
+                  <MenuButton
+                    as={IconButton}
                     icon={<FaUserAlt />}
                     variant="outline"
                     onClick={handleProfileToggle}
@@ -127,41 +147,15 @@ const Navbar = () => {
                     color="black"
                     bg="white"
                   />
-                  {isProfileOpen && (
+                  <MenuList>
                     <Box p={4} bg="white">
                       <LoginForm isOpen={isProfileOpen} onClose={onProfileClose} />
                     </Box>
-                  )}
-                </Box>
+                  </MenuList>
+                </Menu>
               )}
             </Box>
-            <Box position="relative" ml={4}>
-              <IconButton
-                icon={<FaShoppingCart />}
-                variant="outline"
-                onClick={isCartOpen ? onCartClose : onCartOpen}
-                aria-label="Carrito"
-                color="black"
-                bg="white"
-              />
-              {carrito.length > 0 && (
-                <Badge
-                  colorScheme="red"
-                  borderRadius="full"
-                  position="absolute"
-                  top="-1"
-                  right="-1"
-                  onClick={isCartOpen ? onCartClose : onCartOpen}
-                >
-                  {carrito.length}
-                </Badge>
-              )}
-              {isCartOpen && (
-                <Box position="absolute" right={0} bg="white" p={4} borderRadius="md" boxShadow="md" mt={2} zIndex={10}>
-                  <Cart />
-                </Box>
-              )}
-            </Box>
+            <Cart />
           </Flex>
         </Flex>
 
