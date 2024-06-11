@@ -38,11 +38,29 @@ export const UserProvider = ({ children }) => {
       });
   };
 
-  const login = (userData, authToken) => {
-    setUser(userData);
-    setToken(authToken);
-    localStorage.setItem('user', JSON.stringify(userData));
-    localStorage.setItem('token', authToken);
+  const login = async (email, password) => {
+    try {
+      const response = await fetch('http://localhost:2999/user/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al iniciar sesión');
+      }
+
+      const data = await response.json();
+      setUser(data.user);
+      setToken(data.user.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('token', data.user.token);
+      return { success: true, user: data.user };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   };
 
   const register = (userData, authToken) => {
