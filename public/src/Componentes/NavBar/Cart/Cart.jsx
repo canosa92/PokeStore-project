@@ -1,7 +1,6 @@
-// components/Cart.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useCarrito } from '../../../usecontext/CarritoContext';
+import { useCarrito } from '../../usecontext/CarritoContext';
 import {
   Box,
   Flex,
@@ -11,20 +10,24 @@ import {
   Image,
   Badge,
   Button,
+  HStack,
 } from '@chakra-ui/react';
 import { FaShoppingCart } from 'react-icons/fa';
+import { DeleteIcon, AddIcon, MinusIcon } from '@chakra-ui/icons';
 
 const Cart = () => {
-  const { carrito, ajustarCantidad, eliminar, mensaje } = useCarrito();
+  const { carrito, ajustarCantidad, eliminar, vaciarCarrito } = useCarrito();
+  const [mostrarCarrito, setMostrarCarrito] = useState(false);
+
+  const totalPrecio = carrito.reduce((total, producto) => total + producto.precio * producto.cantidad, 0);
 
   return (
     <Box position="relative">
       <IconButton
-        as={Link}
-        to="/carrito"
         icon={<FaShoppingCart />}
         aria-label="Carrito"
         variant="outline"
+        onClick={() => setMostrarCarrito(!mostrarCarrito)}
       />
       {carrito.length > 0 && (
         <Badge
@@ -37,32 +40,61 @@ const Cart = () => {
           {carrito.length}
         </Badge>
       )}
-      <Box position="absolute" right={0} bg="white" p={4} borderRadius="md" boxShadow="md" w="300px" mt={2} zIndex={10}>
-        {carrito.length === 0 ? (
-          <Text>No hay productos en el carrito.</Text>
-        ) : (
-          <Stack spacing={4}>
-            {carrito.map((product) => (
-              <Flex key={product._id} align="center">
-                <Image src={product.imagen} alt={product.nombre} boxSize="50px" borderRadius="md" />
-                <Stack spacing={1} ml={2}>
-                  <Text fontWeight="bold">{product.nombre}</Text>
-                  <Text>{product.precio} €</Text>
-                  <Flex align="center">
-                    <Button size="xs" onClick={() => ajustarCantidad(product._id, -1)}>-</Button>
-                    <Text mx={2}>{product.cantidad}</Text>
-                    <Button size="xs" onClick={() => ajustarCantidad(product._id, 1)}>+</Button>
-                  </Flex>
-                  <Button size="xs" colorScheme="red" onClick={() => eliminar(product._id)}>Eliminar</Button>
-                </Stack>
-              </Flex>
-            ))}
-            <Button as={Link} to="/carrito" colorScheme="blue" size="sm" mt={4}>
-              Ver Carrito
-            </Button>
-          </Stack>
-        )}
-      </Box>
+      {mostrarCarrito && (
+        <Box
+          position="absolute"
+          right={0}
+          bg="white"
+          p={4}
+          borderRadius="md"
+          boxShadow="md"
+          w="300px"
+          mt={2}
+          zIndex={10}
+        >
+          {carrito.length === 0 ? (
+            <Text>No hay productos en el carrito.</Text>
+          ) : (
+            <Stack spacing={4}>
+              {carrito.map((producto) => (
+                <Flex key={producto._id} align="center">
+                  <Image src={producto.imagen} alt={producto.nombre} boxSize="50px" borderRadius="md" />
+                  <Stack spacing={1} ml={2}>
+                    <Text fontWeight="bold">{producto.nombre}</Text>
+                    <Text>{producto.precio} €</Text>
+                    <Flex align="center">
+                      <IconButton
+                        icon={<MinusIcon />}
+                        size="xs"
+                        onClick={() => ajustarCantidad(producto._id, producto.cantidad - 1)}
+                      />
+                      <Text mx={2}>{producto.cantidad}</Text>
+                      <IconButton
+                        icon={<AddIcon />}
+                        size="xs"
+                        onClick={() => ajustarCantidad(producto._id, producto.cantidad + 1)}
+                      />
+                    </Flex>
+                    <IconButton
+                      icon={<DeleteIcon />}
+                      size="xs"
+                      colorScheme="red"
+                      onClick={() => eliminar(producto._id)}
+                    />
+                  </Stack>
+                </Flex>
+              ))}
+              <Box textAlign="center" mt={4}>
+                <Text fontWeight="bold">Total: {totalPrecio} €</Text>
+                <HStack spacing={4} justifyContent="center" mt={2}>
+                  <Button colorScheme="red" onClick={vaciarCarrito}>Vaciar Carrito</Button>
+                  <Button as={Link} to="/carrito" colorScheme="blue">Ir al Carrito</Button>
+                </HStack>
+              </Box>
+            </Stack>
+          )}
+        </Box>
+      )}
     </Box>
   );
 };
