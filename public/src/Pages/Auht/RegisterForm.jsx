@@ -4,18 +4,16 @@ import { useUser } from '../../usecontext/UserContext.jsx';
 import { Box, Button, FormControl, FormLabel, Input, VStack, Text, Alert, AlertIcon, Flex } from '@chakra-ui/react';
 
 const RegisterForm = ({ isMobile }) => {
-  const { user, setUser, register } = useUser();
+  const { register } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const rol = user ? user.role : '';
-
   const [formData, setFormData] = useState({
     name: '',
     username: '',
     email: '',
     password: '',
-    role: rol,
+    role: 'user',
     wishList: [],
     comments: [],
   });
@@ -32,25 +30,16 @@ const RegisterForm = ({ isMobile }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    try {
-      const response = await fetch('http://localhost:2999/user/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      if (!response.ok) {
-        throw new Error('Error al registrar usuario');
-      }
-      const userData = await response.json();
-      register(userData.user, userData.token);
-      setUser(userData.user);
+    setError('');
+    
+    const result = await register(formData);
+    
+    if (result.success) {
       navigate('/myprofile');
-    } catch (error) {
-      console.error('Error al registrar usuario:', error.message);
-      setError(error.message);
+    } else {
+      setError(result.message);
     }
+
     setIsSubmitting(false);
   };
 
@@ -71,86 +60,3 @@ const RegisterForm = ({ isMobile }) => {
         width={isMobile ? '90%' : '50%'} 
         textAlign={isMobile ? 'center' : 'left'}
         mb={isMobile ? 6 : 0} // Margin bottom for small screens
-      >
-        {!isMobile && (
-          <Text fontSize="xl" fontWeight="bold" mb={4}>
-            ¡Regístrate ahora y descubre un mundo de posibilidades!
-          </Text>
-        )}
-        <form onSubmit={handleSubmit}>
-          <VStack spacing={4}>
-            <FormControl id="name" isRequired>
-              <FormLabel>Nombre</FormLabel>
-              <Input
-                type="text"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Nombre"
-              />
-            </FormControl>
-            <FormControl id="username" isRequired>
-              <FormLabel>Usuario</FormLabel>
-              <Input
-                type="text"
-                value={formData.username}
-                onChange={handleChange}
-                placeholder="Usuario"
-              />
-            </FormControl>
-            <FormControl id="email" isRequired>
-              <FormLabel>Correo electrónico</FormLabel>
-              <Input
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Correo electrónico"
-              />
-            </FormControl>
-            <FormControl id="password" isRequired>
-              <FormLabel>Contraseña</FormLabel>
-              <Input
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Contraseña"
-              />
-            </FormControl>
-            {error && (
-              <Alert status="error">
-                <AlertIcon />
-                {error}
-              </Alert>
-            )}
-            <Button type="submit" colorScheme="blue" isLoading={isSubmitting} width="100%">
-              Registrarse
-            </Button>
-          </VStack>
-        </form>
-      </Box>
-      <Box 
-        ml={isMobile ? 0 : 10} 
-        mb={isMobile ? 6 : 0} 
-        p={6} 
-        maxWidth={isMobile ? '90%' : '400px'}
-        textAlign={isMobile ? 'center' : 'left'}
-      >
-        <Text fontSize="xl" fontWeight="bold" mb={4}>
-          ¡Únete a nuestra comunidad!
-        </Text>
-        <Text mb={2}>
-          Al registrarte, podrás disfrutar de múltiples beneficios:
-        </Text>
-        <ul>
-          <li>Poder comprar nuestros productos exclusivos</li>
-          <li>Valorar y comentar tus productos favoritos</li>
-          <li>Formar parte de una comunidad única y especial</li>
-        </ul>
-        <Text mt={4}>
-          ¡No esperes más y forma parte de nuestra familia!
-        </Text>
-      </Box>
-    </Flex>
-  );
-};
-
-export default RegisterForm;
