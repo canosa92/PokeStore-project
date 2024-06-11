@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 
 const LoginPage = ({ isMobile }) => {
-  const { setUser, login } = useUser();
+  const { login } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,26 +26,16 @@ const LoginPage = ({ isMobile }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    try {
-      const response = await fetch('http://localhost:2999/user/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      if (!response.ok) {
-        throw new Error('Error al iniciar sesión');
-      }
-      const data = await response.json();
-      localStorage.setItem('token', data.user.token);
-      setUser(data.user);
-      login(data.user, data.user.token);
+    setError('');
+    
+    const result = await login(email, password);
+    
+    if (result.success) {
       navigate('/myprofile');
-    } catch (error) {
-      console.error('Error al iniciar sesión:', error);
-      setError(error.message);
+    } else {
+      setError(result.message);
     }
+
     setIsSubmitting(false);
   };
 
