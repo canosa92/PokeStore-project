@@ -62,60 +62,74 @@ const ProductDetail = () => {
         <Flex direction="column" align="center" mb={4}>
           <Text fontSize="3xl" fontWeight="bold" textAlign="center">{product.id_pokedex} - {product.nombre}</Text>
           <Flex align="center" mb={4}>
-            {product.mithical && <Text fontWeight="bold" color="yellow.400">Mithical</Text>}
-            {product.legendario && <Text fontWeight="bold" color="yellow.400">Legendario</Text>}
-            {renderStars(product.likes[0]?.star || 0)}
+            {renderStars(product.likes[0]?.likes || 0)}
             <Text ml={2}>{product.likes[0]?.likesCount} likes</Text>
           </Flex>
+          {product.mithical && <Tag fontWeight="bold" colorScheme="yellow">Mithical: Sí</Tag>}
+          {product.legendario && <Tag fontWeight="bold" colorScheme="yellow">Legendario: Sí</Tag>}
         </Flex>
 
-        <Flex direction={['column', 'row']} justify="space-between" align="flex-start">
-          <Box flex={['1', '1', '1']} textAlign="center" mb={4} mx={[0, 4]}>
+        <Flex direction={['column', 'column', 'row']} justify="center" align="flex-start">
+          <Box flex="1" textAlign="center" mb={4} mx={[0, 4]}>
             <Image src={product.imagen} alt={product.nombre} boxSize={['100%', '300px', '400px']} mx="auto" />
           </Box>
 
-          <Stack spacing={4} p={4} flex={['1', '2', '2']} minWidth={['100%', '35%', '35%']} mb={4} mx={[0, 4]}>
-            <Text fontSize="lg">{product.descripcion}</Text>
-            <Flex wrap="wrap" gap={2}>
+          <Box flex="1" textAlign="center" mb={4} mx={[0, 4]}>
+            <Text fontSize="xl" >{product.descripcion}</Text>
+            <Flex justify="center" wrap="wrap" gap={2}>
+              <Tag colorScheme="green">{product.peso} kg</Tag>
+              <Tag  colorScheme="green">{product.altura} m</Tag>
+            </Flex>
+            <Flex justify="center" wrap="wrap" gap={2}>
               {product.tipo.map((tipo, index) => (
                 <Tag key={index} colorScheme="blue">
                   {tipo}
                 </Tag>
               ))}
             </Flex>
-            <Flex wrap="wrap" gap={2}>
-              <Tag colorScheme="green">{product.peso} kg</Tag>
-              <Tag colorScheme="green">{product.altura} m</Tag>
-            </Flex>
-            <Box>
-              <Text fontWeight="bold">Habilidades:</Text>
-              <ul>
-                {product.habilidades.map((habilidad, index) => (
-                  <li key={index}>
-                    <Text as="span" fontWeight="bold">{habilidad.nombre}:</Text> 
-                    <Text>{habilidad.descripcion}</Text>
-                  </li>
-                ))}
-              </ul>
-            </Box>
-            <Text fontWeight="bold">Ratio de captura:</Text>
+            <Text fontSize="xl" fontWeight="bold">Ratio de captura:</Text>
             <Tag colorScheme="blue">{product.ratio_captura}</Tag>
-            <Text fontWeight="bold">Experiencia Base:</Text>
-            <Tag>{product.base_experience} puntos</Tag>
-          </Stack>
-
-          <Stack spacing={4} p={4} flex={['1', '1', '1']} mb={4} mx={[0, 4]}>
-            <Text fontSize="lg" fontWeight="bold">Estadísticas:</Text>
-            <ul>
-              {product.estadisticas.map((stat, index) => (
-                <li key={index}>
-                  <Text as="span" fontWeight="bold">{capitalizeName(stat.nombre)}:</Text> 
-                  <Progress value={stat.valor} max="200" colorScheme="green" size="sm" borderRadius="full" width="100%" />
+            <Text fontSize="xl" fontWeight="bold">Experiencia Base:</Text>
+            <Tag colorScheme="blue">{product.base_experience} puntos</Tag>
+            <Text fontSize="xl" fontWeight="bold">Habilidades:</Text>
+            <ul >
+              {product.habilidades.map((habilidad, index) => (
+                <li key={index} >
+                  <Text as="span" fontWeight="bold">{habilidad.nombre}:</Text> {habilidad.descripcion}
                 </li>
               ))}
             </ul>
-          </Stack>
+            <Text fontSize="xl" fontWeight="bold">Cadena Evolutiva:</Text>
+          {product.cadena_evoluciones.length > 1 ? (
+            <Flex wrap="wrap" justify="center">
+              {product.cadena_evoluciones.map((evolucion, index) => (
+                <Text key={index} mx={2}>
+                  <Link to={`/product/${evolucion.especie.toLowerCase()}`}>
+                    <Text as="span" fontWeight="bold">
+                      {capitalizeName(evolucion.especie)}
+                    </Text>
+                  </Link> 
+                  {evolucion.nivel ? ` - Nivel: ${evolucion.nivel}` : ' - Nivel: 0'}
+                </Text>
+              ))}
+            </Flex>
+          ) : (
+            <Text fontSize="lg">Este Pokémon no tiene cadena evolutiva.</Text>
+          )}
+          </Box>
         </Flex>
+
+        <Box textAlign="center" mt={4}>
+          <Text fontSize="xl" fontWeight="bold">Estadísticas:</Text>
+          <Stack spacing={2} mt={2}>
+            {product.estadisticas.map((stat, index) => (
+              <Flex key={index} direction="column" align="center">
+                <Text fontWeight="bold">{capitalizeName(stat.nombre)}:</Text>
+                <Progress value={stat.valor} max="200" colorScheme="green" size="sm" width="80%" />
+              </Flex>
+            ))}
+          </Stack>
+        </Box>
 
         <Box mt={4} textAlign="center">
           <Text fontSize="2xl" fontWeight="bold">Precio: {product.precio} €</Text>
@@ -146,19 +160,20 @@ const ProductDetail = () => {
               ))}
             </Box>
           ) : (
-            <Box mt={4} textAlign="center">
-              <Text fontSize="lg">¡Sé el primero en comentar!</Text>
-              {!user && (
-                <Text fontSize="lg">Por favor, <Link to="/register">regístrate</Link> o <Link to="/login">inicia sesión</Link>.</Text>
-              )}
-            </Box>
-          )}
-        </Box>
-
-        {user && <ProductCommentForm productId={product._id} onCommentSubmit={handleCommentSubmit} />}
+            <Box mt={4} textAlign ="center">
+            <Text fontSize="lg">¡Sé el primero en comentar!</Text>
+            {!user && (
+              <Text fontSize="lg">Por favor, <Link to="/register">regístrate</Link> o <Link to="/login">inicia sesión</Link>.</Text>
+            )}
+          </Box>
+        )}
       </Box>
-    </ChakraProvider>
-  );
+
+      {user && <ProductCommentForm productId={product._id} onCommentSubmit={handleCommentSubmit} />}
+    </Box>
+  </ChakraProvider>
+);
 };
 
 export default ProductDetail;
+
