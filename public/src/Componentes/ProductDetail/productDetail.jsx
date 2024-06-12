@@ -65,8 +65,8 @@ const ProductDetail = () => {
             {renderStars(product.likes[0]?.likes || 0)}
             <Text ml={2}>{product.likes[0]?.likesCount} likes</Text>
           </Flex>
-          {product.mithical && <Tag fontWeight="bold" colorScheme="yellow">Mithical: Sí</Tag>}
-          {product.legendario && <Tag fontWeight="bold" colorScheme="yellow">Legendario: Sí</Tag>}
+          {product.mythical && <Tag fontWeight="bold" colorScheme="yellow">Mithical</Tag>}
+          {product.legendario && <Tag fontWeight="bold" colorScheme="yellow">Legendario</Tag>}
         </Flex>
 
         <Flex direction={['column', 'column', 'row']} justify="center" align="flex-start">
