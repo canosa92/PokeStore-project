@@ -5,7 +5,6 @@ const routerUser = express.Router();
 
 routerUser.post("/register", UserController.register);
 routerUser.post("/login", UserController.login);
-routerUser.get('/me', authentication, UserController.getUserProfile);
 routerUser.delete('/delete', authentication, UserController.deleteUser);
 routerUser.post('/wishlist/add', authentication, UserController.addToWishList);
 routerUser.post('/wishlist/remove', authentication, UserController.removeFromWishList);

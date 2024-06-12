@@ -10,33 +10,11 @@ export const UserProvider = ({ children }) => {
         const storedUser = JSON.parse(localStorage.getItem('user'));
         const storedToken = localStorage.getItem('token');
         
-        if (storedUser) {
+        if (storedUser && storedToken) {
             setUser(storedUser);
-        }
-        
-        if (storedToken) {
             setToken(storedToken);
-            fetchUser(storedToken);
         }
     }, []);
-
-    const fetchUser = (token) => {
-        fetch('http://localhost:2999/user/me', {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.user) {
-                setUser(data.user);
-                login(data.user, token);
-            }
-        })
-        .catch(err => {
-            console.error('Error fetching user data:', err);
-        });
-    };
 
     const login = async (email, password) => {
         try {
@@ -54,9 +32,9 @@ export const UserProvider = ({ children }) => {
 
             const data = await response.json();
             setUser(data.user);
-            setToken(data.user.token);
+            setToken(data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
-            localStorage.setItem('token', data.user.token);
+            localStorage.setItem('token', data.token);
             return { success: true, user: data.user };
         } catch (error) {
             return { success: false, message: error.message };
@@ -103,3 +81,4 @@ export const UserProvider = ({ children }) => {
 };
 
 export const useUser = () => useContext(UserContext);
+    

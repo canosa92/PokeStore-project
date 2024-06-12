@@ -13,7 +13,7 @@ const UserController = {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const uid = userCredential.user.uid;
             const userRef = doc(fireDb, 'usuario', uid);
-            
+
             await setDoc(userRef, {
                 uid,
                 name,
@@ -37,7 +37,6 @@ const UserController = {
             req.session.uid = uid;
             req.session.token = await loginCredential.user.getIdToken();
             req.session.role = role;
-            await User.create({ email: email, password: password, name: name, role: role, username: username, tokens: req.session.token });
 
             res.status(201).json({ uid, token: req.session.token, role });
         } catch (error) {
@@ -63,26 +62,13 @@ const UserController = {
             const userData = userDoc.data();
 
             req.session.uid = uid;
+            req.session.token = await userCredential.user.getIdToken();
             req.session.role = userData.role;
 
-            res.status(200).json({ message: "Inicio de sesión exitoso", user: userData });
+            res.status(200).json({ message: "Inicio de sesión exitoso", user: userData, token: req.session.token });
         } catch (error) {
             console.error("Error al iniciar sesión:", error);
             res.status(500).json({ message: "Error al iniciar sesión" });
-        }
-    },
-
-    async getUserProfile(req, res) {
-        try {
-            const userDoc = await getDoc(doc(fireDb, 'usuario', req.user.uid));
-            if (!userDoc.exists()) {
-                return res.status(404).json({ message: 'Usuario no encontrado' });
-            }
-            const userData = userDoc.data();
-            res.json({ user: userData });
-        } catch (error) {
-            console.error('Error al obtener el perfil del usuario:', error);
-            res.status(500).json({ message: 'Error del servidor' });
         }
     },
 

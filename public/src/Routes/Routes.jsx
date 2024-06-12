@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-route
 import { useProducts } from '../usecontext/ProductContext.jsx';
 import Cards from '../Componentes/Cards/Cards.jsx';
 import Nav from '../Componentes/NavBar/Navbar.jsx';
-import ProductDetail from '../Componentes/ProductDetail/productDetail.jsx';
+import ProductDetail from '../Componentes/ProductDetail/ProductDetail.jsx';
 import ProductType from '../Componentes/ProductType.jsx';
 import Legendarios from '../Componentes/Lengendario.jsx';
 import Mythical from '../Componentes/Mythical.jsx';
@@ -16,6 +16,7 @@ import ProductForm from '../Pages/ProductForm/ProductForm.jsx';
 import TypePages from '../Pages/TypesPages/TypesPages.jsx';
 import CarritoPages from '../Pages/CarritoPages/CarritoPages.jsx';
 import AboutPage from '../Pages/About.jsx'
+import ProfilePage from '../Pages/ProfilePages.jsx'
 
 const ScrollTop=()=>{
     const location = useLocation(); 
@@ -50,6 +51,7 @@ function Rutas() {
                 <Route path="/pokemon/edit/:nombre" element={<ProductForm isEdit={true} />} />
                 <Route path='/carrito' element={<CarritoPages/>}/>
                 <Route path='/about' element={<AboutPage/>}/>
+                <Route path='/myprofile' element={<ProfilePage/>}/>
             </Routes>
             <Footer/>   
         </Router>

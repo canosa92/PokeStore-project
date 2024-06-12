@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   Box,
   Flex,
@@ -24,7 +24,7 @@ import NavLinks from './NavLinks/NavLinks.jsx';
 import { FaUserAlt } from "react-icons/fa";
 
 const Navbar = () => {
-  const { user, setUser, login, logout } = useUser(); // Cambio aquí
+  const { user, setUser, login, logout } = useUser();
   const {
     isOpen: isMenuOpen,
     onOpen: onMenuOpen,
@@ -71,27 +71,6 @@ const Navbar = () => {
     }
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token && !user) {
-      fetch('http://localhost:2999/user/me', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.user) {
-            setUser(data.user);
-            login(data.user, token);
-          }
-        })
-        .catch(err => {
-          console.error('Error fetching user data:', err);
-        });
-    }
-  }, [user, setUser, login]);
-
   return (
     <>
       <Box bg="gray.800" px={4} py={2} width={'auto'}>
@@ -127,8 +106,7 @@ const Navbar = () => {
                 color="white"
               />
             </Box>
-            <Box ml={4} display="flex" alignItems="center"
-            flexDirection={'column'} marginRight={15}>
+            <Box ml={4} display="flex" alignItems="center" flexDirection={'column'} marginRight={15}>
               {user ? (
                 <>
                   <Text color="white" mr={4} noOfLines={1} maxW="150px">Welcome, {user.name}</Text>
