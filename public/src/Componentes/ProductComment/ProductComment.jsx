@@ -38,7 +38,7 @@ const ProductCommentForm = ({ productId, onCommentSubmit }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Error al enviar el comentario');
+        throw new Error(error);
       }
 
       const newComment = await response.json();

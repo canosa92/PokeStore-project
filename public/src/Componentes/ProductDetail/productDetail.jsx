@@ -57,15 +57,15 @@ const ProductDetail = () => {
   };
 
   return (
-    <ChakraProvider>
+    <>
       <Box p={4}>
         <Flex direction="column" align="center" mb={4}>
           <Text fontSize="3xl" fontWeight="bold" textAlign="center">{product.id_pokedex} - {product.nombre}</Text>
           <Flex align="center" mb={4}>
-            {renderStars(product.likes[0]?.likes || 0)}
+            {renderStars(product.likes[0]?.likes || 0)}({product.likes[0]?.likes})
             <Text ml={2}>{product.likes[0]?.likesCount} likes</Text>
           </Flex>
-          {product.mythical && <Tag fontWeight="bold" colorScheme="yellow">Mithical</Tag>}
+          {product.mythical && <Tag fontWeight="bold" colorScheme="yellow">Mistico</Tag>}
           {product.legendario && <Tag fontWeight="bold" colorScheme="yellow">Legendario</Tag>}
         </Flex>
 
@@ -75,7 +75,7 @@ const ProductDetail = () => {
           </Box>
 
           <Box flex="1" textAlign="center" mb={4} mx={[0, 4]}>
-            <Text fontSize="xl" mb="7px">{product.descripcion}</Text>
+            <Text fontSize="xl" mb="7px" >{product.descripcion}</Text>
             <Flex justify="center" wrap="wrap" gap={2} mb="7px">
               <Tag colorScheme="green">{product.peso} kg</Tag>
               <Tag colorScheme="green">{product.altura} m</Tag>
@@ -92,7 +92,7 @@ const ProductDetail = () => {
             <Text fontSize="xl" fontWeight="bold" mb="7px">Experiencia Base:</Text>
             <Tag colorScheme="blue" mb="7px">{product.base_experience} puntos</Tag>
             <Text fontSize="xl" fontWeight="bold" mb="7px">Habilidades:</Text>
-            <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'right' }}>
+            <ul style={{ listStyleType: 'none', padding: 0}}>
               {product.habilidades.map((habilidad, index) => (
                 <li key={index} >
                   <Text as="span" fontWeight="bold">{habilidad.nombre}:</Text> {habilidad.descripcion}
@@ -101,10 +101,11 @@ const ProductDetail = () => {
             </ul>
             <Text fontSize="xl" fontWeight="bold" mb="7px">Cadena Evolutiva:</Text>
             {product.cadena_evoluciones.length > 1 ? (
-              <Flex wrap="wrap" justify="center" mb="7px">
+              <Flex wrap="wrap" justify="center" mb="7px" >
                 {product.cadena_evoluciones.map((evolucion, index) => (
                   <Text key={index} mx={2}>
-                    <Link to={`/product/${evolucion.especie.toLowerCase()}`}>
+                   <Link to={`/product/${evolucion.especie.toLowerCase()}`}>
+
                       <Text as="span" fontWeight="bold">
                         {capitalizeName(evolucion.especie)}
                       </Text>
@@ -114,7 +115,7 @@ const ProductDetail = () => {
                 ))}
               </Flex>
             ) : (
-              <Text fontSize="lg" mb="7px">Este Pokémon no tiene cadena evolutiva.</Text>
+              <Text fontSize="lg" mb="7px" >Este Pokémon no tiene cadena evolutiva.</Text>
             )}
           </Box>
         </Flex>
@@ -124,7 +125,7 @@ const ProductDetail = () => {
           <Stack spacing={2} mt={2}>
             {product.estadisticas.map((stat, index) => (
               <Flex key={index} direction="column" align="center">
-                <Text fontWeight="bold">{capitalizeName(stat.nombre)}:</Text>
+                <Text fontWeight="bold">{capitalizeName(stat.nombre)}: {stat.valor}</Text>
                 <Progress value={stat.valor} max="200" colorScheme="green" size="sm" width="80%" />
               </Flex>
             ))}
@@ -171,7 +172,7 @@ const ProductDetail = () => {
 
         {user && <ProductCommentForm productId={product._id} onCommentSubmit={handleCommentSubmit} />}
       </Box>
-    </ChakraProvider>
+    </>
   );
 };
 
