@@ -45,19 +45,19 @@ const ProfilePage = () => {
                 <Divider />
 
                 <Box w="100%" p={4} borderWidth={1} borderRadius="md" boxShadow="md">
-                    <Heading as="h2" size="md" mb={4} color="teal.600">Comments</Heading>
-                    {user.comments && user.comments.length ? (
+                    <Heading as="h2" size="md" mb={4} color="teal.600">Reviews</Heading>
+                    {user.reviews && user.reviews.length ? (
                         <VStack align="flex-start" spacing={4}>
-                            {user.comments.map((comment, index) => (
+                            {user.reviews.map((review, index) => (
                                 <Box key={index} p={4} borderWidth={1} borderRadius="md" boxShadow="sm">
-                                    <Text><strong>Product:</strong> {comment.product}</Text>
-                                    <Text><strong>Rating:</strong> {comment.rating}</Text>
-                                    <Text><strong>Comment:</strong> {comment.comment}</Text>
+                                    <Text><strong>Product:</strong> {review.product}</Text>
+                                    <Text><strong>Rating:</strong> {review.rating}</Text>
+                                    <Text><strong>Review:</strong> {review.review}</Text>
                                 </Box>
                             ))}
                         </VStack>
                     ) : (
-                        <Text>No comments made</Text>
+                        <Text>No reviews made</Text>
                     )}
                 </Box>
 

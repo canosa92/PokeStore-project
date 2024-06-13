@@ -2,7 +2,7 @@ import { useProducts } from '../usecontext/ProductContext.jsx';
 import Cards from './Cards/Cards.jsx';
 
 const Legendarios = () => {
-  const products = useProducts();
+  const {products} = useProducts();
 
   const legendaryPokemon = products.filter(pokemon => pokemon.legendario);
 

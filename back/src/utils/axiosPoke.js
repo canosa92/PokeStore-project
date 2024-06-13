@@ -107,7 +107,6 @@ const pokemonNumero = async (poke) => {
       descripcion: descripcionEspañol,
       imagen: img,
       precio: sumaBaseStatNumero,
-      categoria: "Pokemon", 
       tipo: tiposEspañol, 
       id_pokedex: id,
       peso: peso,

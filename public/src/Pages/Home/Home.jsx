@@ -7,7 +7,7 @@ import { Box, Input, VStack, Text, Image, Flex } from '@chakra-ui/react';
 import PokemonBaner from '../../assets/Imagenes/pokemonBaner.jpeg'; 
 
 const Home = () => {
-  const products = useProducts();
+  const {products} = useProducts();
   const [bestRated, setBestRated] = useState([]);
   const [mostCommented, setMostCommented] = useState([]);
   const [newest, setNewest] = useState([]);

@@ -12,7 +12,11 @@ const calcularStar = (rating, likesCount) => {
 const CommentController = {
     async addComment(req, res) {
         try {
-            const { productId, userId, comment, rating, username } = req.body;
+            const { productId, comment, rating, username, uid } = req.body;
+
+            if (!productId || !comment || rating === undefined || !username || !uid) {
+                return res.status(400).json({ message: 'Faltan datos en la solicitud' });
+            }
 
             // Buscar el producto en MongoDB
             const product = await ProductoModel.findById(productId);
@@ -20,11 +24,13 @@ const CommentController = {
                 return res.status(404).json({ message: 'Producto no encontrado' });
             }
 
-            // Buscar el usuario en MongoDB
-            const user = await UserModel.findById(userId);
+            // Buscar el usuario en MongoDB por username
+            const user = await UserModel.findOne({ username });
             if (!user) {
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }
+
+            const userId = user._id.toString(); // Asegurarse de que userId es una cadena
 
             // Crear el nuevo comentario
             const newReview = { userId, comment, username, rating };
@@ -39,11 +45,11 @@ const CommentController = {
             await product.save();
 
             // Agregar el comentario al usuario en MongoDB
-            user.Review.push({ product: productId, rating, comment });
+            user.comments.push({ product: productId, rating, comment });
             await user.save();
 
-            // Actualizar los comentarios del usuario en Firebase
-            const userRef = doc(fireDb, 'usuario', userId);
+            // Actualizar los comentarios del usuario en Firebase usando uid
+            const userRef = doc(fireDb, 'usuario', uid);
             await updateDoc(userRef, {
                 reviews: arrayUnion({
                     productId,
@@ -51,6 +57,7 @@ const CommentController = {
                     rating
                 })
             });
+
             res.json(newReview);
         } catch (error) {
             console.error("Error al insertar el comentario: ", error);

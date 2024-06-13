@@ -17,11 +17,6 @@ const ProductSchema = new mongoose.Schema({
     precio: {
         type: mongoose.Schema.Types.Mixed,
         required: true
-    },
-    categoria: {
-        type: String,
-        enum: ["Pokemon", "Item"],
-        required: true
     }, 
     tipo: [String],
     id_pokedex: Number,

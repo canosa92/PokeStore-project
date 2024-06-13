@@ -6,10 +6,8 @@ export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
 
-    const fetchUserData = async () => {
+    const fetchUser = async (token) => {
         try {
-            if (!token) return; // Si no hay token, no se hace la petición
-
             const response = await fetch('http://localhost:2999/user-profile', {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -27,6 +25,25 @@ export const UserProvider = ({ children }) => {
         }
     };
 
+    const deleteUser = async (userId) => {
+        try {
+            const response = await fetch(`http://localhost:2999/user/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete user');
+            }
+
+            logout();
+        } catch (error) {
+            console.error('Error deleting user:', error);
+        }
+    };
+
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         const storedToken = localStorage.getItem('token');
@@ -36,13 +53,13 @@ export const UserProvider = ({ children }) => {
                 setUser(JSON.parse(storedUser));
             } catch (error) {
                 console.error('Error parsing stored user data:', error);
-                setUser(null); // Manejar el error al parsear JSON
+                setUser(null);
             }
         }
 
         if (storedToken) {
             setToken(storedToken);
-            fetchUserData(); // Solo hacer la llamada si hay token
+            fetchUser(storedToken);
         }
     }, []);
 
@@ -104,7 +121,7 @@ export const UserProvider = ({ children }) => {
     };
 
     return (
-        <UserContext.Provider value={{ user, setUser, token, login, register, logout }}>
+        <UserContext.Provider value={{ user, setUser, token, login, register, logout, fetchUser, deleteUser }}>
             {children}
         </UserContext.Provider>
     );

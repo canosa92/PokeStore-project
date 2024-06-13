@@ -5,7 +5,7 @@ import './TypesPages.css';
 import PokemonBaner from '../../assets/Imagenes/pokemonBaner.jpeg'; 
 
 const TypesPages = () => {
-  const products = useProducts();
+  const {products} = useProducts();
   const types = Array.from(new Set(products.map(product => product.tipo[0])));
 
   const getRandomImageByType = (type) => {

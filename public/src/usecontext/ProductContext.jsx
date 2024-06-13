@@ -11,7 +11,7 @@ export const ProductProvider = ({ children }) => {
     try {
       const response = await fetch('http://localhost:2999/productos');
       if (!response.ok) {
-        throw new Error('Failed to fetch products');
+        throw new Error('Failed to fetch products',error);
       }
       const data = await response.json();
       setProducts(data);

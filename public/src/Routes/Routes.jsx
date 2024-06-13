@@ -28,7 +28,7 @@ const ScrollTop=()=>{
     }
 
 function Rutas() {
-    const products = useProducts();
+    const {products} = useProducts();
 
     return (
         <>

@@ -33,7 +33,7 @@ const UserController = {
                 wishList: [],
                 review:[]
             });
-            await User.create(newuser);
+            await UserModel.create(newuser);
 
             const loginCredential = await signInWithEmailAndPassword(auth, email, password);
             req.session.uid = uid;

@@ -5,7 +5,7 @@ import { Box, Button, FormControl, FormLabel, Textarea, Text, VStack, HStack, Ic
 import { StarIcon } from '@chakra-ui/icons';
 
 const ProductCommentForm = ({ productId }) => {
-    const { user, token } = useUser();
+    const { user, token, setUser } = useUser();
     const { addCommentToProduct } = useProducts();
     const [comment, setComment] = useState('');
     const [rating, setRating] = useState(0);
@@ -25,18 +25,18 @@ const ProductCommentForm = ({ productId }) => {
         }
 
         try {
-            const response = await fetch('http://localhost:2999/add-comment', {
+            const response = await fetch('http://localhost:2999/comment/add-comment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    userId: user.uid,
                     productId,
                     comment,
                     rating,
-                    username: user.username
+                    username: user.username, // Enviar el username
+                    uid: user.uid // Enviar el uid
                 })
             });
 
