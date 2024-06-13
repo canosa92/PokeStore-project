@@ -23,14 +23,15 @@ const ProductCommentForm = ({ productId, onCommentSubmit }) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:2999/productos/${productId}/comentario`, {
+      const response = await fetch('http://localhost:2999/add-comment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          userId: user.id,
+          userId: user.uid,
+          productId,
           comment,
           rating,
           username: user.username
@@ -38,20 +39,21 @@ const ProductCommentForm = ({ productId, onCommentSubmit }) => {
       });
 
       if (!response.ok) {
-        throw new Error(error);
+        const errorData = await response.json();
+        throw new Error(errorData.error);
       }
 
       const newComment = await response.json();
 
-      // Guardar el comentario en la base de datos del usuario a través del contexto
+      // Actualizar el contexto del usuario
       setUser(prevUser => ({
         ...prevUser,
         comments: [
           ...prevUser.comments,
           {
             productId,
-            comment: newComment,
-            rating
+            comment: newComment.comment,
+            rating: newComment.rating
           }
         ]
       }));
