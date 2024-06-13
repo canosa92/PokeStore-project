@@ -18,7 +18,10 @@ import {
   Card,
   CardBody,
   CardFooter,
+  Icon,
+  HStack,
 } from '@chakra-ui/react';
+import { StarIcon } from '@chakra-ui/icons';
 
 const Cards = ({ products, showSort }) => {
   const { user } = useUser();
@@ -68,6 +71,31 @@ const Cards = ({ products, showSort }) => {
     setProductosOrdenados(sortedProducts);
   };
 
+  const renderStars = (rating) => {
+    const fullStars = Math.floor(rating);
+    const halfStar = rating - fullStars;
+    return (
+      <HStack>
+        {Array(5).fill('').map((_, i) => (
+          <Box key={i} position="relative">
+            <Icon as={StarIcon} color={i < fullStars ? 'yellow.400' : 'gray.300'} />
+            {i === fullStars && halfStar > 0 && (
+              <Box
+                as={StarIcon}
+                color="yellow.400"
+                position="absolute"
+                left="0"
+                top="0"
+                width={`${halfStar * 100}%`}
+                overflow="hidden"
+              />
+            )}
+          </Box>
+        ))}
+      </HStack>
+    );
+  };
+
   return (
     <ChakraProvider>
       <Box p={4}>
@@ -111,16 +139,7 @@ const Cards = ({ products, showSort }) => {
                   <Heading size="md">{product.id_pokedex} - {product.nombre}</Heading>
                   {product.likes[0].likesCount > 0 ? (
                     <Box display="flex" alignItems="center">
-                      {[...Array(5)].map((_, index) => (
-                        <Box
-                          key={index}
-                          as="span"
-                          color={index < Math.floor(product.likes[0].likes) ? 'gold' : 'gray.300'}
-                          fontSize="lg"
-                        >
-                          ★
-                        </Box>
-                      ))}
+                      {renderStars(product.likes[0].likes)}
                       <Text ml={2}>({product.likes[0].likes})</Text>
                     </Box>
                   ) : (
