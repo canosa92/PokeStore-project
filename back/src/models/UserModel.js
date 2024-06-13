@@ -19,11 +19,11 @@ const UserSchema = new mongoose.Schema(
             type: String,
             enum: ['admin', 'user'],
         },
-        tokens:{ type: String } ,
-        wishList: [{ type: ObjectId, ref: "Producto" }],
+        tokens: { type: String },
+        wishList: [{ type: ObjectId, ref: "Product" }],
         comments: [
             {
-                product: { type: ObjectId, ref: "Producto" },
+                product: { type: ObjectId, ref: "Product" },
                 rating: { type: Number },
                 comment: { type: String },
             }
@@ -32,6 +32,6 @@ const UserSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-const User = mongoose.model("Users", UserSchema);
+const UserModel = mongoose.model("User", UserSchema);
 
-module.exports = User;
+module.exports = UserModel;

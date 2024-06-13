@@ -1,4 +1,6 @@
 const ProductoModel= require('../models/Producto')
+const { admin } = require('../config/firebase');
+
 
 function calcularStar(rating, likesCount) {
     // Calcula el promedio ponderado
@@ -86,44 +88,72 @@ const productController = {
         }
     },
 
-    // Insertar un comentario en un producto
     async insertComment(req, res) {
-    try {
-        const product = await ProductoModel.findById(req.params.id);
-        const { userId, comment, rating, username } = req.body;
-        if (!product) {
-            return res.status(404).json({ message: 'Producto no encontrado' });
+        const session = await ProductModel.startSession();
+        session.startTransaction();
+    
+        try {
+            const product = await ProductModel.findById(req.params.id).session(session);
+            if (!product) {
+                await session.abortTransaction();
+                return res.status(404).json({ message: 'Producto no encontrado' });
+            }
+    
+            const { userId, comment, rating, username } = req.body;
+            if (!userId || !comment || rating == null || !username) {
+                await session.abortTransaction();
+                return res.status(400).json({ message: 'Todos los campos son requeridos' });
+            }
+    
+            // Obtener el usuario de Firebase
+            const userRef = admin.firestore().collection('users').doc(userId);
+            const userDoc = await userRef.get();
+            if (!userDoc.exists) {
+                await session.abortTransaction();
+                return res.status(404).json({ message: 'Usuario no encontrado' });
+            }
+            const user = userDoc.data();
+    
+            // Crear nuevo comentario
+            let newReview = {
+                userId,
+                comment,
+                username,
+                rating
+            };
+    
+            product.reviews.push(newReview);
+    
+            if (!product.likes || product.likes.length === 0) {
+                product.likes = [{ likesCount: 0, likes: 0, star: 0 }];
+            }
+    
+            product.likes[0].likesCount += 1;
+            product.likes[0].likes += rating;
+    
+            const valor = calcularStar(product.likes[0].likes, product.likes[0].likesCount);
+            product.likes[0].star = valor;
+    
+            // Guardar comentario en el usuario en Firebase
+            const newUserComment = { productId: req.params.id, rating, comment };
+            await userRef.update({
+                comments: admin.firestore.FieldValue.arrayUnion(newUserComment)
+            });
+    
+            // Guardar los cambios en MongoDB
+            await product.save({ session });
+    
+            await session.commitTransaction();
+    
+            res.json(newReview);
+        } catch (error) {
+            await session.abortTransaction();
+            console.error('Error inserting comment:', error);
+            res.status(500).json({ message: 'Error interno del servidor' });
+        } finally {
+            session.endSession();
         }
-
-        // Crea el nuevo comentario
-        let newReview = {
-            userId,
-            comment,
-            username,
-            rating
-        };
-        product.reviews.push(newReview);
-
-        // Incrementa el contador de likes
-        product.likes[0].likesCount += 1;
-        product.likes[0].likes += rating;
-
-        // Calcula el nuevo valor de star basado en rating y likesCount
-        const valor = calcularStar(rating, product.likes[0].likesCount);
-
-        // Asigna el nuevo valor de star al producto
-        product.likes[0].star = valor;
-
-        // Guarda los cambios en la base de datos
-        await product.save();
-
-        // Devuelve el comentario recién creado
-        res.json(newReview);
-    } catch (error) {
-        // Si ocurre un error, envía una respuesta de error con el mensaje de error
-        res.status(500).json({ error: error.message });
-    }
-},
+    },
     // Crear un producto
     async create (req, res) {
         try {

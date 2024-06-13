@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ProductCommentForm from '../ProductComment/ProductComment';
 import {
-  ChakraProvider,
   Box,
   Text,
   Image,

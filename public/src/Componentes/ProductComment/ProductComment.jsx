@@ -3,13 +3,15 @@ import { useUser } from '../../usecontext/UserContext.jsx';
 import { Box, Button, FormControl, FormLabel, Textarea, Text, VStack, HStack, Icon } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 
+
 const ProductCommentForm = ({ productId, onCommentSubmit }) => {
-  const { user, token, setUser } = useUser();
+  const { user, setUser } = useUser();
   const [comment, setComment] = useState('');
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -23,22 +25,24 @@ const ProductCommentForm = ({ productId, onCommentSubmit }) => {
     }
 
     try {
+
       const response = await fetch(`http://localhost:2999/productos/${productId}/comentario`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${idToken}`
         },
         body: JSON.stringify({
-          userId: user.id,
+          userId: user.uid,
           comment,
           rating,
-          username: user.username
+          username: user.displayName
         })
       });
 
       if (!response.ok) {
-        throw new Error(error);
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al enviar el comentario');
       }
 
       const newComment = await response.json();
@@ -50,8 +54,8 @@ const ProductCommentForm = ({ productId, onCommentSubmit }) => {
           ...prevUser.comments,
           {
             productId,
-            comment: newComment,
-            rating
+            comment: newComment.comment,
+            rating: newComment.rating
           }
         ]
       }));
