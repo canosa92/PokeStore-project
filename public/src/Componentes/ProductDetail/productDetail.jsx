@@ -22,7 +22,7 @@ import { StarIcon } from '@chakra-ui/icons';
 
 const ProductDetail = () => {
   const { añadir } = useCarrito();
-  const products = useProducts();
+  const { products, loading, error } = useProducts();
   const { nombre } = useParams();
   const { user } = useUser();
   const [comments, setComments] = useState([]);
@@ -39,6 +39,14 @@ const ProductDetail = () => {
       setComments(product.reviews);
     }
   }, [product]);
+
+  if (loading) {
+    return <Box textAlign="center"><Text fontSize="2xl">Cargando...</Text></Box>;
+  }
+
+  if (error) {
+    return <Box textAlign="center"><Text fontSize="2xl">Error: {error}</Text></Box>;
+  }
 
   if (!product) {
     return <Box textAlign="center"><Text fontSize="2xl">Producto no encontrado.</Text></Box>;
