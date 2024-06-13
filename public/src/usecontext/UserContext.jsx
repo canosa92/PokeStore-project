@@ -6,13 +6,43 @@ export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
 
+    const fetchUserData = async () => {
+        try {
+            if (!token) return; // Si no hay token, no se hace la petición
+
+            const response = await fetch('http://localhost:2999/user-profile', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch user data');
+            }
+
+            const userData = await response.json();
+            setUser(userData);
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    };
+
     useEffect(() => {
-        const storedUser = JSON.parse(localStorage.getItem('user'));
+        const storedUser = localStorage.getItem('user');
         const storedToken = localStorage.getItem('token');
-        
-        if (storedUser && storedToken) {
-            setUser(storedUser);
+
+        if (storedUser) {
+            try {
+                setUser(JSON.parse(storedUser));
+            } catch (error) {
+                console.error('Error parsing stored user data:', error);
+                setUser(null); // Manejar el error al parsear JSON
+            }
+        }
+
+        if (storedToken) {
             setToken(storedToken);
+            fetchUserData(); // Solo hacer la llamada si hay token
         }
     }, []);
 
@@ -81,4 +111,3 @@ export const UserProvider = ({ children }) => {
 };
 
 export const useUser = () => useContext(UserContext);
-    

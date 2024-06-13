@@ -18,25 +18,26 @@ import {
   Card,
   CardBody,
   CardFooter,
+  Icon,
+  HStack,
 } from '@chakra-ui/react';
+import { StarIcon } from '@chakra-ui/icons';
 
 const Cards = ({ products, showSort }) => {
   const { user } = useUser();
   const { añadir, mensaje } = useCarrito();
-  const [productosOrdenados, setProductosOrdenados] = useState(products);
+  const [productosOrdenados, setProductosOrdenados] = useState([]); // Inicializado como array vacío
   const [orden, setOrden] = useState('idAsc');
   const [productoAñadido, setProductoAñadido] = useState(null);
 
+  // Función para manejar el cambio en el selector de orden
   const handleChangeOrden = (e) => {
     setOrden(e.target.value);
   };
 
-  useEffect(() => {
-    ordenarProductos(orden);
-  }, [orden, products]);
-
+  // Función para ordenar los productos según el tipo de orden seleccionado
   const ordenarProductos = (tipoOrden) => {
-    const sortedProducts = [...products];
+    const sortedProducts = [...products]; // Copia de los productos originales
     switch (tipoOrden) {
       case 'nombreAsc':
         sortedProducts.sort((a, b) => a.nombre.localeCompare(b.nombre));
@@ -65,7 +66,38 @@ const Cards = ({ products, showSort }) => {
       default:
         break;
     }
-    setProductosOrdenados(sortedProducts);
+    setProductosOrdenados(sortedProducts); // Actualiza el estado con los productos ordenados
+  };
+
+  // Efecto para reordenar los productos cuando cambia 'orden' o 'products'
+  useEffect(() => {
+    ordenarProductos(orden);
+  }, [orden, products]); // Dependencias: 'orden' y 'products'
+
+  // Función para renderizar las estrellas de valoración
+  const renderStars = (rating) => {
+    const fullStars = Math.floor(rating);
+    const halfStar = rating - fullStars;
+    return (
+      <HStack>
+        {Array(5).fill('').map((_, i) => (
+          <Box key={i} position="relative">
+            <Icon as={StarIcon} color={i < fullStars ? 'yellow.400' : 'gray.300'} />
+            {i === fullStars && halfStar > 0 && (
+              <Box
+                as={StarIcon}
+                color="yellow.400"
+                position="absolute"
+                left="0"
+                top="0"
+                width={`${halfStar * 100}%`}
+                overflow="hidden"
+              />
+            )}
+          </Box>
+        ))}
+      </HStack>
+    );
   };
 
   return (
@@ -92,7 +124,7 @@ const Cards = ({ products, showSort }) => {
           </Flex>
         )}
         <Flex wrap="wrap" justify="center">
-          {productosOrdenados.map((product) => (
+          {productosOrdenados.map((product) => ( // Asegura que productosOrdenados sea un array antes de llamar a map
             <Card 
               key={product._id} 
               maxW="sm" 
@@ -111,16 +143,7 @@ const Cards = ({ products, showSort }) => {
                   <Heading size="md">{product.id_pokedex} - {product.nombre}</Heading>
                   {product.likes[0].likesCount > 0 ? (
                     <Box display="flex" alignItems="center">
-                      {[...Array(5)].map((_, index) => (
-                        <Box
-                          key={index}
-                          as="span"
-                          color={index < Math.floor(product.likes[0].likes) ? 'gold' : 'gray.300'}
-                          fontSize="lg"
-                        >
-                          ★
-                        </Box>
-                      ))}
+                      {renderStars(product.likes[0].likes)}
                       <Text ml={2}>({product.likes[0].likes})</Text>
                     </Box>
                   ) : (

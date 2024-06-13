@@ -16,12 +16,13 @@ import {
   Divider,
   ButtonGroup,
   HStack,
+  Icon,
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 
 const ProductDetail = () => {
   const { añadir } = useCarrito();
-  const products = useProducts();
+  const { products, loading, error } = useProducts();
   const { nombre } = useParams();
   const { user } = useUser();
   const [comments, setComments] = useState([]);
@@ -39,6 +40,14 @@ const ProductDetail = () => {
     }
   }, [product]);
 
+  if (loading) {
+    return <Box textAlign="center"><Text fontSize="2xl">Cargando...</Text></Box>;
+  }
+
+  if (error) {
+    return <Box textAlign="center"><Text fontSize="2xl">Error: {error}</Text></Box>;
+  }
+
   if (!product) {
     return <Box textAlign="center"><Text fontSize="2xl">Producto no encontrado.</Text></Box>;
   }
@@ -48,11 +57,28 @@ const ProductDetail = () => {
   };
 
   const renderStars = (rating) => {
-    return Array(5)
-      .fill('')
-      .map((_, i) => (
-        <StarIcon key={i} color={i < rating ? 'yellow.400' : 'gray.300'} />
-      ));
+    const fullStars = Math.floor(rating);
+    const halfStar = rating - fullStars;
+    return (
+      <HStack>
+        {Array(5).fill('').map((_, i) => (
+          <Box key={i} position="relative">
+            <Icon as={StarIcon} color={i < fullStars ? 'yellow.400' : 'gray.300'} />
+            {i === fullStars && halfStar > 0 && (
+              <Box
+                as={StarIcon}
+                color="yellow.400"
+                position="absolute"
+                left="0"
+                top="0"
+                width={`${halfStar * 100}%`}
+                overflow="hidden"
+              />
+            )}
+          </Box>
+        ))}
+      </HStack>
+    );
   };
 
   return (

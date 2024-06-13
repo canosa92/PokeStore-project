@@ -1,4 +1,4 @@
-const User = require("../models/UserModel");
+const UserModel  = require("../models/UserModel");
 const firebaseapp = require('../config/firebase');
 const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, deleteUser } = require('firebase/auth');
 const { getFirestore, collection, doc, setDoc, getDoc, Timestamp } = require('firebase/firestore');
@@ -21,15 +21,17 @@ const UserController = {
                 registrationDate: Timestamp.fromDate(new Date()),
                 role,
                 email,
-                wishList: []
+                wishList: [],
+                review:[]
             });
-            const newuser = new User({
+            const newuser = new UserModel ({
                 name,
                 username,
                 registrationDate: Timestamp.fromDate(new Date()),
                 role,
                 email,
-                wishList: []
+                wishList: [],
+                review:[]
             });
             await User.create(newuser);
 
@@ -75,7 +77,7 @@ const UserController = {
     async deleteUser(req, res) {
         const { uid } = req.body;
         try {
-            const user = await User.findOneAndDelete({ uid });
+            const user = await UserModel.findOneAndDelete({ uid });
             if (!user) {
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }
@@ -93,7 +95,7 @@ const UserController = {
     async addToWishList(req, res) {
         const { userId, productId } = req.body;
         try {
-            const user = await User.findById(userId);
+            const user = await UserModel.findById(userId);
             if (!user) {
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }
@@ -109,7 +111,7 @@ const UserController = {
     async removeFromWishList(req, res) {
         const { userId, productId } = req.body;
         try {
-            const user = await User.findById(userId);
+            const user = await UserModel.findById(userId);
             if (!user) {
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }
@@ -125,7 +127,7 @@ const UserController = {
     async addComment(req, res) {
         const { userId, productId, rating, comment } = req.body;
         try {
-            const user = await User.findById(userId);
+            const user = await UserModel.findById(userId);
             if (!user) {
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }

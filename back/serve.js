@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 8080;
 const cors=require ('cors')
 const routerProduct= require ('./src/routes/productRoutes');
 const routerUser= require ('./src/routes/usersRoutes')
+const router =require('./src/routes/Commentroutes.js')
 const hashedSecret = require('./src/config/secret')
 
 app.use(express.urlencoded({ extended: true }));
@@ -26,6 +27,7 @@ app.use(cors());
 
 app.use('/productos',routerProduct); 
 app.use('/user',routerUser);
+app.use('/comment',router)
 
 
 app.listen(PORT, () => {
