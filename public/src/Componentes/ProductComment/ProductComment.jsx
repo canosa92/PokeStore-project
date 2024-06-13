@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useUser } from '../../usecontext/UserContext.jsx';
+import { useProducts } from '../../usecontext/ProductContext.jsx';
 import { Box, Button, FormControl, FormLabel, Textarea, Text, VStack, HStack, Icon } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 
-const ProductCommentForm = ({ productId, onCommentSubmit }) => {
-  const { user, token, setUser } = useUser();
+const ProductCommentForm = ({ productId }) => {
+  const { user, token } = useUser();
+  const { addCommentToProduct } = useProducts();
   const [comment, setComment] = useState('');
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -58,9 +60,8 @@ const ProductCommentForm = ({ productId, onCommentSubmit }) => {
         ]
       }));
 
-      if (typeof onCommentSubmit === 'function') {
-        onCommentSubmit(newComment);
-      }
+      // Actualizar el contexto de productos
+      addCommentToProduct(productId, newComment);
 
       setComment('');
       setRating(0);
