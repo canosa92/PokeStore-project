@@ -26,7 +26,7 @@ import { StarIcon } from '@chakra-ui/icons';
 const Cards = ({ products, showSort }) => {
   const { user } = useUser();
   const { añadir, mensaje } = useCarrito();
-  const [productosOrdenados, setProductosOrdenados] = useState([]); // Inicializado como array vacío
+  const [productosOrdenados, setProductosOrdenados] = useState(products)// Inicializado como array vacío
   const [orden, setOrden] = useState('idAsc');
   const [productoAñadido, setProductoAñadido] = useState(null);
 
