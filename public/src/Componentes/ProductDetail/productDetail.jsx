@@ -106,7 +106,7 @@ const ProductDetail = () => {
               <Flex wrap="wrap" justify="center">
                 {product.cadena_evoluciones.map((evolucion, index) => (
                   <Text key={index} mx={2}>
-                    <Link to={`/product/${evolucion.especie.toLowerCase()}`}>
+                    <Link to={`/pokemon/${evolucion.especie.toLowerCase()}`}>
                       <Text as="span" fontWeight="bold">
                         {capitalizeName(evolucion.especie)}
                       </Text>

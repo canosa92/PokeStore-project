@@ -1,10 +1,16 @@
 const UserModel = require("../models/UserModel");
 const firebaseapp = require('../config/firebase');
 const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, deleteUser: deleteFirebaseUser } = require('firebase/auth');
-const { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, Timestamp } = require('firebase/firestore');
+const { getFirestore, doc, setDoc, getDoc, deleteDoc, Timestamp } = require('firebase/firestore');
+const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 
 const auth = getAuth(firebaseapp);
 const fireDb = getFirestore(firebaseapp);
+
+const generateToken = () => {
+    return crypto.randomBytes(64).toString('hex');
+};
 
 const UserController = {
     async register(req, res, next) {
@@ -24,7 +30,8 @@ const UserController = {
                 wishList: [],
                 review: []
             });
-            const newuser = new UserModel({
+
+            const newUser = new UserModel({
                 name,
                 username,
                 registrationDate: Timestamp.fromDate(new Date()),
@@ -33,14 +40,14 @@ const UserController = {
                 wishList: [],
                 review: []
             });
-            await UserModel.create(newuser);
+            await UserModel.create(newUser);
 
-            const loginCredential = await signInWithEmailAndPassword(auth, email, password);
+            const token = generateToken();
             req.session.uid = uid;
-            req.session.token = await loginCredential.user.getIdToken();
+            req.session.token = token;
             req.session.role = role;
 
-            res.status(201).json({ uid, token: req.session.token, role });
+            res.status(201).json({ uid, token, role });
         } catch (error) {
             console.error("Error al registrar usuario:", error);
             let errorMessage = "Error al registrar usuario";
@@ -63,11 +70,12 @@ const UserController = {
             const userDoc = await getDoc(doc(fireDb, 'usuario', uid));
             const userData = userDoc.data();
 
+            const token = generateToken();
             req.session.uid = uid;
-            req.session.token = await userCredential.user.getIdToken();
+            req.session.token = token;
             req.session.role = userData.role;
 
-            res.status(200).json({ message: "Inicio de sesión exitoso", user: userData, token: req.session.token });
+            res.status(200).json({ message: "Inicio de sesión exitoso", user: userData, token });
         } catch (error) {
             console.error("Error al iniciar sesión:", error);
             res.status(500).json({ message: "Error al iniciar sesión" });
@@ -77,20 +85,17 @@ const UserController = {
     async deleteUser(req, res) {
         const { username } = req.params;
         try {
-            // Delete user from MongoDB
             const user = await UserModel.findOneAndDelete({ username });
             if (!user) {
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }
 
-            // Find user in Firestore
             const userQuery = collection(fireDb, 'usuario');
             const userSnapshot = await userQuery.where('username', '==', username).get();
             if (userSnapshot.empty) {
                 return res.status(404).json({ message: 'Usuario no encontrado en Firestore' });
             }
 
-            // Delete user from Firebase Auth and Firestore
             userSnapshot.forEach(async (docSnapshot) => {
                 const uid = docSnapshot.id;
                 const userAuth = await auth.getUser(uid);

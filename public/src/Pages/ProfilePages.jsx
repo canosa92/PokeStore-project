@@ -13,7 +13,7 @@ const ProfilePage = () => {
     }, [token, user, fetchUser]);
 
     if (!user) {
-        return <Box textAlign="center" p={4}>Loading...</Box>;
+        return <Box textAlign="center" p={4}>Logeate o registrate</Box>;
     }
 
     return (
@@ -44,14 +44,15 @@ const ProfilePage = () => {
                                         <Box flex="1" textAlign="center" mx={[0, 4]}>
                                             <Text fontSize="xl" fontWeight="bold" mb={2}>{review.productName}</Text>
                                             <Text fontSize="md"><strong>Product Description:</strong> {review.productDescription}</Text>
-                                            <Box mt={4}>
+                                            <Box mt={4}><strong>Tu valoracion:</strong>
                                                 <Flex justify="center" align="center">
                                                     {[...Array(5)].map((_, i) => (
                                                         <StarIcon key={i} color={i < review.rating ? 'yellow.400' : 'gray.300'} />
                                                     ))}
                                                     <Text ml={2}>{review.rating}</Text>
                                                 </Flex>
-                                                <Text mt={2}><strong>Review:</strong> {review.comment}</Text>
+                                                <Text mt={2}><strong> Tu review:</strong> </Text>
+                                                <Text>{review.comment}</Text>
                                             </Box>
                                         </Box>
                                     </Flex>

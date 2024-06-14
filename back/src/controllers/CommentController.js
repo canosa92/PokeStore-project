@@ -63,7 +63,7 @@ const CommentController = {
             await user.save();
 
             // Actualizar los comentarios del usuario en Firebase usando uid
-            const userRef = doc(fireDb, 'usuarios', uid);
+            const userRef = doc(fireDb, 'usuario', uid);
             await updateDoc(userRef, {
                 reviews: arrayUnion(newReview)
             });

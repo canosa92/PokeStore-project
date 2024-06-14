@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 
 const UserContext = createContext();
 
@@ -7,7 +8,6 @@ export const UserProvider = ({ children }) => {
     const [token, setToken] = useState(null);
 
     useEffect(() => {
-        // Intentar cargar datos del usuario y token desde localStorage al inicio
         const storedUser = localStorage.getItem('user');
         const storedToken = localStorage.getItem('token');
 
@@ -16,8 +16,11 @@ export const UserProvider = ({ children }) => {
                 const parsedUser = JSON.parse(storedUser);
                 setUser(parsedUser);
                 setToken(storedToken);
+                fetchUser(storedToken);
             } catch (error) {
                 console.error('Error parsing user data from localStorage:', error);
+                localStorage.removeItem('user');
+                localStorage.removeItem('token');
             }
         }
     }, []);
@@ -41,89 +44,75 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-    const deleteUser = async (username) => {
-        try {
-            const response = await fetch(`http://localhost:8080/user/delete/${username}`, {
-                method: 'DELETE',
-                credentials: 'include', // Esto asegura que la cookie de sesión se envíe con la solicitud
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-            const data = await response.json();
-            if (response.ok) {
-                console.log('Usuario eliminado correctamente:', data.message);
-            } else {
-                console.error('Error al eliminar usuario:', data.message);
-            }
-        } catch (error) {
-            console.error('Error al realizar la solicitud:', error);
-        }
-    };
-
     const login = async (email, password) => {
         try {
-            const response = await fetch('http://localhost:2999/user/login', {
+            const auth = getAuth();
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            const response = await fetch('http://localhost:2999/login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
             });
-
-            if (!response.ok) {
-                throw new Error('Error al iniciar sesión');
-            }
-
             const data = await response.json();
-            setUser(data.user);
-            setToken(data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            localStorage.setItem('token', data.token);
-            return { success: true, user: data.user };
+
+            if (response.ok) {
+                setUser(data.user);
+                setToken(data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('token', data.token);
+                return true;
+            } else {
+                throw new Error(data.message);
+            }
         } catch (error) {
-            return { success: false, message: error.message };
+            console.error('Error logging in:', error);
+            return false;
         }
     };
 
-    const register = async (formData) => {
+    const register = async (email, password, name, username) => {
         try {
-            const response = await fetch('http://localhost:2999/user/register', {
+            const response = await fetch('http://localhost:2999/register', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, name, username })
             });
 
-            if (!response.ok) {
-                throw new Error('Error al registrar usuario');
-            }
+            const data = await response.json();
 
-            const userData = await response.json();
-            setUser(userData.user);
-            setToken(userData.token);
-            localStorage.setItem('user', JSON.stringify(userData.user));
-            localStorage.setItem('token', userData.token);
-            return { success: true, user: userData.user };
+            if (response.ok) {
+                setUser(data.user);
+                setToken(data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('token', data.token);
+                return true;
+            } else {
+                throw new Error(data.message);
+            }
         } catch (error) {
-            return { success: false, message: error.message };
+            console.error('Error registering:', error);
+            return false;
         }
     };
 
     const logout = () => {
-        setUser(null);
-        setToken(null);
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
+        const auth = getAuth();
+        auth.signOut().then(() => {
+            setUser(null);
+            setToken(null);
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+        }).catch((error) => {
+            console.error('Error logging out:', error);
+        });
     };
 
     return (
-        <UserContext.Provider value={{ user, setUser, token, login, register, logout, fetchUser, deleteUser }}>
+        <UserContext.Provider value={{ user, setUser, token, login, register, logout, fetchUser }}>
             {children}
         </UserContext.Provider>
     );
 };
 
 export const useUser = () => useContext(UserContext);
-
