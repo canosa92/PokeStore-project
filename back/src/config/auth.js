@@ -1,35 +1,28 @@
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const { secret } = require('./secret');
+const { secret } = require('./config');
 
-// Función para generar un token JWT
-const generateToken = (payload, expiresIn = '1h') => {
-  return jwt.sign(payload, secret, { expiresIn });
-};
+function generateToken(user) {
+    return jwt.sign({ user: user.uid }, secret, { expiresIn: '1h' });
+}
 
-// Función para verificar un token JWT
-const verifyToken = (token) => {
-  try {
-    return jwt.verify(token, secret);
-  } catch (error) {
-    return null;
-  }
-};
+function verifyToken(req, res, next) {
+    const token = req.session.token;
 
-// Función para generar un hash de una contraseña
-const hashPassword = async (password) => {
-  const saltRounds = 10;
-  return await bcrypt.hash(password, saltRounds);
-};
+    if (!token) {
+        return res.status(401).json({ message: 'Token no proporcionado' });
+    }
 
-// Función para verificar una contraseña con su hash
-const verifyPassword = async (password, hash) => {
-  return await bcrypt.compare(password, hash);
-};
+    jwt.verify(token, secret, (err, decoded) => {
+        if (err) {
+            return res.status(401).json({ message: 'Token inválido', error: err.message });
+        }
+
+        req.user = decoded.user;
+        next();
+    });
+}
 
 module.exports = {
-  generateToken,
-  verifyToken,
-  hashPassword,
-  verifyPassword,
+    generateToken,
+    verifyToken
 };
