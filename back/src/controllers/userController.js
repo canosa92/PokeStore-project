@@ -2,7 +2,7 @@ const UserModel = require("../models/UserModel");
 const firebaseapp = require('../config/firebase');
 const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, deleteUser: deleteFirebaseUser } = require('firebase/auth');
 const { getFirestore, doc, setDoc, getDoc, deleteDoc, Timestamp } = require('firebase/firestore');
-const { generateToken, verifyToken } = require('../crypto/jwt');
+const { generateToken, verifyToken } = require('../config/auth');
 
 const auth = getAuth(firebaseapp);
 const fireDb = getFirestore(firebaseapp);
