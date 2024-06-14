@@ -2,21 +2,17 @@ const UserModel = require("../models/UserModel");
 const firebaseapp = require('../config/firebase');
 const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, deleteUser: deleteFirebaseUser } = require('firebase/auth');
 const { getFirestore, doc, setDoc, getDoc, deleteDoc, Timestamp } = require('firebase/firestore');
-const crypto = require('crypto');
-const bcrypt = require('bcrypt');
+const { generateToken, verifyToken, hashPassword, verifyPassword } = require('../config/secret');
 
 const auth = getAuth(firebaseapp);
 const fireDb = getFirestore(firebaseapp);
-
-const generateToken = () => {
-    return crypto.randomBytes(64).toString('hex');
-};
 
 const UserController = {
     async register(req, res, next) {
         const { email, password, role, name, username } = req.body;
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const hashedPassword = await hashPassword(password);
+            const userCredential = await createUserWithEmailAndPassword(auth, email, hashedPassword);
             const uid = userCredential.user.uid;
             const userRef = doc(fireDb, 'usuario', uid);
 
@@ -42,13 +38,12 @@ const UserController = {
             });
             await UserModel.create(newUser);
 
-            const token = generateToken();
+            const token = generateToken({ uid, role });
             req.session.uid = uid;
             req.session.token = token;
             req.session.role = role;
 
-            console.log("Usuario registrado exitosamente:", { uid, token, role });
-            res.status(201).json({ user: newUser, token });
+            res.status(201).json({ uid, token, role });
         } catch (error) {
             console.error("Error al registrar usuario:", error);
             let errorMessage = "Error al registrar usuario";
@@ -71,16 +66,15 @@ const UserController = {
             const userDoc = await getDoc(doc(fireDb, 'usuario', uid));
             const userData = userDoc.data();
 
-            const token = generateToken();
+            const token = generateToken({ uid, role: userData.role });
             req.session.uid = uid;
             req.session.token = token;
             req.session.role = userData.role;
 
-            console.log("Inicio de sesión exitoso:", { user: userData, token });
-            res.status(200).json({ user: userData, token });
+            res.status(200).json({ message: "Inicio de sesión exitoso", user: userData, token });
         } catch (error) {
             console.error("Error al iniciar sesión:", error);
-            res.status(500).json({ message: "Error al iniciar sesión", error: error.message });
+            res.status(500).json({ message: "Error al iniciar sesión" });
         }
     },
 
@@ -89,14 +83,12 @@ const UserController = {
         try {
             const user = await UserModel.findOneAndDelete({ username });
             if (!user) {
-                console.error('Usuario no encontrado:', username);
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }
 
             const userQuery = collection(fireDb, 'usuario');
             const userSnapshot = await userQuery.where('username', '==', username).get();
             if (userSnapshot.empty) {
-                console.error('Usuario no encontrado en Firestore:', username);
                 return res.status(404).json({ message: 'Usuario no encontrado en Firestore' });
             }
 
@@ -107,11 +99,10 @@ const UserController = {
                 await deleteDoc(doc(fireDb, 'usuario', uid));
             });
 
-            console.log('Usuario eliminado correctamente:', username);
             res.status(200).json({ message: 'Usuario eliminado correctamente' });
         } catch (error) {
             console.error('Error al eliminar usuario:', error);
-            res.status(500).json({ message: 'Error al eliminar usuario', error: error.message });
+            res.status(500).json({ message: 'Error al eliminar usuario' });
         }
     },
 
@@ -120,16 +111,14 @@ const UserController = {
         try {
             const user = await UserModel.findById(userId);
             if (!user) {
-                console.error('Usuario no encontrado:', userId);
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }
             user.wishList.push(productId);
             await user.save();
-            console.log('Producto añadido a la lista de deseos:', { userId, productId });
             res.status(200).json({ message: 'Producto añadido a la lista de deseos', wishList: user.wishList });
         } catch (error) {
             console.error('Error al añadir a la lista de deseos:', error);
-            res.status(500).json({ message: 'Error al añadir a la lista de deseos', error: error.message });
+            res.status(500).json({ message: 'Error al añadir a la lista de deseos' });
         }
     },
 
@@ -138,16 +127,14 @@ const UserController = {
         try {
             const user = await UserModel.findById(userId);
             if (!user) {
-                console.error('Usuario no encontrado:', userId);
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }
             user.wishList.pull(productId);
             await user.save();
-            console.log('Producto eliminado de la lista de deseos:', { userId, productId });
             res.status(200).json({ message: 'Producto eliminado de la lista de deseos', wishList: user.wishList });
         } catch (error) {
             console.error('Error al eliminar de la lista de deseos:', error);
-            res.status(500).json({ message: 'Error al eliminar de la lista de deseos', error: error.message });
+            res.status(500).json({ message: 'Error al eliminar de la lista de deseos' });
         }
     },
 
@@ -156,17 +143,15 @@ const UserController = {
         try {
             const user = await UserModel.findById(userId);
             if (!user) {
-                console.error('Usuario no encontrado:', userId);
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }
             const newComment = { product: productId, rating, comment };
             user.comments.push(newComment);
             await user.save();
-            console.log('Comentario añadido:', { userId, productId, rating, comment });
             res.status(200).json({ message: 'Comentario añadido', comments: user.comments });
         } catch (error) {
             console.error('Error al añadir comentario:', error);
-            res.status(500).json({ message: 'Error al añadir comentario', error: error.message });
+            res.status(500).json({ message: 'Error al añadir comentario' });
         }
     },
 
@@ -175,15 +160,13 @@ const UserController = {
             const { uid } = req.session;
             const userDoc = await getDoc(doc(fireDb, 'usuario', uid));
             if (!userDoc.exists()) {
-                console.error('Usuario no encontrado:', uid);
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }
             const userData = userDoc.data();
-            console.log('Perfil del usuario obtenido:', userData);
             res.status(200).json(userData);
         } catch (error) {
             console.error('Error al obtener el perfil del usuario:', error);
-            res.status(500).json({ message: 'Error al obtener el perfil del usuario', error: error.message });
+            res.status(500).json({ message: 'Error al obtener el perfil del usuario' });
         }
     }
 };
