@@ -5,6 +5,7 @@ const UserContext = createContext();
 export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
+    const [response, setResponse] = useState(null);
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
@@ -55,6 +56,7 @@ export const UserProvider = ({ children }) => {
             if (response.ok) {
                 setUser(data.user);
                 setToken(data.token);
+                setResponse(data);
                 localStorage.setItem('user', JSON.stringify(data.user));
                 localStorage.setItem('token', data.token);
                 return true;

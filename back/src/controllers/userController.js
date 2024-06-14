@@ -1,8 +1,8 @@
 const UserModel = require("../models/UserModel");
 const firebaseapp = require('../config/firebase');
 const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, deleteUser: deleteFirebaseUser } = require('firebase/auth');
-const { getFirestore, doc, setDoc, getDoc, deleteDoc, Timestamp } = require('firebase/firestore');
-const { generateToken, verifyToken, hashPassword, verifyPassword } = require('../config/secret');
+const { getFirestore, doc, setDoc, getDoc, deleteDoc, Timestamp, collection, where } = require('firebase/firestore');
+const { generateToken, hashPassword, verifyPassword } = require('../config/auth');
 
 const auth = getAuth(firebaseapp);
 const fireDb = getFirestore(firebaseapp);
@@ -11,11 +11,15 @@ const UserController = {
     async register(req, res, next) {
         const { email, password, role, name, username } = req.body;
         try {
-            const hashedPassword = await hashPassword(password);
-            const userCredential = await createUserWithEmailAndPassword(auth, email, hashedPassword);
+            // Registrar el usuario en Firebase Authentication sin hashear la contraseña
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const uid = userCredential.user.uid;
-            const userRef = doc(fireDb, 'usuario', uid);
 
+            // Hashear la contraseña para almacenarla en la base de datos de MongoDB
+            const hashedPassword = await hashPassword(password);
+
+            // Guardar la información del usuario en Firestore
+            const userRef = doc(fireDb, 'usuario', uid);
             await setDoc(userRef, {
                 uid,
                 name,
@@ -24,7 +28,8 @@ const UserController = {
                 role,
                 email,
                 wishList: [],
-                review: []
+                review: [],
+                hashedPassword, // Guardar la contraseña hasheada
             });
 
             const newUser = new UserModel({
@@ -34,7 +39,8 @@ const UserController = {
                 role,
                 email,
                 wishList: [],
-                review: []
+                review: [],
+                hashedPassword, // Guardar la contraseña hasheada
             });
             await UserModel.create(newUser);
 
@@ -65,6 +71,12 @@ const UserController = {
 
             const userDoc = await getDoc(doc(fireDb, 'usuario', uid));
             const userData = userDoc.data();
+
+            // Verificar la contraseña hasheada
+            const isPasswordValid = await verifyPassword(password, userData.hashedPassword);
+            if (!isPasswordValid) {
+                return res.status(401).json({ message: "Credenciales inválidas" });
+            }
 
             const token = generateToken({ uid, role: userData.role });
             req.session.uid = uid;
