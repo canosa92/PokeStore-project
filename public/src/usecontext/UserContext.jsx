@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 
 const UserContext = createContext();
 
@@ -46,9 +45,6 @@ export const UserProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const auth = getAuth();
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
             const response = await fetch('http://localhost:2999/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -97,15 +93,10 @@ export const UserProvider = ({ children }) => {
     };
 
     const logout = () => {
-        const auth = getAuth();
-        auth.signOut().then(() => {
-            setUser(null);
-            setToken(null);
-            localStorage.removeItem('user');
-            localStorage.removeItem('token');
-        }).catch((error) => {
-            console.error('Error logging out:', error);
-        });
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
     };
 
     return (
