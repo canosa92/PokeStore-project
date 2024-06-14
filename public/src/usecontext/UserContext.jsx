@@ -6,6 +6,22 @@ export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
 
+    useEffect(() => {
+        // Intentar cargar datos del usuario y token desde localStorage al inicio
+        const storedUser = localStorage.getItem('user');
+        const storedToken = localStorage.getItem('token');
+
+        if (storedUser && storedToken) {
+            try {
+                const parsedUser = JSON.parse(storedUser);
+                setUser(parsedUser);
+                setToken(storedToken);
+            } catch (error) {
+                console.error('Error parsing user data from localStorage:', error);
+            }
+        }
+    }, []);
+
     const fetchUser = async (token) => {
         try {
             const response = await fetch('http://localhost:2999/user-profile', {
@@ -25,43 +41,25 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-    const deleteUser = async (userId) => {
+    const deleteUser = async (username) => {
         try {
-            const response = await fetch(`http://localhost:2999/user/${userId}`, {
+            const response = await fetch(`http://localhost:8080/user/delete/${username}`, {
                 method: 'DELETE',
+                credentials: 'include', // Esto asegura que la cookie de sesión se envíe con la solicitud
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json',
                 }
             });
-
-            if (!response.ok) {
-                throw new Error('Failed to delete user');
+            const data = await response.json();
+            if (response.ok) {
+                console.log('Usuario eliminado correctamente:', data.message);
+            } else {
+                console.error('Error al eliminar usuario:', data.message);
             }
-
-            logout();
         } catch (error) {
-            console.error('Error deleting user:', error);
+            console.error('Error al realizar la solicitud:', error);
         }
     };
-
-    useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        const storedToken = localStorage.getItem('token');
-
-        if (storedUser) {
-            try {
-                setUser(JSON.parse(storedUser));
-            } catch (error) {
-                console.error('Error parsing stored user data:', error);
-                setUser(null);
-            }
-        }
-
-        if (storedToken) {
-            setToken(storedToken);
-            fetchUser(storedToken);
-        }
-    }, []);
 
     const login = async (email, password) => {
         try {
@@ -128,3 +126,4 @@ export const UserProvider = ({ children }) => {
 };
 
 export const useUser = () => useContext(UserContext);
+

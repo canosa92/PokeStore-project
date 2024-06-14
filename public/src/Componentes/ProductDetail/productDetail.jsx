@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ProductCommentForm from '../ProductComment/ProductComment';
 import {
+  ChakraProvider,
   Box,
   Text,
   Image,
@@ -16,81 +17,57 @@ import {
   Divider,
   ButtonGroup,
   HStack,
-  Icon,
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 
 const ProductDetail = () => {
   const { añadir } = useCarrito();
-  const { products, loading, error } = useProducts();
-  const { nombre } = useParams();
+  const { products, addCommentToProduct } = useProducts();
   const { user } = useUser();
-  const [comments, setComments] = useState([]);
+  const { nombre } = useParams();
 
   const capitalizeName = (name) => {
     return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
   };
+
   const capitalizedNombre = capitalizeName(nombre);
 
   const product = products.find(product => product.nombre.toLowerCase() === capitalizedNombre.toLowerCase());
 
+  const [comments, setComments] = useState([]);
+
   useEffect(() => {
     if (product) {
-      setComments(product.reviews);
+      setComments(product.reviews); // Actualiza los comentarios del producto desde el contexto global al montar el componente
     }
   }, [product]);
-
-  if (loading) {
-    return <Box textAlign="center"><Text fontSize="2xl">Cargando...</Text></Box>;
-  }
-
-  if (error) {
-    return <Box textAlign="center"><Text fontSize="2xl">Error: {error}</Text></Box>;
-  }
 
   if (!product) {
     return <Box textAlign="center"><Text fontSize="2xl">Producto no encontrado.</Text></Box>;
   }
 
   const handleCommentSubmit = (newComment) => {
-    setComments([...comments, newComment]);
+    addCommentToProduct(product._id, newComment); // Llama a la función del contexto global para agregar el comentario
   };
 
   const renderStars = (rating) => {
-    const fullStars = Math.floor(rating);
-    const halfStar = rating - fullStars;
-    return (
-      <HStack>
-        {Array(5).fill('').map((_, i) => (
-          <Box key={i} position="relative">
-            <Icon as={StarIcon} color={i < fullStars ? 'yellow.400' : 'gray.300'} />
-            {i === fullStars && halfStar > 0 && (
-              <Box
-                as={StarIcon}
-                color="yellow.400"
-                position="absolute"
-                left="0"
-                top="0"
-                width={`${halfStar * 100}%`}
-                overflow="hidden"
-              />
-            )}
-          </Box>
-        ))}
-      </HStack>
-    );
+    return Array(5)
+      .fill('')
+      .map((_, i) => (
+        <StarIcon key={i} color={i < rating ? 'yellow.400' : 'gray.300'} />
+      ));
   };
 
   return (
-    <>
+    <ChakraProvider>
       <Box p={4}>
         <Flex direction="column" align="center" mb={4}>
           <Text fontSize="3xl" fontWeight="bold" textAlign="center">{product.id_pokedex} - {product.nombre}</Text>
           <Flex align="center" mb={4}>
-            {renderStars(product.likes[0]?.likes || 0)}({product.likes[0]?.likes})
-            <Text ml={2}>{product.likes[0]?.likesCount} likes</Text>
+            {renderStars(product.likes[0].likes || 0)}{product.likes[0].likes}
+            <Text ml={2}>{product.likes[0].likesCount} likes</Text>
           </Flex>
-          {product.mythical && <Tag fontWeight="bold" colorScheme="yellow">Mistico</Tag>}
+          {product.mythical && <Tag fontWeight="bold" colorScheme="yellow">Mithical</Tag>}
           {product.legendario && <Tag fontWeight="bold" colorScheme="yellow">Legendario</Tag>}
         </Flex>
 
@@ -100,47 +77,46 @@ const ProductDetail = () => {
           </Box>
 
           <Box flex="1" textAlign="center" mb={4} mx={[0, 4]}>
-            <Text fontSize="xl" mb="7px" >{product.descripcion}</Text>
-            <Flex justify="center" wrap="wrap" gap={2} mb="7px">
+            <Text fontSize="xl">{product.descripcion}</Text>
+            <Flex justify="center" wrap="wrap" gap={2}>
               <Tag colorScheme="green">{product.peso} kg</Tag>
               <Tag colorScheme="green">{product.altura} m</Tag>
             </Flex>
-            <Flex justify="center" wrap="wrap" gap={2} mb="7px">
+            <Flex justify="center" wrap="wrap" gap={2}>
               {product.tipo.map((tipo, index) => (
                 <Tag key={index} colorScheme="blue">
                   {tipo}
                 </Tag>
               ))}
             </Flex>
-            <Text fontSize="xl" fontWeight="bold" mb="7px">Ratio de captura:</Text>
-            <Tag colorScheme="blue" mb="7px">{product.ratio_captura}</Tag>
-            <Text fontSize="xl" fontWeight="bold" mb="7px">Experiencia Base:</Text>
-            <Tag colorScheme="blue" mb="7px">{product.base_experience} puntos</Tag>
-            <Text fontSize="xl" fontWeight="bold" mb="7px">Habilidades:</Text>
-            <ul style={{ listStyleType: 'none', padding: 0}}>
+            <Text fontSize="xl" fontWeight="bold">Ratio de captura:</Text>
+            <Tag colorScheme="blue">{product.ratio_captura}</Tag>
+            <Text fontSize="xl" fontWeight="bold">Experiencia Base:</Text>
+            <Tag colorScheme="blue">{product.base_experience} puntos</Tag>
+            <Text fontSize="xl" fontWeight="bold">Habilidades:</Text>
+            <ul>
               {product.habilidades.map((habilidad, index) => (
-                <li key={index} >
+                <li key={index}>
                   <Text as="span" fontWeight="bold">{habilidad.nombre}:</Text> {habilidad.descripcion}
                 </li>
               ))}
             </ul>
-            <Text fontSize="xl" fontWeight="bold" mb="7px">Cadena Evolutiva:</Text>
+            <Text fontSize="xl" fontWeight="bold">Cadena Evolutiva:</Text>
             {product.cadena_evoluciones.length > 1 ? (
-              <Flex wrap="wrap" justify="center" mb="7px" >
+              <Flex wrap="wrap" justify="center">
                 {product.cadena_evoluciones.map((evolucion, index) => (
                   <Text key={index} mx={2}>
-                   <Link to={`/product/${evolucion.especie.toLowerCase()}`}>
-
+                    <Link to={`/product/${evolucion.especie.toLowerCase()}`}>
                       <Text as="span" fontWeight="bold">
                         {capitalizeName(evolucion.especie)}
                       </Text>
-                    </Link> 
+                    </Link>
                     {evolucion.nivel ? ` - Nivel: ${evolucion.nivel}` : ' - Nivel: 0'}
                   </Text>
                 ))}
               </Flex>
             ) : (
-              <Text fontSize="lg" mb="7px" >Este Pokémon no tiene cadena evolutiva.</Text>
+              <Text fontSize="lg">Este Pokémon no tiene cadena evolutiva.</Text>
             )}
           </Box>
         </Flex>
@@ -150,7 +126,7 @@ const ProductDetail = () => {
           <Stack spacing={2} mt={2}>
             {product.estadisticas.map((stat, index) => (
               <Flex key={index} direction="column" align="center">
-                <Text fontWeight="bold">{capitalizeName(stat.nombre)}: {stat.valor}</Text>
+                <Text fontWeight="bold">{capitalizeName(stat.nombre)}:</Text>
                 <Progress value={stat.valor} max="200" colorScheme="green" size="sm" width="80%" />
               </Flex>
             ))}
@@ -172,10 +148,10 @@ const ProductDetail = () => {
         </Box>
 
         <Box mt={4}>
-          {comments.length > 0 ? (
+          {product.reviews.length > 0 ? (
             <Box mt={4}>
               <Text fontSize="xl" fontWeight="bold">Reviews:</Text>
-              {comments.map((review, index) => (
+              {product.reviews.map((review, index) => (
                 <Box key={index} p={4} bg="gray.100" borderRadius="md" mt={2}>
                   <Flex justify="space-between" align="center">
                     <Text fontWeight="bold">{review.username || 'Usuario desconocido'}</Text>
@@ -186,7 +162,7 @@ const ProductDetail = () => {
               ))}
             </Box>
           ) : (
-            <Box mt={4} textAlign ="center">
+            <Box mt={4} textAlign="center">
               <Text fontSize="lg">¡Sé el primero en comentar!</Text>
               {!user && (
                 <Text fontSize="lg">Por favor, <Link to="/register">regístrate</Link> o <Link to="/login">inicia sesión</Link>.</Text>
@@ -195,9 +171,17 @@ const ProductDetail = () => {
           )}
         </Box>
 
-        {user && <ProductCommentForm productId={product._id} onCommentSubmit={handleCommentSubmit} />}
-      </Box>
-    </>
+        {user && (
+    <ProductCommentForm
+        productId={product._id}
+        productName={product.nombre}
+        productImage={product.imagen}
+        productDescription={product.descripcion}
+        onCommentSubmit={handleCommentSubmit}
+    />
+)}
+</Box>
+    </ChakraProvider>
   );
 };
 

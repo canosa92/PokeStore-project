@@ -1,7 +1,7 @@
-const UserModel  = require("../models/UserModel");
+const UserModel = require("../models/UserModel");
 const firebaseapp = require('../config/firebase');
-const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, deleteUser } = require('firebase/auth');
-const { getFirestore, collection, doc, setDoc, getDoc, Timestamp } = require('firebase/firestore');
+const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, deleteUser: deleteFirebaseUser } = require('firebase/auth');
+const { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, Timestamp } = require('firebase/firestore');
 
 const auth = getAuth(firebaseapp);
 const fireDb = getFirestore(firebaseapp);
@@ -22,16 +22,16 @@ const UserController = {
                 role,
                 email,
                 wishList: [],
-                review:[]
+                review: []
             });
-            const newuser = new UserModel ({
+            const newuser = new UserModel({
                 name,
                 username,
                 registrationDate: Timestamp.fromDate(new Date()),
                 role,
                 email,
                 wishList: [],
-                review:[]
+                review: []
             });
             await UserModel.create(newuser);
 
@@ -75,15 +75,28 @@ const UserController = {
     },
 
     async deleteUser(req, res) {
-        const { uid } = req.body;
+        const { username } = req.params;
         try {
-            const user = await UserModel.findOneAndDelete({ uid });
+            // Delete user from MongoDB
+            const user = await UserModel.findOneAndDelete({ username });
             if (!user) {
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }
 
-            const userAuth = await auth.getUser(uid);
-            await deleteUser(userAuth);
+            // Find user in Firestore
+            const userQuery = collection(fireDb, 'usuario');
+            const userSnapshot = await userQuery.where('username', '==', username).get();
+            if (userSnapshot.empty) {
+                return res.status(404).json({ message: 'Usuario no encontrado en Firestore' });
+            }
+
+            // Delete user from Firebase Auth and Firestore
+            userSnapshot.forEach(async (docSnapshot) => {
+                const uid = docSnapshot.id;
+                const userAuth = await auth.getUser(uid);
+                await deleteFirebaseUser(userAuth);
+                await deleteDoc(doc(fireDb, 'usuario', uid));
+            });
 
             res.status(200).json({ message: 'Usuario eliminado correctamente' });
         } catch (error) {
@@ -138,6 +151,21 @@ const UserController = {
         } catch (error) {
             console.error('Error al añadir comentario:', error);
             res.status(500).json({ message: 'Error al añadir comentario' });
+        }
+    },
+
+    async getUserProfile(req, res) {
+        try {
+            const { uid } = req.session;
+            const userDoc = await getDoc(doc(fireDb, 'usuario', uid));
+            if (!userDoc.exists()) {
+                return res.status(404).json({ message: 'Usuario no encontrado' });
+            }
+            const userData = userDoc.data();
+            res.status(200).json(userData);
+        } catch (error) {
+            console.error('Error al obtener el perfil del usuario:', error);
+            res.status(500).json({ message: 'Error al obtener el perfil del usuario' });
         }
     }
 };

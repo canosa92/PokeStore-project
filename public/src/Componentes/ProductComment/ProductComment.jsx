@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useUser } from '../../usecontext/UserContext.jsx';
-import { useProducts } from '../../usecontext/ProductContext.jsx';
+import { useProducts } from '../../usecontext/ProductContext'; // Importa useProducts desde ProductContext
 import { Box, Button, FormControl, FormLabel, Textarea, Text, VStack, HStack, Icon } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 
-const ProductCommentForm = ({ productId }) => {
-    const { user, token, setUser } = useUser();
+const ProductCommentForm = ({ productId, productName, productImage, productDescription, onCommentSubmit }) => {
+    const { user, token } = useUser();
     const { addCommentToProduct } = useProducts();
+
     const [comment, setComment] = useState('');
     const [rating, setRating] = useState(0);
     const [hover, setHover] = useState(0);
@@ -33,38 +34,27 @@ const ProductCommentForm = ({ productId }) => {
                 },
                 body: JSON.stringify({
                     productId,
+                    productName,
+                    productImage,
+                    productDescription,
                     comment,
                     rating,
-                    username: user.username, // Enviar el username
-                    uid: user.uid // Enviar el uid
+                    username: user.username,
+                    uid: user.uid
                 })
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error);
+            const data = await response.json();
+
+            if (response.ok) {
+                addCommentToProduct(productId, data);  // Actualiza el contexto global de productos
+                onCommentSubmit(data);  // Actualiza la UI local si es necesario
+                setComment('');
+                setRating(0);
+                setHover(0);
+            } else {
+                throw new Error(data.message || 'Error al enviar el comentario');
             }
-
-            const newComment = await response.json();
-
-            // Actualizar el contexto del usuario
-            setUser(prevUser => ({
-                ...prevUser,
-                comments: [
-                    ...prevUser.comments,
-                    {
-                        productId,
-                        comment: newComment.comment,
-                        rating: newComment.rating
-                    }
-                ]
-            }));
-
-            // Actualizar el contexto de productos
-            addCommentToProduct(productId, newComment);
-
-            setComment('');
-            setRating(0);
         } catch (error) {
             setError(error.message);
         } finally {
@@ -72,39 +62,42 @@ const ProductCommentForm = ({ productId }) => {
         }
     };
 
+    const renderStars = (rating) => {
+        return Array(5)
+            .fill('')
+            .map((_, i) => (
+                <Icon
+                    key={i}
+                    as={StarIcon}
+                    color={i < rating ? 'yellow.400' : 'gray.300'}
+                    onClick={() => setRating(i + 1)}
+                    onMouseEnter={() => setHover(i + 1)}
+                    onMouseLeave={() => setHover(rating)}
+                    cursor="pointer"
+                />
+            ));
+    };
+
     return (
-        <Box className="comment-form" p={4} borderWidth={1} borderRadius="md">
-            <Text fontSize="2xl" mb={4}>Dejar un comentario</Text>
-            {error && <Text color="red.500">{error}</Text>}
-            <form onSubmit={handleSubmit}>
-                <FormControl id="rating" mb={4}>
-                    <FormLabel>Calificación:</FormLabel>
-                    <HStack>
-                        {[1, 2, 3, 4, 5].map(star => (
-                            <Icon
-                                as={StarIcon}
-                                key={star}
-                                onClick={() => setRating(star)}
-                                onMouseEnter={() => setHover(star)}
-                                onMouseLeave={() => setHover(0)}
-                                cursor="pointer"
-                                color={star <= (hover || rating) ? 'gold' : 'gray.300'}
-                            />
-                        ))}
-                    </HStack>
-                </FormControl>
-                <FormControl id="comment" mb={4}>
-                    <FormLabel>Comentario:</FormLabel>
-                    <Textarea
-                        value={comment}
-                        onChange={(event) => setComment(event.target.value)}
-                        required
-                    />
-                </FormControl>
-                <Button type="submit" colorScheme="blue" isLoading={loading}>
-                    {loading ? 'Cargando...' : 'Enviar'}
-                </Button>
-            </form>
+        <Box as="form" onSubmit={handleSubmit} p={4} boxShadow="md" borderRadius="md" bg="white" mt={4}>
+            <FormControl id="comment" isRequired>
+                <FormLabel>Tu comentario</FormLabel>
+                <Textarea value={comment} onChange={(e) => setComment(e.target.value)} />
+            </FormControl>
+            <FormControl id="rating" isRequired mt={4}>
+                <FormLabel>Tu puntuación</FormLabel>
+                <HStack spacing={1}>
+                    {renderStars(hover || rating)}
+                </HStack>
+            </FormControl>
+            {error && (
+                <Text color="red.500" mt={2}>
+                    {error}
+                </Text>
+            )}
+            <Button type="submit" colorScheme="blue" isLoading={loading} mt={4}>
+                Enviar comentario
+            </Button>
         </Box>
     );
 };

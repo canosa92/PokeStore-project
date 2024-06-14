@@ -23,13 +23,15 @@ export const ProductProvider = ({ children }) => {
     }
   };
 
-  const addCommentToProduct = (productId, newComment) => {
-    setProducts(prevProducts => 
+ // ProductContext.jsx
+const addCommentToProduct = (productId, newComment) => {
+  setProducts(prevProducts => 
       prevProducts.map(product => 
-        product._id === productId ? { ...product, reviews: [...product.reviews, newComment] } : product
+          product._id === productId ? { ...product, reviews: [...product.reviews, newComment] } : product
       )
-    );
-  };
+  );
+};
+
 
   useEffect(() => {
     fetchProducts();
@@ -38,6 +40,7 @@ export const ProductProvider = ({ children }) => {
   return (
     <ProductContext.Provider value={{ products, loading, error, addCommentToProduct }}>
       {children}
+
     </ProductContext.Provider>
   );
 };

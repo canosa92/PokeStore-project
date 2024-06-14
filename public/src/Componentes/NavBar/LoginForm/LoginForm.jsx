@@ -20,7 +20,6 @@ const LoginForm = ({ isOpen, onClose }) => {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,7 +39,6 @@ const LoginForm = ({ isOpen, onClose }) => {
       localStorage.setItem('token', data.user.token);
       setUser(data.user);
       login(data.user, data.user.token);
-      navigate('/myprofile');
       onClose(); // Cerrar el menú después del login exitoso
     } catch (error) {
       console.error('Error al iniciar sesión:', error);

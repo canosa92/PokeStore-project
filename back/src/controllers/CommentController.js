@@ -4,17 +4,19 @@ const { getFirestore, doc, updateDoc, arrayUnion } = require('firebase/firestore
 const firebaseapp = require('../config/firebase');
 const fireDb = getFirestore(firebaseapp);
 
-const calcularStar = (rating, likesCount) => {
-    const promedio = rating / likesCount;
+const calcularStar = (likes, likesCount) => {
+    const promedio = likes / likesCount;
     return Math.min(Math.max(promedio, 1), 5);
 };
 
 const CommentController = {
     async addComment(req, res) {
         try {
-            const { productId, comment, rating, username, uid } = req.body;
+            const { productId, productName, productImage, productDescription, comment, rating, username, uid } = req.body;
 
-            if (!productId || !comment || rating === undefined || !username || !uid) {
+            // Verificar que todos los campos están presentes
+            if (!productId || !productName || !productImage || !productDescription || !comment || rating === undefined || !username || !uid) {
+                console.log("Faltan datos en la solicitud: ", req.body);
                 return res.status(400).json({ message: 'Faltan datos en la solicitud' });
             }
 
@@ -33,7 +35,19 @@ const CommentController = {
             const userId = user._id.toString(); // Asegurarse de que userId es una cadena
 
             // Crear el nuevo comentario
-            const newReview = { userId, comment, username, rating };
+            const newReview = {
+                productId,
+                userId,
+                productName,
+                productImage,
+                productDescription,
+                comment,
+                username,
+                rating,
+                createdAt: new Date()
+            };
+
+            // Agregar el comentario a las revisiones del producto
             product.reviews.push(newReview);
 
             // Actualizar likes y calcular estrellas del producto
@@ -45,17 +59,13 @@ const CommentController = {
             await product.save();
 
             // Agregar el comentario al usuario en MongoDB
-            user.comments.push({ product: productId, rating, comment });
+            user.reviews.push(newReview);
             await user.save();
 
             // Actualizar los comentarios del usuario en Firebase usando uid
-            const userRef = doc(fireDb, 'usuario', uid);
+            const userRef = doc(fireDb, 'usuarios', uid);
             await updateDoc(userRef, {
-                reviews: arrayUnion({
-                    productId,
-                    comment,
-                    rating
-                })
+                reviews: arrayUnion(newReview)
             });
 
             res.json(newReview);
