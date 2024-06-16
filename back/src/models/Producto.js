@@ -55,10 +55,6 @@ const ProductSchema = new mongoose.Schema({
         rating:Number
     }],
     likes: [{ 
-        likes: { 
-            type: Number,
-             default: 0
-            },
         likesCount: {
             type: Number,
             default: 0

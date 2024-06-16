@@ -11,7 +11,7 @@ export const ProductProvider = ({ children }) => {
     try {
       const response = await fetch('http://localhost:2999/productos');
       if (!response.ok) {
-        throw new Error('Failed to fetch products',error);
+        throw new Error('Failed to fetch products', error);
       }
       const data = await response.json();
       setProducts(data);
@@ -23,15 +23,13 @@ export const ProductProvider = ({ children }) => {
     }
   };
 
- // ProductContext.jsx
-const addCommentToProduct = (productId, newComment) => {
-  setProducts(prevProducts => 
-      prevProducts.map(product => 
-          product._id === productId ? { ...product, reviews: [...product.reviews, newComment] } : product
+  const addCommentToProduct = (productId, newComment) => {
+    setProducts(prevProducts =>
+      prevProducts.map(product =>
+        product._id === productId ? { ...product, reviews: [...product.reviews, newComment] } : product
       )
-  );
-};
-
+    );
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -40,7 +38,6 @@ const addCommentToProduct = (productId, newComment) => {
   return (
     <ProductContext.Provider value={{ products, loading, error, addCommentToProduct }}>
       {children}
-
     </ProductContext.Provider>
   );
 };

@@ -8,7 +8,6 @@ routerUser.post("/login", UserController.login);
 routerUser.delete('/delete/:username', authentication, UserController.deleteUser);
 routerUser.post('/wishlist/add', authentication, UserController.addToWishList);
 routerUser.post('/wishlist/remove', authentication, UserController.removeFromWishList);
-routerUser.post('/comment/add', authentication, UserController.addComment);
 routerUser.get('/user-profile', authentication, UserController.getUserProfile);
 
 module.exports = routerUser;

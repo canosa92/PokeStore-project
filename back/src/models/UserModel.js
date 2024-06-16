@@ -20,9 +20,6 @@ const UserSchema = new Schema(
             enum: ['admin', 'user'],
             default: 'user',
         },
-        tokens: {
-            type: String,
-        },
         wishList: [{
             type: Schema.Types.ObjectId,
             ref: "Product"

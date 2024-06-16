@@ -1,12 +1,21 @@
-const ProductoModel = require('../models/Producto');
-const UserModel = require("../models/UserModel");
 const { getFirestore, doc, updateDoc, arrayUnion } = require('firebase/firestore');
 const firebaseapp = require('../config/firebase');
 const fireDb = getFirestore(firebaseapp);
 
-const calcularStar = (likes, likesCount) => {
-    const promedio = likes / likesCount;
-    return Math.min(Math.max(promedio, 1), 5);
+const calcularMediaValoracion = (likes, likesCount, nuevoVoto) => {
+    // Calcular la nueva suma de valoraciones
+    const nuevaSumaLikes = likes + nuevoVoto;
+
+    // Incrementar el contador de votos
+    const nuevoLikesCount = likesCount + 1;
+
+    // Calcular la nueva media
+    const nuevaMedia = nuevaSumaLikes / nuevoLikesCount;
+
+    // Asegurar que la nueva media esté entre 1 y 5
+    const mediaFinal = Math.min(Math.max(nuevaMedia, 1), 5);
+
+    return mediaFinal;
 };
 
 const CommentController = {
@@ -53,7 +62,7 @@ const CommentController = {
             // Actualizar likes y calcular estrellas del producto
             product.likes[0].likesCount += 1;
             product.likes[0].likes += rating;
-            product.likes[0].star = calcularStar(product.likes[0].likes, product.likes[0].likesCount);
+            product.likes[0].star = calcularMediaValoracion(product.likes[0].likes, product.likes[0].likesCount, rating);
 
             // Guardar el producto actualizado en MongoDB
             await product.save();

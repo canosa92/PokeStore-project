@@ -1,11 +1,11 @@
-const axios=require('axios')
-const ProductModel= require('../models/Producto')
+const axios = require('axios');
+const ProductModel = require('../models/Producto');
 const capitalizeFirstLetter = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
 
 const ObtenerPokemons = async () => {
-  const pagina ='https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0'
+  const pagina = 'https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0';
   try {
     const response = await axios(pagina);
     const data = await response.data;
@@ -61,7 +61,7 @@ const pokemonNumero = async (poke) => {
       (pokemonData.stats.reduce((total, stats) => {
         return total + stats.base_stat;
       }, 0) +
-        base_experience) /2
+        base_experience) / 2
     ).toLocaleString('es-ES', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
@@ -100,14 +100,16 @@ const pokemonNumero = async (poke) => {
     } else if (descripcionData.capture_rate > 100) {
       sumaBaseStatNumero -= 20;
     }
-    const random = randomLikes();
-    const likesCount=RandomlikesCount()
+
+    const likes = randomLikes();
+    const likesCount = randomLikesCount();
+
     const newPoke = {
       nombre: name,
       descripcion: descripcionEspañol,
       imagen: img,
       precio: sumaBaseStatNumero,
-      tipo: tiposEspañol, 
+      tipo: tiposEspañol,
       id_pokedex: id,
       peso: peso,
       altura: height,
@@ -119,14 +121,14 @@ const pokemonNumero = async (poke) => {
       base_experience: base_experience,
       cadena_evoluciones: evoluciones,
       evolucionDe: evolucionDe,
-      reviews: [], 
-      likes: [{ 
-        likes:random,
-        likesCount:likesCount
+      reviews: [],
+      likes: [{
+        star: likes,
+        likesCount: likesCount
       }]
-  };
-  
-    await  ProductModel.create(newPoke)
+    };
+
+    await ProductModel.create(newPoke);
     console.log(`Pokemon creado ${name}`);
   } catch (error) {
     console.error('Error al obtener detalles del Pokémon:', error);
@@ -149,10 +151,8 @@ async function obtenerEvoluciones(url) {
         ? detallesEvolucion.min_level
         : null;
 
-  
       evoluciones.push({ especie: especie, nivel: nivelEvolucion });
 
-    
       if (chain.evolves_to && chain.evolves_to.length > 0) {
         chain.evolves_to.forEach((evolucion) => {
           const subEvoluciones = construirEvoluciones(evolucion);
@@ -166,10 +166,9 @@ async function obtenerEvoluciones(url) {
       return evoluciones.length > 0 ? evoluciones : null;
     };
 
-   
     const evoluciones = construirEvoluciones(evolutionChain.chain);
 
-    return evoluciones; 
+    return evoluciones;
   } catch (error) {
     console.error('Error al obtener las evoluciones:', error);
     return [];
@@ -234,12 +233,13 @@ function descripcionPokemon(flavortextentries) {
     ? descripcionEspañol.flavor_text
     : 'No hay una descripción en español para este Pokémon';
 }
+
 function randomLikes() {
-  const randomNumber = Math.random() * 20; 
-  return parseFloat((randomNumber + 2).toFixed(1)); 
+  return Math.floor(Math.random() * 5) + 1; 
 }
 
-function RandomlikesCount() {
+function randomLikesCount() {
   return Math.floor(Math.random() * 20) + 1;
 }
-  module.exports= ObtenerPokemons
+
+module.exports = ObtenerPokemons;
