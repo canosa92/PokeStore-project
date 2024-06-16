@@ -71,21 +71,22 @@ async login(req, res) {
     } catch (error) {
         console.error("Error al iniciar sesión:", error);
         res.status(500).json({ message: "Error al iniciar sesión" });
-    }
-},
-
-    async getUserProfile (req, res){
-        try {
-          const userDoc = await getDoc(doc(fireDb, 'usuario', req.user.uid));
-          if (!userDoc.exists) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
-          }
-          const userData = userDoc.data();
-          res.json({ user: userData });
-        } catch (error) {
-          res.status(500).json({ message: 'Error del servidor', error });
-        }
     },
+async getUserProfile(req, res) {
+    try {
+        const userDoc = await getDoc(doc(fireDb, 'usuario', req.user.uid));
+        if (!userDoc.exists) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+        const userData = userDoc.data();
+
+        // Obtener detalles de los productos en la wishlist
+        const products = await ProductModel.find({ _id: { $in: userData.wishList } });
+
+        res.json({ user: userData, wishListProducts: products });
+    } catch (error) {
+        res.status(500).json({ message: 'Error del servidor', error })
+},
     async deleteUser(req, res) {
         const { username } = req.params;
         try {
