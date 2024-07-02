@@ -17,7 +17,8 @@ const ProductCommentForm = ({ productId, productName, productImage, productDescr
     setLoading(true);
     setError(null);
 
-    if (!comment || rating === 0 || isNaN(rating)) {  // Agregar isNaN(rating) para validar que rating sea un número
+    const parsedRating = Number(rating);
+    if (!comment || parsedRating === 0 || isNaN(parsedRating)) {  // Validar que rating sea un número válido
       setError('Por favor, completa todos los campos y asegúrate de que la puntuación sea un número válido');
       setLoading(false);
       return;
@@ -36,7 +37,7 @@ const ProductCommentForm = ({ productId, productName, productImage, productDescr
           productImage,
           productDescription,
           comment,
-          rating,
+          rating: parsedRating,
           username: user.username,
           uid: user.uid
         })
@@ -100,4 +101,3 @@ const ProductCommentForm = ({ productId, productName, productImage, productDescr
 };
 
 export default ProductCommentForm;
-
