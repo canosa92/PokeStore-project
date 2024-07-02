@@ -1,4 +1,4 @@
-const ProductoModel= require('../models/Producto')
+const ProductoModel= require('../models/ProductModel')
 const { admin } = require('../config/firebase');
 
 

@@ -1,6 +1,4 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { IconButton } from "@chakra-ui/react"; // Importa IconButton desde Chakra UI
-import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 const UserContext = createContext();
 
@@ -42,27 +40,9 @@ export const UserProvider = ({ children }) => {
 
             const userData = await response.json();
             setUser(userData.user);
+            setWishListProducts(userData.wishListProducts); // Set the wishlist products from user profile response
         } catch (error) {
             console.error('Error fetching user data:', error);
-        }
-    };
-
-    const fetchWishList = async () => {
-        try {
-            const response = await fetch('http://localhost:2999/user/wishlist', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch wishlist');
-            }
-
-            const data = await response.json();
-            setWishListProducts(data.wishList);
-        } catch (error) {
-            console.error('Error fetching wishlist:', error);
         }
     };
 
@@ -84,6 +64,7 @@ export const UserProvider = ({ children }) => {
             setToken(data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
             localStorage.setItem('token', data.token);
+            fetchWishList(); // Fetch wishlist after login
             return true;
         } catch (error) {
             console.error('Error logging in:', error.message);
@@ -109,6 +90,7 @@ export const UserProvider = ({ children }) => {
             setToken(data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
             localStorage.setItem('token', data.token);
+            fetchWishList(); // Fetch wishlist after registration
             return true;
         } catch (error) {
             console.error('Error registering:', error.message);
@@ -149,12 +131,13 @@ export const UserProvider = ({ children }) => {
     const logout = () => {
         setUser(null);
         setToken(null);
+        setWishListProducts([]);
         localStorage.removeItem('user');
         localStorage.removeItem('token');
     };
 
     return (
-        <UserContext.Provider value={{ user, setUser, token, login, register, logout, fetchUser, toggleWishList, wishListProducts, fetchWishList }}>
+        <UserContext.Provider value={{ user, setUser, token, login, register, logout, fetchUser, toggleWishList, wishListProducts }}>
             {children}
         </UserContext.Provider>
     );

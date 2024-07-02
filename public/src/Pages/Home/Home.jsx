@@ -1,13 +1,13 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useProducts } from '../../usecontext/ProductContext';
+import { useProducts } from '../../usecontext/ProductContext.jsx';
 import Cards from '../../Componentes/Cards/Cards.jsx';
 import { Box, Input, VStack, Text, Image, Flex } from '@chakra-ui/react';
-import PokemonBaner from '../../assets/Imagenes/pokemonBaner.jpeg'; 
+import PokemonBaner from '../../assets/Imagenes/pokemonBaner.jpeg';
+import Type from '../../Componentes/Type.jsx'; // Importamos el componente Type creado
 
 const Home = () => {
-  const {products} = useProducts();
+  const { products } = useProducts();
   const [bestRated, setBestRated] = useState([]);
   const [mostCommented, setMostCommented] = useState([]);
   const [newest, setNewest] = useState([]);
@@ -17,7 +17,7 @@ const Home = () => {
 
   useEffect(() => {
     if (products.length > 0) {
-      setBestRated(products.filter(p => p.likes[0].likesCount > 0).sort((a, b) => b.likes[0].likes - a.likes[0].likes).slice(0, 5));
+      setBestRated(products.filter(p => p.likes[0].star > 0).sort((a, b) => b.likes[0].star - a.likes[0].star).slice(0, 5));
       setMostCommented(products.filter(p => p.reviews.length > 0).sort((a, b) => b.reviews.length - a.reviews.length).slice(0, 5));
       setNewest(products.slice(-5).reverse());
 
@@ -77,8 +77,8 @@ const Home = () => {
           </VStack>
         </Box>
       </Box>
-      <Box p={4}>
-        <Box className="home-section">
+      <Box p={4} justify="center">
+        <Box className="home-section" >
           <Text fontSize="2xl" fontWeight="bold">Novedades</Text>
           <Cards products={newest} />
         </Box>
@@ -94,11 +94,8 @@ const Home = () => {
           <Text fontSize="2xl" fontWeight="bold">Tipos Más Vendidos</Text>
           <Flex wrap="wrap" justify="center">
             {topTypes.map(({ type, image }) => (
-              <Box key={type} m={2}>
-                <Link to={`/pokemon/tipo/${type}`}>
-                  <Image src={image} alt={type} boxSize="150px" borderRadius="md" />
-                  <Text textAlign="center">{type}</Text>
-                </Link>
+              <Box key={type} m={15}>
+                <Type type={type} image={image} />
               </Box>
             ))}
           </Flex>

@@ -1,6 +1,8 @@
 const { getFirestore, doc, updateDoc, arrayUnion } = require('firebase/firestore');
 const firebaseapp = require('../config/firebase');
 const fireDb = getFirestore(firebaseapp);
+const ProductoModel= require('../models/ProductModel')
+const User = require("../models/UserModel");
 
 const calcularMediaValoracion = (likes, likesCount, nuevoVoto) => {
     // Calcular la nueva suma de valoraciones
@@ -28,6 +30,9 @@ const CommentController = {
                 console.log("Faltan datos en la solicitud: ", req.body);
                 return res.status(400).json({ message: 'Faltan datos en la solicitud' });
             }
+            if (isNaN(rating) || rating < 1 || rating > 5) {
+                return res.status(400).json({ message: 'La puntuación debe ser un número entre 1 y 5' });
+            }
 
             // Buscar el producto en MongoDB
             const product = await ProductoModel.findById(productId);
@@ -36,7 +41,7 @@ const CommentController = {
             }
 
             // Buscar el usuario en MongoDB por username
-            const user = await UserModel.findOne({ username });
+            const user = await User.findOne({ username });
             if (!user) {
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }
