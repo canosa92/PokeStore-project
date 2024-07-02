@@ -30,7 +30,10 @@ const CommentController = {
                 console.log("Faltan datos en la solicitud: ", req.body);
                 return res.status(400).json({ message: 'Faltan datos en la solicitud' });
             }
-            if (isNaN(rating) || rating < 1 || rating > 5) {
+
+            // Convertir rating a número y verificar que es válido
+            const parsedRating = Number(rating);
+            if (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
                 return res.status(400).json({ message: 'La puntuación debe ser un número entre 1 y 5' });
             }
 
@@ -57,7 +60,7 @@ const CommentController = {
                 productDescription,
                 comment,
                 username,
-                rating,
+                rating: parsedRating,
                 createdAt: new Date()
             };
 
@@ -66,8 +69,8 @@ const CommentController = {
 
             // Actualizar likes y calcular estrellas del producto
             product.likes[0].likesCount += 1;
-            product.likes[0].likes += rating;
-            product.likes[0].star = calcularMediaValoracion(product.likes[0].likes, product.likes[0].likesCount, rating);
+            product.likes[0].likes += parsedRating;
+            product.likes[0].star = calcularMediaValoracion(product.likes[0].likes, product.likes[0].likesCount, parsedRating);
 
             // Guardar el producto actualizado en MongoDB
             await product.save();
