@@ -14,7 +14,7 @@ import {
   Divider,
   ButtonGroup,
   HStack,
-  IconButton, // Importar IconButton desde Chakra UI
+  IconButton,
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
@@ -40,10 +40,15 @@ const ProductDetail = () => {
   );
 
   const [comments, setComments] = useState([]);
+  const [ratingData, setRatingData] = useState({ star: 0, likesCount: 0 });
 
   useEffect(() => {
     if (product) {
       setComments(product.reviews); // Actualiza los comentarios del producto desde el contexto global al montar el componente
+      setRatingData({
+        star: product.likes[0].star || 0,
+        likesCount: product.likes[0].likesCount || 0,
+      });
     }
   }, [product]);
 
@@ -58,25 +63,29 @@ const ProductDetail = () => {
   const handleCommentSubmit = (newComment) => {
     addCommentToProduct(product._id, newComment); // Llama a la función del contexto global para agregar el comentario
     setComments((prevComments) => [...prevComments, newComment]); // Actualiza los comentarios en el estado local
+    setRatingData((prevRatingData) => ({
+      star: newComment.updatedRating.star,
+      likesCount: newComment.updatedRating.likesCount,
+    }));
   };
 
   const renderStars = (rating) => {
     const stars = [];
     const roundedRating = Math.round(rating * 10) / 10; // Redondear a un decimal
-  
+
     // Mostrar 3 estrellas si el rating redondeado es mayor a 2.5
     const numberOfStars = roundedRating > 2.5 ? 3 : 2;
-  
+
     // Renderizar las estrellas según el número calculado
     for (let i = 0; i < numberOfStars; i++) {
       stars.push(<StarIcon key={i} color="yellow.400" />);
     }
-  
+
     // Rellenar con estrellas grises si no se alcanza el total de 5
     while (stars.length < 5) {
       stars.push(<StarIcon key={stars.length} color="gray.300" />);
     }
-  
+
     return stars;
   };
 
@@ -88,9 +97,9 @@ const ProductDetail = () => {
             {product.id_pokedex} - {product.nombre}
           </Text>
           <Flex align="center" mb={4}>
-            {renderStars(product.likes[0].star || 0)}{' '}
+            {renderStars(ratingData.star)}{' '}
             <Text ml={2}>
-              {product.likes[0].star.toFixed(1)} estrellas ({product.likes[0].likesCount}{' '}
+              {ratingData.star.toFixed(1)} ({ratingData.likesCount}{' '}
               likes)
             </Text>
           </Flex>

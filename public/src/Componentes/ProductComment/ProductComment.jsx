@@ -60,22 +60,7 @@ const ProductCommentForm = ({ productId, productName, productImage, productDescr
     }
   };
 
-  const renderStars = (rating) => {
-    return Array(5)
-      .fill('')
-      .map((_, i) => (
-        <Icon
-          key={i}
-          as={StarIcon}
-          color={i < (hover || rating) ? 'yellow.400' : 'gray.300'}
-          onClick={() => setRating(i + 1)}
-          onMouseEnter={() => setHover(i + 1)}
-          onMouseLeave={() => setHover(rating)}
-          cursor="pointer"
-        />
-      ));
-  };
-
+ 
   return (
     <Box as="form" onSubmit={handleSubmit} p={4} boxShadow="md" borderRadius="md" bg="white" mt={4}>
       <FormControl id="comment" isRequired>
@@ -85,7 +70,17 @@ const ProductCommentForm = ({ productId, productName, productImage, productDescr
       <FormControl id="rating" isRequired mt={4}>
         <FormLabel>Tu puntuación</FormLabel>
         <HStack spacing={1}>
-          {renderStars(rating)}
+        {[1, 2, 3, 4, 5].map(star => (
+                            <Icon
+                                as={StarIcon}
+                                key={star}
+                                onClick={() => setRating(star)}
+                                onMouseEnter={() => setHover(star)}
+                                onMouseLeave={() => setHover(0)}
+                                cursor="pointer"
+                                color={star <= (hover || rating) ? 'gold' : 'gray.300'}
+                            />
+                        ))}
         </HStack>
       </FormControl>
       {error && (

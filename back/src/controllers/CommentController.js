@@ -1,57 +1,42 @@
 const { getFirestore, doc, updateDoc, arrayUnion } = require('firebase/firestore');
 const firebaseapp = require('../config/firebase');
 const fireDb = getFirestore(firebaseapp);
-const ProductoModel= require('../models/ProductModel')
+const ProductoModel = require('../models/ProductModel');
 const User = require("../models/UserModel");
 
-const calcularMediaValoracion = (likes, likesCount, nuevoVoto) => {
-    // Calcular la nueva suma de valoraciones
-    const nuevaSumaLikes = likes + nuevoVoto;
-
-    // Incrementar el contador de votos
-    const nuevoLikesCount = likesCount + 1;
-
-    // Calcular la nueva media
-    const nuevaMedia = nuevaSumaLikes / nuevoLikesCount;
-
-    // Asegurar que la nueva media esté entre 1 y 5
-    const mediaFinal = Math.min(Math.max(nuevaMedia, 1), 5);
-
-    return mediaFinal;
+const calcularMediaValoracion = (nuevoVoto, votosTotales) => {
+    const nuevaMedia = (nuevoVoto * votosTotales) / votosTotales;
+    return Math.min(Math.max(nuevaMedia, 1), 5);
 };
 
 const CommentController = {
     async addComment(req, res) {
         try {
             const { productId, productName, productImage, productDescription, comment, rating, username, uid } = req.body;
+            console.log(productId, productName, productImage, productDescription, comment, rating, username, uid);
 
-            // Verificar que todos los campos están presentes
             if (!productId || !productName || !productImage || !productDescription || !comment || rating === undefined || !username || !uid) {
                 console.log("Faltan datos en la solicitud: ", req.body);
                 return res.status(400).json({ message: 'Faltan datos en la solicitud' });
             }
 
-            // Convertir rating a número y verificar que es válido
             const parsedRating = Number(rating);
             if (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
                 return res.status(400).json({ message: 'La puntuación debe ser un número entre 1 y 5' });
             }
 
-            // Buscar el producto en MongoDB
             const product = await ProductoModel.findById(productId);
             if (!product) {
                 return res.status(404).json({ message: 'Producto no encontrado' });
             }
 
-            // Buscar el usuario en MongoDB por username
             const user = await User.findOne({ username });
             if (!user) {
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }
 
-            const userId = user._id.toString(); // Asegurarse de que userId es una cadena
+            const userId = user._id.toString();
 
-            // Crear el nuevo comentario
             const newReview = {
                 productId,
                 userId,
@@ -64,22 +49,30 @@ const CommentController = {
                 createdAt: new Date()
             };
 
-            // Agregar el comentario a las revisiones del producto
             product.reviews.push(newReview);
 
-            // Actualizar likes y calcular estrellas del producto
-            product.likes[0].likesCount += 1;
-            product.likes[0].likes += parsedRating;
-            product.likes[0].star = calcularMediaValoracion(product.likes[0].likes, product.likes[0].likesCount, parsedRating);
+            if (!Array.isArray(product.likes) || product.likes.length === 0) {
+                console.error('product.likes is not an array or is empty');
+                return res.status(500).json({ message: 'Invalid product likes data' });
+            }
 
-            // Guardar el producto actualizado en MongoDB
+            const productLike = product.likes[0];
+            if (typeof productLike.likesCount !== 'number') {
+                console.error(`Invalid likes data: likesCount=${productLike.likesCount}`);
+                return res.status(500).json({ message: 'Invalid product likes data' });
+            }
+
+            productLike.likesCount += 1;
+            productLike.star = calcularMediaValoracion(parsedRating, productLike.likesCount);
+
+            console.log(productLike.star);
+            console.log(calcularMediaValoracion(parsedRating, productLike.likesCount));
+
             await product.save();
 
-            // Agregar el comentario al usuario en MongoDB
             user.reviews.push(newReview);
             await user.save();
 
-            // Actualizar los comentarios del usuario en Firebase usando uid
             const userRef = doc(fireDb, 'usuario', uid);
             await updateDoc(userRef, {
                 reviews: arrayUnion(newReview)
