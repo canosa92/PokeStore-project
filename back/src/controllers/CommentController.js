@@ -4,19 +4,16 @@ const fireDb = getFirestore(firebaseapp);
 const ProductoModel = require('../models/ProductModel');
 const User = require("../models/UserModel");
 
-const calcularMediaValoracion = (nuevoVoto, votosTotales) => {
-    const nuevaMedia = (nuevoVoto * votosTotales) / votosTotales;
-    return Math.min(Math.max(nuevaMedia, 1), 5);
+const calcularMediaValoracion = (votosPrevios, nuevoVoto, totalVotos) => {
+    const sumaTotal = votosPrevios * (totalVotos - 1) + nuevoVoto;
+    return Math.min(Math.max(sumaTotal / totalVotos, 1), 5);
 };
 
 const CommentController = {
     async addComment(req, res) {
         try {
             const { productId, productName, productImage, productDescription, comment, rating, username, uid } = req.body;
-            console.log(productId, productName, productImage, productDescription, comment, rating, username, uid);
-
             if (!productId || !productName || !productImage || !productDescription || !comment || rating === undefined || !username || !uid) {
-                console.log("Faltan datos en la solicitud: ", req.body);
                 return res.status(400).json({ message: 'Faltan datos en la solicitud' });
             }
 
@@ -52,21 +49,15 @@ const CommentController = {
             product.reviews.push(newReview);
 
             if (!Array.isArray(product.likes) || product.likes.length === 0) {
-                console.error('product.likes is not an array or is empty');
-                return res.status(500).json({ message: 'Invalid product likes data' });
+                return res.status(500).json({ message: 'Datos de "likes" del producto inválidos' });
             }
 
             const productLike = product.likes[0];
-            if (typeof productLike.likesCount !== 'number') {
-                console.error(`Invalid likes data: likesCount=${productLike.likesCount}`);
-                return res.status(500).json({ message: 'Invalid product likes data' });
-            }
+            const newLikesCount = productLike.likesCount + 1;
+            const newStarRating = calcularMediaValoracion(productLike.star, parsedRating, newLikesCount);
 
-            productLike.likesCount += 1;
-            productLike.star = calcularMediaValoracion(parsedRating, productLike.likesCount);
-
-            console.log(productLike.star);
-            console.log(calcularMediaValoracion(parsedRating, productLike.likesCount));
+            productLike.star = newStarRating;
+            productLike.likesCount = newLikesCount;
 
             await product.save();
 
@@ -78,9 +69,17 @@ const CommentController = {
                 reviews: arrayUnion(newReview)
             });
 
-            res.json(newReview);
+            const updatedRating = {
+                star: newStarRating,
+                likesCount: newLikesCount
+            };
+
+            res.json({
+                ...newReview,
+                updatedRating
+            });
+            console.log(updatedRating);
         } catch (error) {
-            console.error("Error al insertar el comentario: ", error);
             res.status(500).json({ error: error.message });
         }
     }

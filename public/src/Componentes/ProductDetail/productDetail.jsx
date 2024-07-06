@@ -7,11 +7,9 @@ import {
   Text,
   Image,
   Flex,
-  Stack,
-  Button,
   Tag,
-  Progress,
   Divider,
+  Button,
   ButtonGroup,
   HStack,
   IconButton,
@@ -44,10 +42,11 @@ const ProductDetail = () => {
 
   useEffect(() => {
     if (product) {
-      setComments(product.reviews); // Actualiza los comentarios del producto desde el contexto global al montar el componente
+      setComments(product.reviews || []);
+      const productLike = product.likes[0] || { star: 0, likesCount: 0 };
       setRatingData({
-        star: product.likes[0].star || 0,
-        likesCount: product.likes[0].likesCount || 0,
+        star: productLike.star,
+        likesCount: productLike.likesCount,
       });
     }
   }, [product]);
@@ -60,30 +59,25 @@ const ProductDetail = () => {
     );
   }
 
-  const handleCommentSubmit = (newComment) => {
-    addCommentToProduct(product._id, newComment); // Llama a la función del contexto global para agregar el comentario
-    setComments((prevComments) => [...prevComments, newComment]); // Actualiza los comentarios en el estado local
-    setRatingData((prevRatingData) => ({
-      star: newComment.updatedRating.star,
-      likesCount: newComment.updatedRating.likesCount,
-    }));
+  const handleCommentSubmit = (data) => {
+    const newComment = {
+      ...data,
+      createdAt: new Date()
+    };
+    addCommentToProduct(product._id, newComment);
+    setComments((prevComments) => [...prevComments, newComment]);
+    setRatingData({
+      star: data.updatedRating.star,
+      likesCount: data.updatedRating.likesCount,
+    });
   };
 
   const renderStars = (rating) => {
     const stars = [];
-    const roundedRating = Math.round(rating * 10) / 10; // Redondear a un decimal
+    const roundedRating = Math.round(rating * 10) / 10;
 
-    // Mostrar 3 estrellas si el rating redondeado es mayor a 2.5
-    const numberOfStars = roundedRating > 2.5 ? 3 : 2;
-
-    // Renderizar las estrellas según el número calculado
-    for (let i = 0; i < numberOfStars; i++) {
-      stars.push(<StarIcon key={i} color="yellow.400" />);
-    }
-
-    // Rellenar con estrellas grises si no se alcanza el total de 5
-    while (stars.length < 5) {
-      stars.push(<StarIcon key={stars.length} color="gray.300" />);
+    for (let i = 0; i < 5; i++) {
+      stars.push(<StarIcon key={i} color={i < roundedRating ? "yellow.400" : "gray.300"} />);
     }
 
     return stars;
@@ -99,8 +93,7 @@ const ProductDetail = () => {
           <Flex align="center" mb={4}>
             {renderStars(ratingData.star)}{' '}
             <Text ml={2}>
-              {ratingData.star.toFixed(1)} ({ratingData.likesCount}{' '}
-              likes)
+              {ratingData.star.toFixed(1)} ({ratingData.likesCount} likes)
             </Text>
           </Flex>
           {product.mythical && (
@@ -127,28 +120,22 @@ const ProductDetail = () => {
 
           <Box flex="1" textAlign="center" mb={4} mx={[0, 4]}>
             <Text fontSize="xl">{product.descripcion}</Text>
-            <Flex justify="center" wrap="wrap" gap={2}>
-              <Tag colorScheme="green">{product.peso} kg</Tag>
-              <Tag colorScheme="green">{product.altura} m</Tag>
+            <Flex justify="center" wrap="wrap" gap={5} my={2}>
+              <Tag colorScheme="green" fontSize="lg">{product.peso} kg</Tag>
+              <Tag colorScheme="green" fontSize="lg">{product.altura} m</Tag>
             </Flex>
-            <Flex justify="center" wrap="wrap" gap={2}>
+            <Flex justify="center" wrap="wrap" gap={5} my={2}>
               {product.tipo.map((tipo, index) => (
-                <Tag key={index} colorScheme="blue">
+                <Tag key={index} colorScheme="blue" fontSize="lg">
                   {tipo}
                 </Tag>
               ))}
             </Flex>
-            <Text fontSize="xl" fontWeight="bold">
-              Ratio de captura:
-            </Text>
-            <Tag colorScheme="blue">{product.ratio_captura}</Tag>
-            <Text fontSize="xl" fontWeight="bold">
-              Experiencia Base:
-            </Text>
-            <Tag colorScheme="blue">{product.base_experience} puntos</Tag>
-            <Text fontSize="xl" fontWeight="bold">
-              Habilidades:
-            </Text>
+            <Text fontSize="xl" fontWeight="bold">Ratio de captura:</Text>
+            <Tag colorScheme="blue" fontSize="lg">{product.ratio_captura}</Tag>
+            <Text fontSize="xl" fontWeight="bold">Experiencia Base:</Text>
+            <Tag colorScheme="blue" fontSize="lg">{product.base_experience} puntos</Tag>
+            <Text fontSize="xl" fontWeight="bold">Habilidades:</Text>
             <ul>
               {product.habilidades.map((habilidad, index) => (
                 <li key={index}>
@@ -159,105 +146,81 @@ const ProductDetail = () => {
                 </li>
               ))}
             </ul>
-            <Text fontSize="xl" fontWeight="bold">
-              Cadena Evolutiva:
-            </Text>
+            <Text fontSize="xl" fontWeight="bold">Cadena Evolutiva:</Text>
             {product.cadena_evoluciones.length > 1 ? (
-              <Flex wrap="wrap" justify="center">
+              <Flex wrap="wrap" justify="center" my={2}>
                 {product.cadena_evoluciones.map((evolucion, index) => (
-                  <Text key={index} mx={2}>
-                    <Link to={`/pokemon/${evolucion.especie.toLowerCase()}`}>
-                      <Text as="span" fontWeight="bold">
-                        {capitalizeName(evolucion.especie)}
-                      </Text>
+                  <Text key={index} mx={2} fontSize="lg" fontWeight="bold">
+                    <Link to={`/product/${evolucion.especie}`} style={{ fontSize: '1.2em', fontWeight: 'bold' }}>
+                      {evolucion.especie} (Nivel {evolucion.nivel})
                     </Link>
-                    {evolucion.nivel ? ` - Nivel: ${evolucion.nivel}` : ' - Nivel: 0'}
+                    {index < product.cadena_evoluciones.length - 1 && (
+                      <Text as="span"> &rarr; </Text>
+                    )}
                   </Text>
                 ))}
               </Flex>
             ) : (
-              <Text fontSize="lg">Este Pokémon no tiene cadena evolutiva.</Text>
+              <Text>Este Pokémon no tiene evoluciones.</Text>
             )}
           </Box>
         </Flex>
 
-        <Box textAlign="center" mt={4}>
-          <Text fontSize="xl" fontWeight="bold">
-            Estadísticas:
-          </Text>
-          <Stack spacing={2} mt={2}>
-            {product.estadisticas.map((stat, index) => (
-              <Flex key={index} direction="column" align="center">
-                <Text fontWeight="bold">{capitalizeName(stat.nombre)}:</Text>
-                <Progress value={stat.valor} max="200" colorScheme="green" size="sm" width="80%" />
-              </Flex>
-            ))}
-          </Stack>
-        </Box>
+        <ButtonGroup justifyContent="center" mt={4} spacing={4}>
+          <Button
+            colorScheme="green"
+            onClick={() => añadir(product)}
+            disabled={!product.stock}
+          >
+            {product.stock ? 'Añadir al carrito' : 'Sin stock'}
+          </Button>
+          <HStack spacing={2}>
+            <IconButton
+              aria-label={user?.wishList?.includes(product._id) ? 'Eliminar de la lista de deseos' : 'Añadir a la lista de deseos'}
+              icon={user?.wishList?.includes(product._id) ? <FaHeart /> : <FaRegHeart />}
+              onClick={() => toggleWishList(product)}
+              colorScheme={user?.wishList?.includes(product._id) ? 'red' : 'gray'}
+            />
+          </HStack>
+        </ButtonGroup>
+      </Box>
 
-        <Box mt={4} textAlign="center">
-          <Text fontSize="2xl" fontWeight="bold">
-            Precio: {product.precio} €
-          </Text>
-          <ButtonGroup mt={2}>
-            {!user && (
-              <Button colorScheme="blue">
-                <Link to="/login">Inicia sesión</Link>
-              </Button>
-            )}
-            <Button onClick={() => añadir(product)}>Añadir a la lista</Button>
-            {user && (
-              <IconButton
-                icon={user.wishList.includes(product._id) ? <FaHeart color="red" /> : <FaRegHeart />}
-                aria-label="Add to wishlist"
-                variant="ghost"
-                colorScheme="blue"
-                onClick={() => toggleWishList(user.uid, product._id)}
-              />
-            )}
-          </ButtonGroup>
-        </Box>
+      <Divider my={4} />
 
-        <Box mt={4}>
-          <Divider />
-        </Box>
-
-        <Box mt={4}>
-          {comments.length > 0 ? (
+      <Box p={4}>
+        {user ? (
+          <>
+            <ProductCommentForm
+              productId={product._id}
+              productName={product.nombre}
+              productImage={product.imagen}
+              productDescription={product.descripcion}
+              onCommentSubmit={handleCommentSubmit}
+            />
             <Box mt={4}>
-              <Text fontSize="xl" fontWeight="bold">
-                Reviews:
-              </Text>
-              {comments.map((review, index) => (
-                <Box key={index} p={4} bg="gray.100" borderRadius="md" mt={2}>
-                  <Flex justify="space-between" align="center">
-                    <Text fontWeight="bold">{review.username || 'Usuario desconocido'}</Text>
-                    <HStack spacing={1}>{renderStars(review.rating)}</HStack>
-                  </Flex>
-                  <Text>{review.comment}</Text>
-                </Box>
-              ))}
-            </Box>
-          ) : (
-            <Box mt={4} textAlign="center">
-              <Text fontSize="lg">¡Sé el primero en comentar!</Text>
-              {!user && (
-                <Text fontSize="lg">
-                  Por favor, <Link to="/register">regístrate</Link> o{' '}
-                  <Link to="/login">inicia sesión</Link>.
-                </Text>
+              {comments.length > 0 ? (
+                comments.map((review, index) => (
+                  <Box key={index} mb={4} p={4} borderWidth="1px" borderRadius="md" boxShadow="md">
+                    <Text fontSize="md" fontWeight="bold">
+                      {review.username} - {renderStars(review.rating)}
+                    </Text>
+                    <Text mt={2}>{review.comment}</Text>
+                    <Text mt={2} fontSize="sm" color="gray.500">
+                      {new Date(review.createdAt).toLocaleDateString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                      })}
+                    </Text>
+                  </Box>
+                ))
+              ) : (
+                <Text>Logeate o registrate para ser el primero en comentar.</Text>
               )}
             </Box>
-          )}
-        </Box>
-        {user && (
-          <ProductCommentForm
-            productId={product._id}
-            productName={product.nombre}
-            productImage={product.imagen}
-            productDescription={product.descripcion}
-            onCommentSubmit={handleCommentSubmit}
-          />
+          </>
+        ) : (
+          <Text>Para añadir un comentario debes de estar logeado.</Text>
         )}
       </Box>
     </ChakraProvider>

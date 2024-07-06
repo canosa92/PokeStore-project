@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import { useUser } from '../../usecontext/UserContext.jsx';
-import { Box, Button, FormControl, FormLabel, Textarea, Text, VStack, HStack, Icon } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Textarea,
+  Text,
+  HStack,
+  Icon
+} from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 
 const ProductCommentForm = ({ productId, productName, productImage, productDescription, onCommentSubmit }) => {
@@ -18,7 +27,7 @@ const ProductCommentForm = ({ productId, productName, productImage, productDescr
     setError(null);
 
     const parsedRating = Number(rating);
-    if (!comment || parsedRating === 0 || isNaN(parsedRating)) {  // Validar que rating sea un número válido
+    if (!comment || parsedRating === 0 || isNaN(parsedRating)) {
       setError('Por favor, completa todos los campos y asegúrate de que la puntuación sea un número válido');
       setLoading(false);
       return;
@@ -46,7 +55,7 @@ const ProductCommentForm = ({ productId, productName, productImage, productDescr
       const data = await response.json();
 
       if (response.ok) {
-        onCommentSubmit(data); // Llama a la función del componente padre para actualizar la UI
+        onCommentSubmit(data);
         setComment('');
         setRating(0);
         setHover(0);
@@ -60,7 +69,6 @@ const ProductCommentForm = ({ productId, productName, productImage, productDescr
     }
   };
 
- 
   return (
     <Box as="form" onSubmit={handleSubmit} p={4} boxShadow="md" borderRadius="md" bg="white" mt={4}>
       <FormControl id="comment" isRequired>
@@ -70,17 +78,17 @@ const ProductCommentForm = ({ productId, productName, productImage, productDescr
       <FormControl id="rating" isRequired mt={4}>
         <FormLabel>Tu puntuación</FormLabel>
         <HStack spacing={1}>
-        {[1, 2, 3, 4, 5].map(star => (
-                            <Icon
-                                as={StarIcon}
-                                key={star}
-                                onClick={() => setRating(star)}
-                                onMouseEnter={() => setHover(star)}
-                                onMouseLeave={() => setHover(0)}
-                                cursor="pointer"
-                                color={star <= (hover || rating) ? 'gold' : 'gray.300'}
-                            />
-                        ))}
+          {[1, 2, 3, 4, 5].map(star => (
+            <Icon
+              as={StarIcon}
+              key={star}
+              onClick={() => setRating(star)}
+              onMouseEnter={() => setHover(star)}
+              onMouseLeave={() => setHover(0)}
+              cursor="pointer"
+              color={star <= (hover || rating) ? 'gold' : 'gray.300'}
+            />
+          ))}
         </HStack>
       </FormControl>
       {error && (
