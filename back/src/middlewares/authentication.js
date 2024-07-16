@@ -1,21 +1,18 @@
-const { getAuth, onAuthStateChanged } = require('firebase/auth');
-const app = require('../config/firebase');
-
-const auth = getAuth(app);
-
+// middleware/authentication.js
+const {admin} = require('../config/firebase'); // Ajusta la ruta según sea necesario
 const authentication = (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ message: 'No se proporcionó token de autenticación' });
+    }
+
     try {
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                req.user = user; 
-                console.log("Usuario autenticado:", user.uid);
-                next(); 
-                res.status(401).json({ message: 'Acceso no autorizado. Debes iniciar sesión.' });
-            }
-        });
+        const decodedToken = admin.auth().verifyIdToken(token);
+        req.user = decodedToken;
+        next();
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error al verificar la autenticación" });
+        console.error('Error de autenticación:', error);
+        res.status(401).json({ message: 'Token inválido' });
     }
 };
 

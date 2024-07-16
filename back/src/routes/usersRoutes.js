@@ -6,8 +6,8 @@ const routerUser = express.Router();
 routerUser.post("/register", UserController.register);
 routerUser.post("/login", UserController.login);
 routerUser.delete('/delete/:username', authentication, UserController.deleteUser);
-routerUser.post('/wishlist/add', authentication, UserController.addToWishList);
-routerUser.post('/wishlist/remove', authentication, UserController.removeFromWishList);
-routerUser.get('/user-profile', authentication, UserController.getUserProfile);
+routerUser.post('/:userId/wishlist/add', authentication, UserController.addToWishList);
+routerUser.post('/:userId/wishlist/remove', authentication, UserController.removeFromWishList);
+routerUser.get('/:userId/user-profile', authentication, UserController.getUserProfile);
 
 module.exports = routerUser;

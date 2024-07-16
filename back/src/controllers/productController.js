@@ -1,5 +1,6 @@
 const ProductoModel= require('../models/ProductModel')
-const { admin } = require('../config/firebase');
+const { firebaseapp, admin } = require('../config/firebase');
+const { getAuth} = require('firebase/auth');
 
 
 function calcularStar(rating, likesCount) {

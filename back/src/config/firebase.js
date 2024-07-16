@@ -1,4 +1,6 @@
-const firebase = require('firebase/app');
+const { initializeApp } = require('firebase/app');
+const admin = require('firebase-admin');
+const serviceAccount = require('./poke-ecommerce-firebase-adminsdk-5rhqo-9a8241c1ea.json');
 
 const firebaseConfig = {
   apiKey: process.env.FB_APIKEY,
@@ -9,6 +11,13 @@ const firebaseConfig = {
   appId: process.env.FB_APPID
 };
 
-const firebaseapp = firebase.initializeApp(firebaseConfig);
+// Inicializa Firebase App
+const firebaseapp = initializeApp(firebaseConfig);
 
-module.exports = firebaseapp
+// Inicializa Firebase Admin
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://poke-ecommerce-default-rtdb.europe-west1.firebasedatabase.app"
+});
+
+module.exports = { firebaseapp, admin };

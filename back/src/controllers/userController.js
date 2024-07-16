@@ -1,11 +1,25 @@
 const User = require("../models/UserModel");
-const firebaseapp = require('../config/firebase');
+const ProductoModel= require('../models/ProductModel')
+const { firebaseapp, admin } = require('../config/firebase');
 const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } = require('firebase/auth');
 const { getFirestore, collection, doc, setDoc, getDoc, Timestamp, deleteDoc } = require('firebase/firestore');
-const admin = require('firebase-admin');
 
 const auth = getAuth(firebaseapp);
 const fireDb = getFirestore(firebaseapp);
+
+const fetchWishListProducts = async (wishList) => {
+    try {
+        if (!wishList || wishList.length === 0) {
+            return [];
+        }
+
+        const products = await ProductoModel.find({ _id: { $in: wishList } });
+        return products;
+    } catch (error) {
+        console.error('Error fetching wishlist products:', error);
+        return [];
+    }
+};
 
 const UserController = {
     async register(req, res, next) {
@@ -74,33 +88,31 @@ const UserController = {
             res.status(500).json({ message: "Error al iniciar sesión" });
         }
     },
-
     async getUserProfile(req, res) {
         try {
-            const userDoc = await getDoc(doc(fireDb, 'usuario', req.user.uid));
-            if (!userDoc.exists) {
+            const { userId } = req.params;
+            const userDoc = await getDoc(doc(fireDb, 'usuario', userId));
+            if (!userDoc.exists()) {
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }
             const userData = userDoc.data();
     
-            // Verificar si wishList existe y no está vacía
             let products = [];
             if (userData.wishList && userData.wishList.length > 0) {
-                products = await ProductModel.find({ _id: { $in: userData.wishList } });
+                products = await ProductoModel.find({ _id: { $in: userData.wishList } });
             }
     
             res.json({ user: userData, wishListProducts: products });
         } catch (error) {
-            if (!res.headersSent) {
-                res.status(500).json({ message: 'Error del servidor', error });
-            }
+            console.error('Error al obtener el perfil del usuario:', error);
+            res.status(500).json({ message: 'Error del servidor', error: error.message });
         }
     },
 
     async deleteUser(req, res) {
         const { username } = req.params;
         try {
-            const user = await UserModel.findOneAndDelete({ username });
+            const user = await User.findOneAndDelete({ username });
             if (!user) {
                 return res.status(404).json({ message: 'Usuario no encontrado' });
             }
@@ -127,41 +139,62 @@ const UserController = {
         }
     },
 
-    async addToWishList(req, res) {
-        const { userId, productId } = req.body;
-        try {
-            const user = await UserModel.findById(userId);
-            if (!user) {
-                return res.status(404).json({ message: 'Usuario no encontrado' });
-            }
-            user.wishList.push(productId);
-            await user.save();
-            res.status(200).json({ message: 'Producto añadido a la lista de deseos', wishList: user.wishList });
-        } catch (error) {
-            console.error('Error al añadir a la lista de deseos:', error);
-            if (!res.headersSent) {
-                res.status(500).json({ message: 'Error al añadir a la lista de deseos' });
-            }
-        }
-    },
+   // userController.js
 
-    async removeFromWishList(req, res) {
-        const { userId, productId } = req.body;
-        try {
-            const user = await UserModel.findById(userId);
-            if (!user) {
-                return res.status(404).json({ message: 'Usuario no encontrado' });
-            }
-            user.wishList.pull(productId);
-            await user.save();
-            res.status(200).json({ message: 'Producto eliminado de la lista de deseos', wishList: user.wishList });
-        } catch (error) {
-            console.error('Error al eliminar de la lista de deseos:', error);
-            if (!res.headersSent) {
-                res.status(500).json({ message: 'Error al eliminar de la lista de deseos' });
-            }
+   async addToWishList(req, res) {
+        const { productId } = req.body;
+        const { userId } = req.params;
+
+
+    try {
+        const userRef = doc(fireDb, 'usuario', userId);
+        const userDoc = await getDoc(userRef);
+        
+        if (!userDoc.exists()) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
         }
+
+        const userData = userDoc.data();
+        let wishList = userData.wishList || [];
+        
+        if (!wishList.includes(productId)) {
+            wishList.push(productId);
+            await setDoc(userRef, { wishList }, { merge: true });
+        }
+
+        const wishListProducts = await fetchWishListProducts(wishList);
+
+        res.status(200).json({ message: 'Producto añadido a la lista de deseos', wishList, wishListProducts });
+    } catch (error) {
+        console.error('Error al añadir a la lista de deseos:', error);
+        res.status(500).json({ message: 'Error al añadir a la lista de deseos' });
     }
+},
+
+async removeFromWishList(req, res) {
+    const { productId, userId } = req.body; // Obtener userId del cuerpo de la solicitud
+    try {
+        const userRef = doc(fireDb, 'usuario', userId);
+        const userDoc = await getDoc(userRef);
+        
+        if (!userDoc.exists()) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        const userData = userDoc.data();
+        let wishList = userData.wishList || [];
+        
+        wishList = wishList.filter(id => id !== productId);
+        await setDoc(userRef, { wishList }, { merge: true });
+
+        const wishListProducts = await fetchWishListProducts(wishList);
+
+        res.status(200).json({ message: 'Producto eliminado de la lista de deseos', wishList, wishListProducts });
+    } catch (error) {
+        console.error('Error al eliminar de la lista de deseos:', error);
+        res.status(500).json({ message: 'Error al eliminar de la lista de deseos' });
+    }
+}
 };
 
 module.exports = UserController;

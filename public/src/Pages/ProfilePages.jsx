@@ -6,23 +6,31 @@ import { StarIcon } from '@chakra-ui/icons';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
 
 const ProfilePage = () => {
-    const { user, token, logout, fetchUser, fetchWishList, toggleWishList, wishListProducts } = useUser();
+    const { user, token, logout, fetchUser, addToWishList, removeFromWishList, wishListProducts } = useUser();
 
     useEffect(() => {
         if (token) {
             fetchUser(token);
-            fetchWishList();
         }
-    }, [token, fetchUser, fetchWishList]);
+    }, [token, fetchUser]);
 
     if (!user) {
         return <Box textAlign="center" p={4}>Logeate o registrate</Box>;
     }
 
+    const handleWishlistToggle = async (productId) => {
+        if (user.wishList.includes(productId)) {
+            await removeFromWishList(productId);
+        } else {
+            await addToWishList(productId);
+        }
+    };
+
     return (
         <Box p={6} maxW="800px" mx="auto" borderWidth={1} borderRadius="md" boxShadow="lg">
             <Heading as="h1" mb={6} textAlign="center" color="teal.500">Mi Perfil</Heading>
             <VStack spacing={6} align="flex-start">
+                {/* User Info Box */}
                 <Box w="100%" p={4} borderWidth={1} borderRadius="md" boxShadow="md">
                     <Text fontSize="lg"><strong>Name:</strong> {user.name}</Text>
                     <Text fontSize="lg"><strong>Username:</strong> {user.username}</Text>
@@ -33,6 +41,7 @@ const ProfilePage = () => {
 
                 <Divider />
 
+                {console.log(wishListProducts)}
                 <Box w="100%" p={4} borderWidth={1} borderRadius="md" boxShadow="md">
                     <Heading as="h2" size="md" mb={4} color="teal.600">Reviews</Heading>
                     {user.reviews && user.reviews.length ? (
@@ -69,6 +78,7 @@ const ProfilePage = () => {
 
                 <Divider />
 
+                {/* Wishlist Box */}
                 <Box w="100%" p={4} borderWidth={1} borderRadius="md" boxShadow="md">
                     <Heading as="h2" size="md" mb={4} color="teal.600">Mi lista de deseos</Heading>
                     {wishListProducts && wishListProducts.length ? (
@@ -85,7 +95,7 @@ const ProfilePage = () => {
                                             <IconButton
                                                 aria-label="Toggle wishlist"
                                                 icon={user.wishList.includes(product._id) ? <FaHeart color="red" /> : <FaRegHeart />}
-                                                onClick={() => toggleWishList(user._id, product._id)}
+                                                onClick={() => handleWishlistToggle(product._id)}
                                                 variant="ghost"
                                                 size="lg"
                                             />

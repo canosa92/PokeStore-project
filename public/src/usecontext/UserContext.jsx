@@ -17,7 +17,6 @@ export const UserProvider = ({ children }) => {
                 setUser(parsedUser);
                 setToken(storedToken);
                 fetchUser(storedToken);
-                fetchWishList(); // Fetch wishlist when user is loaded
             } catch (error) {
                 console.error('Error parsing user data from localStorage:', error);
                 localStorage.removeItem('user');
@@ -28,21 +27,25 @@ export const UserProvider = ({ children }) => {
 
     const fetchUser = async (token) => {
         try {
-            const response = await fetch('http://localhost:2999/user/user-profile', {
+            const userId = user.uid; // Asegúrate de que 'user' esté disponible aquí
+            const response = await fetch(`http://localhost:2999/user/${userId}/user-profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-
+    
             if (!response.ok) {
-                throw new Error('Failed to fetch user data');
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to fetch user data');
             }
-
+    
             const userData = await response.json();
             setUser(userData.user);
-            setWishListProducts(userData.wishListProducts); // Set the wishlist products from user profile response
+            setWishListProducts(userData.wishListProducts);
         } catch (error) {
             console.error('Error fetching user data:', error);
+            // Puedes manejar el error aquí, por ejemplo, cerrando la sesión del usuario
+            logout();
         }
     };
 
@@ -60,15 +63,15 @@ export const UserProvider = ({ children }) => {
             }
 
             const data = await response.json();
-            setUser(data.user);
-            setToken(data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            localStorage.setItem('token', data.token);
-            fetchWishList(); // Fetch wishlist after login
-            return true;
-        } catch (error) {
-            console.error('Error logging in:', error.message);
-            return false;
+        setUser(data.user);
+        setToken(data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token);
+        await fetchUser(data.token); // Llama a fetchUser después de establecer el usuario y el token
+        return true;
+    } catch (error) {
+        console.error('Error logging in:', error.message);
+        return false;
         }
     };
 
@@ -90,7 +93,7 @@ export const UserProvider = ({ children }) => {
             setToken(data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
             localStorage.setItem('token', data.token);
-            fetchWishList(); // Fetch wishlist after registration
+            fetchUser(data.token);
             return true;
         } catch (error) {
             console.error('Error registering:', error.message);
@@ -98,33 +101,58 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-    const toggleWishList = async (userId, productId) => {
+   
+
+    const addToWishList = async (productId) => {
         try {
-            const response = await fetch(`http://localhost:2999/user/wishlist/${user.wishList.includes(productId) ? 'remove' : 'add'}`, {
+            const token = localStorage.getItem('token'); // O donde sea que lo estés almacenando
+            const response = await fetch(`http://localhost:2999/user/${user.uid}/wishlist/add`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ userId, productId }),
+                body: JSON.stringify({ productId }),
             });
-
+    
             if (!response.ok) {
-                throw new Error('Failed to toggle wishlist');
+                throw new Error('Failed to add to wishlist');
             }
-
+    
             const data = await response.json();
-
-            // Update wishListProducts state
-            setWishListProducts(data.wishList);
-
-            // Update user state
-            setUser((prevUser) => ({
+            setUser(prevUser => ({
                 ...prevUser,
-                wishList: data.wishList, // Update user's wishList with the response
+                wishList: data.wishList
             }));
+            console.log('Product added to wishlist:', productId);
         } catch (error) {
-            console.error('Error updating wishlist:', error);
+            console.error('Error adding to wishlist:', error);
+        }
+    };
+    
+    const removeFromWishList = async (productId) => {
+        try {
+            const response = await fetch('http://localhost:2999/user/wishlist/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ productId }),
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to remove from wishlist');
+            }
+    
+            const data = await response.json();
+            setUser(prevUser => ({
+                ...prevUser,
+                wishList: data.wishList
+            }));
+            console.log('Product removed from wishlist:', productId);
+        } catch (error) {
+            console.error('Error removing from wishlist:', error);
         }
     };
 
@@ -137,7 +165,17 @@ export const UserProvider = ({ children }) => {
     };
 
     return (
-        <UserContext.Provider value={{ user, setUser, token, login, register, logout, fetchUser, toggleWishList, wishListProducts }}>
+        <UserContext.Provider value={{ 
+            user, 
+            token, 
+            wishListProducts,
+            login, 
+            register, 
+            logout, 
+            fetchUser, 
+            addToWishList, 
+            removeFromWishList 
+        }}>
             {children}
         </UserContext.Provider>
     );

@@ -14,7 +14,6 @@ import { StarIcon } from '@chakra-ui/icons';
 
 const ProductCommentForm = ({ productId, productName, productImage, productDescription, onCommentSubmit }) => {
   const { user, token } = useUser();
-
   const [comment, setComment] = useState('');
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -48,7 +47,7 @@ const ProductCommentForm = ({ productId, productName, productImage, productDescr
           comment,
           rating: parsedRating,
           username: user.username,
-          uid: user.uid
+          uid: user.uid,
         })
       });
 

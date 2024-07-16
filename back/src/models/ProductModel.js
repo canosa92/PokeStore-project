@@ -52,7 +52,11 @@ const ProductSchema = new mongoose.Schema({
             },
         comment: String,
         username: String,
-        rating:Number
+        rating:Number,
+        createdAt: {
+            type: Date,
+            default: Date.now
+          }
     }],
     likes: [{ 
         likesCount: {
