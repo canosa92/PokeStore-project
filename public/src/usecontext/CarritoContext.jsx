@@ -55,6 +55,4 @@ export const CarritoProvider = ({ children }) => {
   );
 };
 
-export const useCarrito = () => {
-  return useContext(CarritoContext);
-};
+export const useCarrito = () =>  useContext(CarritoContext);

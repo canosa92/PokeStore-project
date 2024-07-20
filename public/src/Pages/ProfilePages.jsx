@@ -1,21 +1,22 @@
-// ProfilePage.jsx
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useUser } from '../usecontext/UserContext';
-import { Box, Button, Heading, Text, VStack, Divider, Flex, Image, IconButton } from '@chakra-ui/react';
+import { Box, Button, Heading, Text, VStack, Divider, Icon, Flex, Image, Container, Badge, Grid, GridItem } from '@chakra-ui/react';
+import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
-import { FaHeart, FaRegHeart } from 'react-icons/fa';
+import { FaShoppingCart } from 'react-icons/fa';
 
 const ProfilePage = () => {
     const { user, token, logout, fetchUser, addToWishList, removeFromWishList, wishListProducts } = useUser();
 
     useEffect(() => {
-        if (token) {
-            fetchUser(token);
+        if (token && user) {
+            fetchUser(user, token);
         }
-    }, [token, fetchUser]);
+    }, [token, user, fetchUser]);
 
     if (!user) {
-        return <Box textAlign="center" p={4}>Logeate o registrate</Box>;
+        return <Box textAlign="center" p={8} fontSize="xl">Por favor, inicia sesión o regístrate</Box>;
     }
 
     const handleWishlistToggle = async (productId) => {
@@ -26,91 +27,167 @@ const ProfilePage = () => {
         }
     };
 
+    const groupReviewsByProduct = (reviews) => {
+        return reviews.reduce((acc, review) => {
+            if (!acc[review.productId]) {
+                acc[review.productId] = [];
+            }
+            acc[review.productId].push(review);
+            return acc;
+        }, {});
+    };
+
     return (
-        <Box p={6} maxW="800px" mx="auto" borderWidth={1} borderRadius="md" boxShadow="lg">
-            <Heading as="h1" mb={6} textAlign="center" color="teal.500">Mi Perfil</Heading>
-            <VStack spacing={6} align="flex-start">
+        <Container maxW="container.xl" py={10}>
+            <VStack spacing={8} align="stretch">
+                <Heading as="h1" size="2xl" textAlign="center" color="teal.600">Mi Perfil</Heading>
+
                 {/* User Info Box */}
-                <Box w="100%" p={4} borderWidth={1} borderRadius="md" boxShadow="md">
-                    <Text fontSize="lg"><strong>Name:</strong> {user.name}</Text>
-                    <Text fontSize="lg"><strong>Username:</strong> {user.username}</Text>
-                    <Text fontSize="lg"><strong>Email:</strong> {user.email}</Text>
-                    <Text fontSize="lg"><strong>Role:</strong> {user.role}</Text>
-                    <Text fontSize="lg"><strong>Registration Date:</strong> {new Date(user.registrationDate.seconds * 1000).toLocaleDateString()}</Text>
+                <Box bg="white" p={6} borderRadius="lg" boxShadow="xl" borderWidth={1} borderColor="gray.200">
+                    <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={6}>
+                        <GridItem>
+                            <Text fontSize="lg"><strong>Nombre:</strong> {user.name}</Text>
+                            <Text fontSize="lg"><strong>Usuario:</strong> {user.username}</Text>
+                            <Text fontSize="lg"><strong>Email:</strong> {user.email}</Text>
+                        </GridItem>
+                        <GridItem>
+                            <Text fontSize="lg"><strong>Rol:</strong> <Badge colorScheme="teal">{user.role}</Badge></Text>
+                            <Text fontSize="lg"><strong>Fecha de registro:</strong> {new Date(user.registrationDate.seconds * 1000).toLocaleDateString()}</Text>
+                        </GridItem>
+                    </Grid>
                 </Box>
 
-                <Divider />
-
-                {console.log(wishListProducts)}
-                <Box w="100%" p={4} borderWidth={1} borderRadius="md" boxShadow="md">
-                    <Heading as="h2" size="md" mb={4} color="teal.600">Reviews</Heading>
-                    {user.reviews && user.reviews.length ? (
-                        <VStack align="flex-start" spacing={4}>
-                            {user.reviews.map((review, index) => (
-                                <Box key={index} p={4} borderWidth={1} borderRadius="md" boxShadow="sm" w="100%">
-                                    <Flex direction={['column', 'row']} align="center" justify="center" mb={4}>
-                                        <Box flex="1" textAlign="center" mb={[4, 0]} mx={[0, 4]}>
-                                            <Image src={review.productImage} alt={review.productName} boxSize={['100%', '200px']} mx="auto" />
-                                        </Box>
-
-                                        <Box flex="1" textAlign="center" mx={[0, 4]}>
-                                            <Text fontSize="xl" fontWeight="bold" mb={2}>{review.productName}</Text>
-                                            <Text fontSize="md"><strong>Product Description:</strong> {review.productDescription}</Text>
-                                            <Box mt={4}><strong>Tu valoración:</strong>
-                                                <Flex justify="center" align="center">
-                                                    {[...Array(5)].map((_, i) => (
-                                                        <StarIcon key={i} color={i < review.rating ? 'yellow.400' : 'gray.300'} />
-                                                    ))}
-                                                    <Text ml={2}>{review.rating}</Text>
-                                                </Flex>
-                                                <Text mt={2}><strong>Tu review:</strong></Text>
-                                                <Text>{review.comment}</Text>
-                                            </Box>
-                                        </Box>
-                                    </Flex>
-                                </Box>
-                            ))}
-                        </VStack>
-                    ) : (
-                        <Text>No reviews made</Text>
-                    )}
-                </Box>
-
-                <Divider />
-
-                {/* Wishlist Box */}
-                <Box w="100%" p={4} borderWidth={1} borderRadius="md" boxShadow="md">
-                    <Heading as="h2" size="md" mb={4} color="teal.600">Mi lista de deseos</Heading>
+                {/* Wishlist Section */}
+                <Box bg="white" p={6} borderRadius="lg" boxShadow="xl" borderWidth={1} borderColor="gray.200">
+                    <Heading as="h2" size="lg" mb={6} color="teal.600">Mis Favoritos</Heading>
                     {wishListProducts && wishListProducts.length ? (
-                        <VStack align="flex-start" spacing={4}>
+                        <VStack spacing={6} align="stretch">
                             {wishListProducts.map((product) => (
-                                <Box key={product._id} p={4} borderWidth={1} borderRadius="md" boxShadow="sm" w="100%">
-                                    <Flex direction={['column', 'row']} align="center" justify="center" mb={4}>
-                                        <Box flex="1" textAlign="center" mb={[4, 0]} mx={[0, 4]}>
-                                            <Image src={product.imageUrl} alt={product.name} boxSize={['100%', '200px']} mx="auto" />
-                                        </Box>
-                                        <Box flex="1" textAlign="center" mx={[0, 4]}>
-                                            <Text fontSize="xl" fontWeight="bold" mb={2}>{product.name}</Text>
-                                            <Text fontSize="md"><strong>Descripción:</strong> {product.description}</Text>
-                                            <IconButton
-                                                aria-label="Toggle wishlist"
-                                                icon={user.wishList.includes(product._id) ? <FaHeart color="red" /> : <FaRegHeart />}
-                                                onClick={() => handleWishlistToggle(product._id)}
-                                                variant="ghost"
-                                                size="lg"
+                                <Box key={product._id} p={4} borderRadius="md" bg="gray.50" boxShadow="md" overflow="hidden">
+                                    <Flex direction={{ base: 'column', md: 'row' }} align="stretch">
+                                        <Box position="relative" width={{ base: "100%", md: "150px" }} height="150px" mr={{ base: 0, md: 6 }} mb={{ base: 4, md: 0 }} flexShrink={0}>
+                                            <Image 
+                                                src={product.imagen} 
+                                                alt={product.nombre} 
+                                                objectFit="contain" 
+                                                borderRadius="md" 
+                                                w="100%" 
+                                                h="100%" 
                                             />
+                                            {(product.legendario || product.mythical) && (
+                                                <Badge 
+                                                    position="absolute" 
+                                                    top="0" 
+                                                    right="0" 
+                                                    colorScheme={product.legendario ? "yellow" : "purple"} 
+                                                    fontSize="xs" 
+                                                    p={1}
+                                                    borderBottomLeftRadius="md"
+                                                >
+                                                    {product.legendario ? "Legendario" : "Mítico"}
+                                                </Badge>
+                                            )}
+                                        </Box>
+                                        <Flex flex="1" direction="column" justify="space-between">
+                                            <Box>
+                                                <Heading as="h3" size="md" mb={2}>{product.nombre}</Heading>
+                                                <Text fontSize="sm" color="gray.700" mb={3} noOfLines={2}>{product.descripcion}</Text>
+                                                <Grid templateColumns="repeat(2, 1fr)" gap={2} mb={3}>
+                                                    <GridItem>
+                                                        <Text fontWeight="bold" fontSize="sm">Tipo:</Text>
+                                                        <Text fontSize="sm">{product.tipo.join(', ')}</Text>
+                                                    </GridItem>
+                                                    <GridItem>
+                                                        <Text fontWeight="bold" fontSize="sm">Habilidades:</Text>
+                                                        <Text fontSize="sm" noOfLines={2}>{product.habilidades.map(h => h.nombre).join(', ')}</Text>
+                                                    </GridItem>
+                                                </Grid>
+                                            </Box>
+                                            <Flex justify="space-between" align="center" wrap="wrap">
+                                                <Flex align="center" mb={{ base: 2, sm: 0 }}>
+                                                    <Text
+                                                        color="black" 
+                                                        fontWeight="bold" 
+                                                        fontSize="md" 
+                                                        px={3}
+                                                        py={2}
+                                                        mr={2}
+                                                    >
+                                                        {product.precio} €
+                                                    </Text>
+                                                </Flex>
+                                                <Flex>
+                                                    <Button  as={Link} to={`/pokemon/${product.nombre}`}colorScheme="teal" size="sm" mr={2}>Ver Detalles</Button>
+                                                    <Button 
+                                                        colorScheme="blue" 
+                                                        size="sm" 
+                                                        leftIcon={<Icon as={FaShoppingCart} />}
+                                                    >
+                                                        Añadir al Carrito
+                                                    </Button>
+                                                </Flex>
+                                            </Flex>
+                                        </Flex>
+                                    </Flex>
+                                </Box>
+                            ))}
+                        </VStack>
+                    ) : (
+                        <Text fontSize="lg" textAlign="center" color="gray.500">No tienes productos en tu lista de favoritos</Text>
+                    )}
+                </Box>
+
+                {/* Reviews Section */}
+                <Box bg="white" p={6} borderRadius="lg" boxShadow="xl" borderWidth={1} borderColor="gray.200">
+                    <Heading as="h2" size="lg" mb={6} color="teal.600">Mis Reseñas</Heading>
+                    {user.reviews && user.reviews.length ? (
+                        <VStack spacing={6} align="stretch">
+                            {Object.entries(groupReviewsByProduct(user.reviews)).map(([productId, reviews]) => (
+                                <Box key={productId} p={4} borderRadius="md" bg="gray.50" boxShadow="md">
+                                    <Flex direction={{ base: 'column', md: 'row' }} align="center" justify="space-between">
+                                        <Image src={reviews[0].productImage} alt={reviews[0].productName} boxSize="150px" objectFit="cover" borderRadius="md" mr={{ base: 0, md: 6 }} mb={{ base: 4, md: 0 }} />
+                                        <Box flex="1">
+                                            <Heading as="h3" size="md" mb={2}>{reviews[0].productName}</Heading>
+                                            <Text fontSize="md" color="gray.700" mb={4}>{reviews[0].productDescription}</Text>
+                                            <Accordion allowMultiple>
+                                                {reviews.map((review, index) => (
+                                                    <AccordionItem key={index}>
+                                                        <h2>
+                                                            <AccordionButton>
+                                                                <Box flex="1" textAlign="left">
+                                                                    Reseña {index + 1} - Calificación: {review.rating}
+                                                                </Box>
+                                                                <AccordionIcon />
+                                                            </AccordionButton>
+                                                        </h2>
+                                                        <AccordionPanel pb={4}>
+                                                            <Flex align="center" mb={2}>
+                                                                <Text fontWeight="bold" mr={2}>Tu valoración:</Text>
+                                                                {[...Array(5)].map((_, i) => (
+                                                                    <StarIcon key={i} color={i < review.rating ? 'yellow.400' : 'gray.300'} />
+                                                                ))}
+                                                            </Flex>
+                                                            <Text fontStyle="italic">"{review.comment}"</Text>
+                                                            <Text fontSize="sm" color="gray.500" mt={2}>
+                                                                Fecha: {new Date(review.date).toLocaleDateString()}
+                                                            </Text>
+                                                        </AccordionPanel>
+                                                    </AccordionItem>
+                                                ))}
+                                            </Accordion>
                                         </Box>
                                     </Flex>
                                 </Box>
                             ))}
                         </VStack>
                     ) : (
-                        <Text>No products in wishlist</Text>
+                        <Text fontSize="lg" textAlign="center" color="gray.500">Aún no has hecho ninguna reseña</Text>
                     )}
                 </Box>
+
+                <Button colorScheme="teal" size="lg" onClick={logout} mt={6}>Cerrar Sesión</Button>
             </VStack>
-            <Button colorScheme="teal" onClick={logout} mt={6} w="100%">Logout</Button>
-        </Box>
+        </Container>
     );
 };
 

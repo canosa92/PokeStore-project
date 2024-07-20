@@ -16,7 +16,9 @@ export const UserProvider = ({ children }) => {
                 const parsedUser = JSON.parse(storedUser);
                 setUser(parsedUser);
                 setToken(storedToken);
-                fetchUser(storedToken);
+                if (parsedUser && storedToken) {
+                    fetchUser(parsedUser, storedToken);
+                }
             } catch (error) {
                 console.error('Error parsing user data from localStorage:', error);
                 localStorage.removeItem('user');
@@ -25,9 +27,14 @@ export const UserProvider = ({ children }) => {
         }
     }, []);
 
-    const fetchUser = async (token) => {
+    const fetchUser = async (user, token) => {
+        if (!user) {
+            console.error('User is null');
+            return;
+        }
+    
         try {
-            const userId = user.uid; // Asegúrate de que 'user' esté disponible aquí
+            const userId = user.uid;
             const response = await fetch(`http://localhost:2999/user/${userId}/user-profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -44,7 +51,6 @@ export const UserProvider = ({ children }) => {
             setWishListProducts(userData.wishListProducts);
         } catch (error) {
             console.error('Error fetching user data:', error);
-            // Puedes manejar el error aquí, por ejemplo, cerrando la sesión del usuario
             logout();
         }
     };
@@ -56,56 +62,63 @@ export const UserProvider = ({ children }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
             });
-
+    
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.message);
             }
-
-            const data = await response.json();
-        setUser(data.user);
-        setToken(data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('token', data.token);
-        await fetchUser(data.token); // Llama a fetchUser después de establecer el usuario y el token
-        return true;
-    } catch (error) {
-        console.error('Error logging in:', error.message);
-        return false;
-        }
-    };
-
-    const register = async (email, password, name, username) => {
-        try {
-            const response = await fetch('http://localhost:2999/user/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password, name, username })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message);
-            }
-
+    
             const data = await response.json();
             setUser(data.user);
             setToken(data.token);
+            
             localStorage.setItem('user', JSON.stringify(data.user));
             localStorage.setItem('token', data.token);
-            fetchUser(data.token);
+            
+            await fetchUser(data.user, data.token);
             return true;
         } catch (error) {
-            console.error('Error registering:', error.message);
+            console.error('Error logging in:', error.message);
             return false;
         }
     };
-
-   
+    
+    const register = async (email, password, name, username, role) => {
+        try {
+          const response = await fetch('http://localhost:2999/user/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, name, username, role })
+          });
+      
+          const data = await response.json();
+      
+          if (!response.ok) {
+            return { success: false, message: data.message || 'Registration failed' };
+          }
+      
+          setUser(data.user);
+          setToken(data.token);
+          
+          localStorage.setItem('user', JSON.stringify(data.user));
+          localStorage.setItem('token', data.token);
+          
+          await fetchUser(data.user, data.token);
+          return { success: true, message: 'Registration successful' };
+        } catch (error) {
+          console.error('Error registering:', error.message);
+          return { success: false, message: error.message || 'An unexpected error occurred' };
+        }
+      };
 
     const addToWishList = async (productId) => {
         try {
-            const token = localStorage.getItem('token'); // O donde sea que lo estés almacenando
+            const token = localStorage.getItem('token');
+            if (!user || !token) {
+                console.error('User or token is missing');
+                return;
+            }
+
             const response = await fetch(`http://localhost:2999/user/${user.uid}/wishlist/add`, {
                 method: 'POST',
                 headers: {
@@ -124,15 +137,20 @@ export const UserProvider = ({ children }) => {
                 ...prevUser,
                 wishList: data.wishList
             }));
-            console.log('Product added to wishlist:', productId);
+            setWishListProducts(data.wishListProducts);
         } catch (error) {
             console.error('Error adding to wishlist:', error);
         }
     };
-    
+
     const removeFromWishList = async (productId) => {
         try {
-            const response = await fetch('http://localhost:2999/user/wishlist/remove', {
+            if (!user || !token) {
+                console.error('User or token is missing');
+                return;
+            }
+
+            const response = await fetch(`http://localhost:2999/user/${user.uid}/wishlist/remove`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -150,7 +168,7 @@ export const UserProvider = ({ children }) => {
                 ...prevUser,
                 wishList: data.wishList
             }));
-            console.log('Product removed from wishlist:', productId);
+            setWishListProducts(data.wishListProducts);
         } catch (error) {
             console.error('Error removing from wishlist:', error);
         }

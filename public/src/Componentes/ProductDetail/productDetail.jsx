@@ -246,7 +246,7 @@ const ProductDetail = () => {
                 ) : (
                   <Alert status="info">
                     <AlertIcon />
-                    Logeate o registrate para ser el primero en comentar.
+                    Animate y se el primero en dejar un comentario a este Pokemon
                   </Alert>
                 )}
               </VStack>

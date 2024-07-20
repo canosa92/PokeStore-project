@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Box, Flex, Text, IconButton, Select, Image, Stack, Heading, Divider, Button, 
-    ButtonGroup, Icon, HStack, VStack, Container, Grid, Badge, Tooltip
+    Box, Flex, Text, IconButton, Select, Image,  Heading, Button, 
+    ButtonGroup, HStack, VStack, Container, Grid, Tooltip
 } from '@chakra-ui/react';
 import { FaHeart, FaRegHeart, FaShoppingCart } from 'react-icons/fa';
-import { StarIcon } from '@chakra-ui/icons';  // Asegúrate de importar StarIcon
+import { StarIcon } from '@chakra-ui/icons'; 
 import { useUser } from '../../usecontext/UserContext';
+import { useCarrito } from '../../usecontext/CarritoContext'
 
 const Cards = ({ products, showSort }) => {
-    const { user, addToWishList, removeFromWishList, añadir } = useUser();
+    const { user, addToWishList, removeFromWishList} = useUser();
+    const { añadir, carrito } = useCarrito();
     const [productosOrdenados, setProductosOrdenados] = useState(products);
     const [orden, setOrden] = useState('idAsc');
     const [productoAñadido, setProductoAñadido] = useState(null);
@@ -95,13 +97,14 @@ const Cards = ({ products, showSort }) => {
                 console.log(`se ha añadido ${productId}`)
             }
         } else {
-            // Manejar el caso en el que el usuario no esté logeado (opcional)
+           
             console.log("Usuario no logeado");
             // Podrías mostrar un mensaje o redirigir al login
         }
     };
 
     return (
+        <>
         <Container maxW="container.xl" py={8}>
             {showSort && (
                 <Flex mb={4} align="center">
@@ -184,6 +187,7 @@ const Cards = ({ products, showSort }) => {
                 ))}
             </Grid>
         </Container>
+        </>
     );
 };
 

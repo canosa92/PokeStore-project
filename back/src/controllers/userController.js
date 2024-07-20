@@ -22,50 +22,54 @@ const fetchWishListProducts = async (wishList) => {
 };
 
 const UserController = {
+    
     async register(req, res, next) {
-        const { email, password, role, name, username } = req.body;
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const uid = userCredential.user.uid;
-            const userRef = doc(fireDb, 'usuario', uid);
-            
-            await setDoc(userRef, {
-                uid,
-                name,
-                username,
-                registrationDate: Timestamp.fromDate(new Date()),
-                role,
-                email,
-                wishList: []
-            });
-            const newuser = new User({
-                name,
-                username,
-                registrationDate: Timestamp.fromDate(new Date()),
-                role,
-                email,
-                wishList: []
-            });
-            await User.create(newuser);
-
-            const loginCredential = await signInWithEmailAndPassword(auth, email, password);
-            req.session.uid = uid;
-            req.session.token = await loginCredential.user.getIdToken();
-            req.session.role = role;
-
-            res.status(201).json({ uid, token: req.session.token, role });
-        } catch (error) {
-            console.error("Error al registrar usuario:", error);
-            let errorMessage = "Error al registrar usuario";
-            if (error.code === 'auth/weak-password') {
-                errorMessage = 'Contraseña insegura, genera una nueva contraseña';
-            } else if (error.code === 'auth/email-already-in-use') {
-                errorMessage = 'Email ya registrado';
-            }
-            res.status(400).json({ error: errorMessage });
-        }
-    },
-
+    const { email, password, role, name, username } = req.body;
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const uid = userCredential.user.uid;
+      const userRef = doc(fireDb, 'usuario', uid);
+      
+      await setDoc(userRef, {
+        uid,
+        name,
+        username,
+        registrationDate: Timestamp.fromDate(new Date()),
+        role,
+        email,
+        wishList: []
+      });
+      const newuser = new User({
+        name,
+        username,
+        registrationDate: Timestamp.fromDate(new Date()),
+        role,
+        email,
+        wishList: []
+      });
+      await User.create(newuser);
+  
+      const loginCredential = await signInWithEmailAndPassword(auth, email, password);
+      req.session.uid = uid;
+      req.session.token = await loginCredential.user.getIdToken();
+      req.session.role = role;
+  
+      res.status(201).json({ 
+        message: 'Registration successful',
+        user: { uid, name, username, email, role },
+        token: req.session.token 
+      });
+    } catch (error) {
+      console.error("Error al registrar usuario:", error);
+      let errorMessage = "Error al registrar usuario";
+      if (error.code === 'auth/weak-password') {
+        errorMessage = 'Contraseña insegura, genera una nueva contraseña';
+      } else if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'Email ya registrado';
+      }
+      res.status(400).json({ message: errorMessage });
+    }
+  },
     async login(req, res) {
         try {
             const { email, password } = req.body;
@@ -139,13 +143,9 @@ const UserController = {
         }
     },
 
-   // userController.js
-
    async addToWishList(req, res) {
         const { productId } = req.body;
         const { userId } = req.params;
-
-
     try {
         const userRef = doc(fireDb, 'usuario', userId);
         const userDoc = await getDoc(userRef);
@@ -170,9 +170,8 @@ const UserController = {
         res.status(500).json({ message: 'Error al añadir a la lista de deseos' });
     }
 },
-
 async removeFromWishList(req, res) {
-    const { productId, userId } = req.body; // Obtener userId del cuerpo de la solicitud
+    const { productId, userId } = req.body; 
     try {
         const userRef = doc(fireDb, 'usuario', userId);
         const userDoc = await getDoc(userRef);

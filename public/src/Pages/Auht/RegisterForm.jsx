@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useUser } from '../../usecontext/UserContext.jsx';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../usecontext/UserContext';
 import { Box, Button, FormControl, FormLabel, Input, VStack, Text, Alert, AlertIcon, Flex } from '@chakra-ui/react';
 
 const RegisterForm = ({ isMobile, role }) => {
   const { register } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     username: '',
     email: '',
     password: '',
-    role: role === 'admin' ? 'admin' : 'user', // Set role based on prop or default to 'user'
+    role: role,
     wishList: [],
     comments: [],
   });
@@ -31,35 +32,42 @@ const RegisterForm = ({ isMobile, role }) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
-    
-    const result = await register(formData);
-    
-    if (result.success) {
-      navigate('/myprofile');
-    } else {
-      setError(result.message);
+    setSuccessMessage('');
+
+    try {
+      const result = await register(formData.email, formData.password, formData.name, formData.username, formData.role);
+      if (result.success) {
+        setSuccessMessage('Registro exitoso. Iniciando sesión...');
+        setTimeout(() => {
+          navigate('/myprofile');
+        }, 2000); // Redirect after 2 seconds
+      } else {
+        setError(result.message || 'Error en el registro');
+      }
+    } catch (error) {
+      setError(error.message);
     }
 
     setIsSubmitting(false);
   };
 
   return (
-    <Flex 
-      justify="center" 
-      align="center" 
-      height="100vh" 
-      p={6} 
+    <Flex
+      justify="center"
+      align="center"
+      height="100vh"
+      p={6}
       bg="gray.100"
-      flexDirection={isMobile ? 'column' : 'row'} // Flex direction based on screen size
+      flexDirection={isMobile ? 'column' : 'row'}
     >
-      <Box 
-        bg="white" 
-        borderRadius="md" 
-        boxShadow="md" 
-        p={6} 
-        width={isMobile ? '90%' : '50%'} 
+      <Box
+        bg="white"
+        borderRadius="md"
+        boxShadow="md"
+        p={6}
+        width={isMobile ? '90%' : '50%'}
         textAlign={isMobile ? 'center' : 'left'}
-        mb={isMobile ? 6 : 0} // Margin bottom for small screens
+        mb={isMobile ? 6 : 0}
       >
         {!isMobile && (
           <Text fontSize="xl" fontWeight="bold" mb={4}>
@@ -114,16 +122,22 @@ const RegisterForm = ({ isMobile, role }) => {
                 {error}
               </Alert>
             )}
+            {successMessage && (
+              <Alert status="success">
+                <AlertIcon />
+                {successMessage}
+              </Alert>
+            )}
             <Button type="submit" colorScheme="blue" isLoading={isSubmitting} width="100%">
               Registrarse
             </Button>
           </VStack>
         </form>
       </Box>
-      <Box 
-        ml={isMobile ? 0 : 10} 
-        mb={isMobile ? 6 : 0} 
-        p={6} 
+      <Box
+        ml={isMobile ? 0 : 10}
+        mb={isMobile ? 6 : 0}
+        p={6}
         maxWidth={isMobile ? '90%' : '400px'}
         textAlign={isMobile ? 'center' : 'left'}
       >
