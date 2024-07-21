@@ -13,8 +13,8 @@ const NavLinks = () => {
     <>
       <HStack as="nav" spacing={4} display={{ base: 'none', md: 'flex' }}>
         <Link to={homeLink.path} style={{ color: 'white' }}>{homeLink.text}</Link>
-        <Link to="/todos" style={{ color: 'white' }}>Todos</Link>
-        <Link to="/tipos" style={{ color: 'white' }}>Tipos</Link>
+        <Link to="/pokemon" style={{ color: 'white' }}>Todos</Link>
+        <Link to="/pokemon/tipos" style={{ color: 'white' }}>Tipos</Link>
         <Link to="/pokemon/legendarios" style={{ color: 'white' }}>Legendarios</Link>
         <Link to="/pokemon/misticos" style={{ color: 'white' }}>Misticos</Link>
       </HStack>

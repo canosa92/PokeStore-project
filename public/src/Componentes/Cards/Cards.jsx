@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
-    Box, Flex, Text, IconButton, Select, Image,  Heading, Button, 
+    Box, Flex, Text, IconButton, Select, Image, Heading, Button, 
     ButtonGroup, HStack, VStack, Container, Grid, Tooltip
 } from '@chakra-ui/react';
 import { FaHeart, FaRegHeart, FaShoppingCart } from 'react-icons/fa';
 import { StarIcon } from '@chakra-ui/icons'; 
 import { useUser } from '../../usecontext/UserContext';
-import { useCarrito } from '../../usecontext/CarritoContext'
+import { useCarrito } from '../../usecontext/CarritoContext';
+import { useProducts } from '../../usecontext/ProductContext';
 
 const Cards = ({ products, showSort }) => {
-    const { user, addToWishList, removeFromWishList} = useUser();
+    const { user, addToWishList, removeFromWishList } = useUser();
     const { añadir, carrito } = useCarrito();
+    const { deleteProduct } = useProducts(); // Utiliza el contexto de productos
     const [productosOrdenados, setProductosOrdenados] = useState(products);
     const [orden, setOrden] = useState('idAsc');
     const [productoAñadido, setProductoAñadido] = useState(null);
+    const navigate = useNavigate(); // Para redireccionar después de eliminar
 
     // Efecto para reordenar los productos cuando cambia 'orden' o 'products'
     useEffect(() => {
@@ -88,25 +91,32 @@ const Cards = ({ products, showSort }) => {
 
     const handleToggleWishlist = async (productId) => {
         if (user) {
-            
             if (isInWishlist(productId)) {
                 await removeFromWishList(productId);
-                console.log(`se ha eliminado ${productId}`)
+                console.log(`se ha eliminado ${productId}`);
             } else {
                 await addToWishList(productId);
-                console.log(`se ha añadido ${productId}`)
+                console.log(`se ha añadido ${productId}`);
             }
         } else {
-           
             console.log("Usuario no logeado");
             // Podrías mostrar un mensaje o redirigir al login
+        }
+    };
+
+    const handleDelete = async (nombre) => {
+        try {
+            await deleteProduct(nombre);
+            navigate('/'); // Redirige después de eliminar
+        } catch (error) {
+            console.error('Error deleting product:', error);
         }
     };
 
     return (
         <>
         <Container maxW="container.xl" py={8}>
-            {showSort && (
+        {showSort && (
                 <Flex mb={4} align="center">
                     <Text mr={2}>Ordenar por:</Text>
                     <Select
@@ -153,30 +163,41 @@ const Cards = ({ products, showSort }) => {
                             <Flex justify="space-between" width="100%" align="center">
                                 {renderStars(product.likes)}
                                 <IconButton
-    aria-label="Toggle wishlist"
-    icon={isInWishlist(product._id) ? <FaHeart color="red" /> : <FaRegHeart />}
-    onClick={() => handleToggleWishlist(product._id)}
-    variant="ghost"
-    size="lg"
-/>
+                                    aria-label="Toggle wishlist"
+                                    icon={isInWishlist(product._id) ? <FaHeart color="red" /> : <FaRegHeart />}
+                                    onClick={() => handleToggleWishlist(product._id)}
+                                    variant="ghost"
+                                    size="lg"
+                                />
                             </Flex>
-                            <Text  noOfLines={2} fontSize="sm">{product.descripcion}</Text>
+                            <Text noOfLines={2} fontSize="sm">{product.descripcion}</Text>
                             <Text color="blue.600" fontSize="x1" fontWeight="bold">{product.precio} €</Text>
-                            <ButtonGroup spacing={2} width="100%">
-                                <Button as={Link} to={`/pokemon/${product.nombre}`} colorScheme="blue" flex={1}>
-                                    Más Detalles
-                                </Button>
-                                <Tooltip label="Añadir al carrito" hasArrow>
-                                    <IconButton
-                                        icon={<FaShoppingCart />}
-                                        colorScheme="green"
-                                        onClick={() => {
-                                            añadir(product);
-                                            setProductoAñadido(product._id);
-                                        }}
-                                    />
-                                </Tooltip>
-                            </ButtonGroup>
+                            {user && user.role === 'admin' ? (
+                                <ButtonGroup spacing={2} width="100%">
+                                    <Button as={Link} to={`/pokemon/edit/${product.nombre}`} colorScheme="yellow" flex={1}>
+                                        Editar
+                                    </Button>
+                                    <Button colorScheme="red" flex={1} onClick={() => handleDelete(product.nombre)}>
+                                        Eliminar
+                                    </Button>
+                                </ButtonGroup>
+                            ) : (
+                                <ButtonGroup spacing={2} width="100%">
+                                    <Button as={Link} to={`/pokemon/${product.nombre}`} colorScheme="blue" flex={1}>
+                                        Más Detalles
+                                    </Button>
+                                    <Tooltip label="Añadir al carrito" hasArrow>
+                                        <IconButton
+                                            icon={<FaShoppingCart />}
+                                            colorScheme="green"
+                                            onClick={() => {
+                                                añadir(product);
+                                                setProductoAñadido(product._id);
+                                            }}
+                                        />
+                                    </Tooltip>
+                                </ButtonGroup>
+                            )}
                         </VStack>
                         {productoAñadido === product._id && (
                             <Box p={2} bg="green.100" borderRadius="md" mt={2}>

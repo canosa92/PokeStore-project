@@ -37,16 +37,16 @@ function Rutas() {
             <Nav />
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/todos" element={<Cards products={products} showSort={true} />} />
+                <Route path="/pokemon" element={<Cards products={products} showSort={true} />} />
                 <Route path="/pokemon/legendarios" element={<Legendarios />} />
                 <Route path="/pokemon/misticos" element={<Mythical />} />
                 <Route path="/pokemon/tipo" element={ <TypeComponent/>} />
-                <Route path="/tipos" element={<TypePages/>}/>
+                <Route path="/pokemon/tipos" element={<TypePages/>}/>
                 <Route path="/pokemon/tipo/:tipo" element={<ProductType />} />
                 <Route path="/pokemon/:nombre" element={<ProductDetail />} />
                 <Route path="/user/register" element={<RegisterForm role='user'/>} />
-                <Route path="/login" element={<LoginForm />} />
                 <Route path="/admin/register" element={<RegisterForm role='admin' />} />
+                <Route path="/login" element={<LoginForm />} />
                 <Route path="/pokemon/new" element={<ProductForm isEdit={false} />} />
                 <Route path="/pokemon/edit/:nombre" element={<ProductForm isEdit={true} />} />
                 <Route path='/carrito' element={<CarritoPages/>}/>

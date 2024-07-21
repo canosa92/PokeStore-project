@@ -1,11 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProducts } from '../../usecontext/ProductContext';
+import {
+  Box,
+  FormControl,
+  FormLabel,
+  Input,
+  Textarea,
+  Checkbox,
+  Button,
+  Spinner,
+  Alert,
+  AlertIcon,
+  Stack
+} from '@chakra-ui/react';
 
 const ProductForm = ({ isEdit }) => {
-  const { nombre } = useParams();
+  const { nombre } = useParams(); // Usar nombre para buscar el producto
   const navigate = useNavigate();
-  const { createProduct, updateProduct, fetchProductByName, products } = useProducts();
+  const { createProduct, updateProduct, fetchProductByName, fetchProductById } = useProducts();
   const [product, setProduct] = useState({
     nombre: '',
     descripcion: '',
@@ -38,28 +51,12 @@ const ProductForm = ({ isEdit }) => {
     const fetchData = async () => {
       if (isEdit && nombre) {
         try {
-          const data = await fetchProductByName(nombre);
-          setProduct({
-            nombre: data.nombre || '',
-            descripcion: data.descripcion || '',
-            imagen: data.imagen || '',
-            precio: data.precio || '',
-            tipo: data.tipo || [],
-            id_pokedex: data.id_pokedex || '',
-            peso: data.peso || '',
-            altura: data.altura || '',
-            estadisticas: data.estadisticas.map(est => ({ nombre: est.nombre, valor: est.valor })) || [],
-            legendario: data.legendario || false,
-            mythical: data.mythical || false,
-            habilidades: data.habilidades || [],
-            ratio_captura: data.ratio_captura || '',
-            base_experience: data.base_experience || '',
-            cadena_evoluciones: data.cadena_evoluciones || [],
-            evolucionDe: data.evolucionDe || ''
-          });
+          const productToEdit = await fetchProductByName(nombre); // Buscar por nombre
+          setProduct(productToEdit);
           setLoading(false);
         } catch (error) {
           console.error("Error fetching product!", error);
+          setError('Error fetching product');
           setLoading(false);
         }
       } else {
@@ -81,29 +78,131 @@ const ProductForm = ({ isEdit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
 
     try {
       if (isEdit) {
-        await updateProduct(nombre, product);
+        await updateProduct(product._id, product); // Usar '_id' para actualizar
       } else {
         await createProduct(product);
       }
       navigate('/');
     } catch (error) {
-      setError('Error saving product!');
+      console.error('Detailed error:', error);
+      console.error('Error stack:', error.stack);
+      setError(error.message || 'Error saving product!');
     }
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Box textAlign="center" mt={8}>
+        <Spinner size="xl" />
+      </Box>
+    );
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      {/* Form fields */}
-      <button type="submit">{isEdit ? 'Update Product' : 'Create Product'}</button>
-      {error && <p>{error}</p>}
-    </form>
+    <Box maxW="600px" mx="auto" p={4} borderWidth="1px" borderRadius="lg" boxShadow="md">
+      <form onSubmit={handleSubmit}>
+        {error && (
+          <Alert status="error" mb={4}>
+            <AlertIcon />
+            {error}
+          </Alert>
+        )}
+        <Stack spacing={4}>
+          <FormControl id="nombre" isRequired>
+            <FormLabel>Nombre</FormLabel>
+            <Input
+              type="text"
+              name="nombre"
+              value={product.nombre}
+              onChange={handleChange}
+              placeholder="Nombre del producto"
+            />
+          </FormControl>
+          <FormControl id="descripcion">
+            <FormLabel>Descripción</FormLabel>
+            <Textarea
+              name="descripcion"
+              value={product.descripcion}
+              onChange={handleChange}
+              placeholder="Descripción del producto"
+            />
+          </FormControl>
+          <FormControl id="imagen">
+            <FormLabel>Imagen URL</FormLabel>
+            <Input
+              type="text"
+              name="imagen"
+              value={product.imagen}
+              onChange={handleChange}
+              placeholder="URL de la imagen"
+            />
+          </FormControl>
+          <FormControl id="precio" isRequired>
+            <FormLabel>Precio</FormLabel>
+            <Input
+              type="number"
+              name="precio"
+              value={product.precio}
+              onChange={handleChange}
+              placeholder="Precio del producto"
+            />
+          </FormControl>
+          <FormControl id="id_pokedex" isRequired>
+            <FormLabel>ID Pokédex</FormLabel>
+            <Input
+              type="number"
+              name="id_pokedex"
+              value={product.id_pokedex}
+              onChange={handleChange}
+              placeholder="ID del Pokédex"
+            />
+          </FormControl>
+          <FormControl id="peso">
+            <FormLabel>Peso</FormLabel>
+            <Input
+              type="text"
+              name="peso"
+              value={product.peso}
+              onChange={handleChange}
+              placeholder="Peso del producto"
+            />
+          </FormControl>
+          <FormControl id="altura">
+            <FormLabel>Altura</FormLabel>
+            <Input
+              type="text"
+              name="altura"
+              value={product.altura}
+              onChange={handleChange}
+              placeholder="Altura del producto"
+            />
+          </FormControl>
+          <FormControl id="legendario">
+            <FormLabel>Legendario</FormLabel>
+            <Checkbox
+              name="legendario"
+              isChecked={product.legendario}
+              onChange={handleChange}
+            />
+          </FormControl>
+          <FormControl id="mythical">
+            <FormLabel>Mythical</FormLabel>
+            <Checkbox
+              name="mythical"
+              isChecked={product.mythical}
+              onChange={handleChange}
+            />
+          </FormControl>
+          <Button colorScheme="teal" type="submit" mt={4}>
+            {isEdit ? 'Actualizar Producto' : 'Crear Producto'}
+          </Button>
+        </Stack>
+      </form>
+    </Box>
   );
 };
 

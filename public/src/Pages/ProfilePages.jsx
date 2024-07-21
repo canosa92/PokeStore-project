@@ -1,7 +1,10 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useUser } from '../usecontext/UserContext';
-import { Box, Button, Heading, Text, VStack, Divider, Icon, Flex, Image, Container, Badge, Grid, GridItem } from '@chakra-ui/react';
+import { 
+  Box, Button, Heading, Text, VStack, Divider, Icon, Flex, Image, 
+  Container, Badge, Grid, GridItem, Alert 
+} from '@chakra-ui/react';
 import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { FaShoppingCart } from 'react-icons/fa';
@@ -9,16 +12,31 @@ import { FaShoppingCart } from 'react-icons/fa';
 const ProfilePage = () => {
     const { user, token, logout, fetchUser, addToWishList, removeFromWishList, wishListProducts } = useUser();
 
+    // Fetch user data on component mount if token and user are available
     useEffect(() => {
         if (token && user) {
             fetchUser(user, token);
         }
     }, [token, user, fetchUser]);
 
+    // Show login/register prompt if user is not logged in
     if (!user) {
-        return <Box textAlign="center" p={8} fontSize="xl">Por favor, inicia sesión o regístrate</Box>;
+        return (
+            <VStack spacing={4} align="center">
+                <Alert alignItems="center">¡Regístrate o inicia sesión para añadir tus Pokemon preferidos a tu lista de favoritos!</Alert>
+                <Flex>
+                    <Link to="/user/register">
+                        <Button colorScheme="blue" mr={2}>Registrarse</Button>
+                    </Link>
+                    <Link to="/login">
+                        <Button colorScheme="green">Iniciar Sesión</Button>
+                    </Link>
+                </Flex>
+            </VStack>
+        );
     }
 
+    // Toggle wishlist status for a product
     const handleWishlistToggle = async (productId) => {
         if (user.wishList.includes(productId)) {
             await removeFromWishList(productId);
@@ -27,6 +45,7 @@ const ProfilePage = () => {
         }
     };
 
+    // Group reviews by product for better organization
     const groupReviewsByProduct = (reviews) => {
         return reviews.reduce((acc, review) => {
             if (!acc[review.productId]) {
@@ -52,7 +71,7 @@ const ProfilePage = () => {
                         </GridItem>
                         <GridItem>
                             <Text fontSize="lg"><strong>Rol:</strong> <Badge colorScheme="teal">{user.role}</Badge></Text>
-                            <Text fontSize="lg"><strong>Fecha de registro:</strong> {new Date(user.registrationDate.seconds * 1000).toLocaleDateString()}</Text>
+                            <Text fontSize="lg"><strong>Fecha de registro:</strong> {new Date(user.registrationDate).toLocaleDateString()}</Text>
                         </GridItem>
                     </Grid>
                 </Box>
@@ -117,7 +136,7 @@ const ProfilePage = () => {
                                                     </Text>
                                                 </Flex>
                                                 <Flex>
-                                                    <Button  as={Link} to={`/pokemon/${product.nombre}`}colorScheme="teal" size="sm" mr={2}>Ver Detalles</Button>
+                                                    <Button as={Link} to={`/pokemon/${product.nombre}`} colorScheme="teal" size="sm" mr={2}>Ver Detalles</Button>
                                                     <Button 
                                                         colorScheme="blue" 
                                                         size="sm" 
@@ -185,6 +204,7 @@ const ProfilePage = () => {
                     )}
                 </Box>
 
+                {/* Logout Button */}
                 <Button colorScheme="teal" size="lg" onClick={logout} mt={6}>Cerrar Sesión</Button>
             </VStack>
         </Container>
