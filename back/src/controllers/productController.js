@@ -1,15 +1,5 @@
 const ProductoModel= require('../models/ProductModel')
-const { firebaseapp, admin } = require('../config/firebase');
-const { getAuth} = require('firebase/auth');
 
-
-function calcularStar(rating, likesCount) {
-    // Calcula el promedio ponderado
-    const promedio = rating / likesCount;
-
-    // Asegúrate de que star esté dentro del rango del 1 al 5
-    return Math.min(Math.max(promedio, 1), 5);
-}
 
 const productController = {
     // Obtener todos los productos
@@ -67,17 +57,19 @@ const productController = {
         }
       },
     // Eliminar un producto
-    async delete  (req, res) {
+    async delete(req, res) {
         try {
             const product = await ProductoModel.findByIdAndDelete(req.params.id);
             if (!product) {
                 return res.status(404).json({ message: 'Producto no encontrado' });
             }
             res.json({ message: 'Producto eliminado correctamente' });
+            
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
     },
+    
 
     // Crear un producto
     async create (req, res) {

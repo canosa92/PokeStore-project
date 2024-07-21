@@ -86,7 +86,7 @@ const ProductForm = ({ isEdit }) => {
       } else {
         await createProduct(product);
       }
-      navigate('/');
+      navigate(`/pokemon/${product.nombre}`);
     } catch (error) {
       console.error('Detailed error:', error);
       console.error('Error stack:', error.stack);

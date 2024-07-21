@@ -5,6 +5,7 @@ const ProductContext = createContext();
 export const ProductProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
 
   const fetchProducts = async () => {
@@ -63,26 +64,7 @@ const createProduct = async (product) => {
     throw error;
   }
 };
-const fetchProductById = async (id) => {
-  try {
-    setLoading(true);
-    const response = await fetch(`http://localhost:2999/productos/${id}`);
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to fetch product');
-    }
-    
-    const data = await response.json();
-    setLoading(false);
-    return data;
-  } catch (error) {
-    console.error('Error fetching product by ID:', error);
-    setError(error.message);
-    setLoading(false);
-    throw error;
-  }
-};
+
 const updateProduct = async (id, product) => {
   try {
     console.log('Sending update request for id:', id);
@@ -111,21 +93,24 @@ const updateProduct = async (id, product) => {
     throw error;
   }
 };
-// Función para eliminar un producto
-const deleteProduct = async (nombre) => {
+const deleteProduct = async (id) => {
   try {
-    const response = await fetch(`http://localhost:2999/productos/delete/${nombre}`, {
+    const response = await fetch(`http://localhost:2999/productos/${id}`, {
       method: 'DELETE',
     });
     if (!response.ok) {
       throw new Error('Failed to delete product');
     }
-    setProducts((prevProducts) =>
-      prevProducts.filter((p) => p.nombre !== nombre)
-    );
+    setSuccess('Producto eliminado correctamente.');
+    // Espera 2 segundos antes de actualizar la lista
+    setTimeout(() => {
+      setProducts((prevProducts) =>
+        prevProducts.filter((p) => p._id !== id)
+      );
+    }, 2000); // 2000 milisegundos = 2 segundos
   } catch (error) {
     console.error('Error deleting product:', error);
-    throw error;
+    setError('Error eliminando el producto.');
   }
 };
   useEffect(() => {
@@ -135,7 +120,7 @@ const deleteProduct = async (nombre) => {
   return (
     <ProductContext.Provider value={{ products, loading, error, addCommentToProduct,  createProduct,
       updateProduct,
-      deleteProduct,fetchProductByName }}>
+      deleteProduct,fetchProductByName,success }}>
       {children}
     </ProductContext.Provider>
   );

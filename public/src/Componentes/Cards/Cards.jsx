@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
     Box, Flex, Text, IconButton, Select, Image, Heading, Button, 
-    ButtonGroup, HStack, VStack, Container, Grid, Tooltip
+    ButtonGroup, HStack, VStack, Container, Grid, Tooltip,Alert,AlertIcon
 } from '@chakra-ui/react';
 import { FaHeart, FaRegHeart, FaShoppingCart } from 'react-icons/fa';
 import { StarIcon } from '@chakra-ui/icons'; 
@@ -13,12 +13,23 @@ import { useProducts } from '../../usecontext/ProductContext';
 const Cards = ({ products, showSort }) => {
     const { user, addToWishList, removeFromWishList } = useUser();
     const { añadir, carrito } = useCarrito();
-    const { deleteProduct } = useProducts(); // Utiliza el contexto de productos
+    const { deleteProduct,success } = useProducts(); // Utiliza el contexto de productos
     const [productosOrdenados, setProductosOrdenados] = useState(products);
     const [orden, setOrden] = useState('idAsc');
     const [productoAñadido, setProductoAñadido] = useState(null);
     const navigate = useNavigate(); // Para redireccionar después de eliminar
+    const [showSuccess, setShowSuccess] = useState(false);
 
+
+    useEffect(() => {
+        if (success) {
+            setShowSuccess(true);
+            const timer = setTimeout(() => {
+                setShowSuccess(false);
+            }, 2000); // 2 segundos
+            return () => clearTimeout(timer);
+        }
+    }, [success]);
     // Efecto para reordenar los productos cuando cambia 'orden' o 'products'
     useEffect(() => {
         ordenarProductos(orden);
@@ -104,18 +115,17 @@ const Cards = ({ products, showSort }) => {
         }
     };
 
-    const handleDelete = async (nombre) => {
-        try {
-            await deleteProduct(nombre);
-            navigate('/'); // Redirige después de eliminar
-        } catch (error) {
-            console.error('Error deleting product:', error);
-        }
-    };
+
 
     return (
         <>
         <Container maxW="container.xl" py={8}>
+        {showSuccess && (
+                <Alert status="success" mb={4}>
+                    <AlertIcon />
+                    {success}
+                </Alert>
+            )}
         {showSort && (
                 <Flex mb={4} align="center">
                     <Text mr={2}>Ordenar por:</Text>
@@ -177,7 +187,7 @@ const Cards = ({ products, showSort }) => {
                                     <Button as={Link} to={`/pokemon/edit/${product.nombre}`} colorScheme="yellow" flex={1}>
                                         Editar
                                     </Button>
-                                    <Button colorScheme="red" flex={1} onClick={() => handleDelete(product.nombre)}>
+                                    <Button colorScheme="red" flex={1} onClick={() => deleteProduct(product._id)}>
                                         Eliminar
                                     </Button>
                                 </ButtonGroup>
