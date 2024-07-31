@@ -3,8 +3,8 @@
 PokeStore is an e-commerce platform for purchasing Pokémon-related products. The platform allows users to browse and purchase various Pokémon items, manage their wishlist, and leave product reviews. It also includes an admin interface for managing products and orders.
 
 
-![Homepage Screenshot](public/asset/capturas/home.png)
-![Homepage2](public/asset/capturas/home 2.png)
+![Homepage Screenshot](public/src/asset/capturas/home.png)
+![Homepage2](public/src/asset/capturas/home 2.png)
 
 ## Table of Contents
 
