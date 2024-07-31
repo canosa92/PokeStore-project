@@ -1,11 +1,8 @@
-import React from 'react';
 import {
   Box,
   Container,
   Heading,
   Text,
-  Stack,
-  Image,
   List,
   ListItem,
   ListIcon,
@@ -16,6 +13,7 @@ import { CheckCircleIcon } from '@chakra-ui/icons';
 
 const AboutPage = () => {
   return (
+    <>
     <Container maxW="container.lg" py={10}>
       <Heading as="h1" size="xl" mb={6}>
         Sobre mí
@@ -162,6 +160,7 @@ const AboutPage = () => {
         </Box>
       </VStack>
     </Container>
+    </>
   );
 };
 

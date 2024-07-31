@@ -145,24 +145,25 @@ export const UserProvider = ({ children }) => {
 
     const removeFromWishList = async (productId) => {
         try {
+            const token = localStorage.getItem('token');
             if (!user || !token) {
                 console.error('User or token is missing');
                 return;
             }
-
+    
             const response = await fetch(`http://localhost:2999/user/${user.uid}/wishlist/remove`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ productId }),
+                body: JSON.stringify({ productId, userId: user.uid }),
             });
-    
+        
             if (!response.ok) {
                 throw new Error('Failed to remove from wishlist');
             }
-    
+        
             const data = await response.json();
             setUser(prevUser => ({
                 ...prevUser,
@@ -173,6 +174,7 @@ export const UserProvider = ({ children }) => {
             console.error('Error removing from wishlist:', error);
         }
     };
+    
 
     const logout = () => {
         setUser(null);

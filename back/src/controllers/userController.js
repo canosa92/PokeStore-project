@@ -37,7 +37,9 @@ const UserController = {
         registrationDate: Timestamp.fromDate(new Date()),
         role,
         email,
-        wishList: []
+        wishList: [],
+        reviews:[],
+        cart:[]
       });
       const newuser = new User({
         name,
@@ -45,7 +47,9 @@ const UserController = {
         registrationDate: Timestamp.fromDate(new Date()),
         role,
         email,
-        wishList: []
+        wishList: [],
+        reviews: [],
+        cart:[]
       });
       await User.create(newuser);
   

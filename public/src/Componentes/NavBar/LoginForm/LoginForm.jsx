@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useUser } from '../../../usecontext/UserContext.jsx';
+import PropTypes from 'prop-types';
 import {
   Box,
   Button,
@@ -40,7 +41,7 @@ const LoginForm = ({ isOpen, onClose }) => {
   return (
     <Box p={4} bg="white" borderRadius="md" boxShadow="md" display={isOpen ? 'block' : 'none'} zIndex="2000">
       <form onSubmit={handleSubmit}>
-        <VStack spacing={4} >
+        <VStack spacing={4}>
           <FormControl id="email" isRequired>
             <FormLabel>Correo electrónico</FormLabel>
             <Input
@@ -77,6 +78,11 @@ const LoginForm = ({ isOpen, onClose }) => {
       </form>
     </Box>
   );
+};
+
+LoginForm.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 export default LoginForm;

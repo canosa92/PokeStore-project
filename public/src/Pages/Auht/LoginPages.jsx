@@ -31,13 +31,14 @@ const LoginPage = ({ isMobile }) => {
     const result = await login(email, password);
     
     if (result.success) {
-      navigate('/myprofile');
+      navigate('/myprofile', { state: { loginSuccess: true } }); // Redirige con estado
     } else {
       setError(result.message);
     }
-
+  
     setIsSubmitting(false);
   };
+  
 
   return (
     <Flex 

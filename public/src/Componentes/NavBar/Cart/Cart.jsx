@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCarrito } from '../../../usecontext/CarritoContext';
 import {
@@ -22,6 +22,7 @@ const Cart = () => {
   const totalPrecio = carrito.reduce((total, producto) => total + producto.precio * producto.cantidad, 0);
 
   return (
+    <>
     <Box position="relative">
       <IconButton
         icon={<FaShoppingCart />}
@@ -99,6 +100,7 @@ const Cart = () => {
         </Box>
       )}
     </Box>
+    </>
   );
 };
 

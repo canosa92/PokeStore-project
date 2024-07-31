@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Image, Link, Text, Flex } from '@chakra-ui/react';
+import { useState, useEffect } from 'react';
+import { Box, Image, Link, Flex } from '@chakra-ui/react';
 
 const Type = ({ type }) => {
   const [imageSrc, setImageSrc] = useState('');
@@ -18,6 +18,7 @@ const Type = ({ type }) => {
   }, [type]);
 
   return (
+    <>
     <Link href={`/pokemon/tipo/${type}`} textDecoration="none" _hover={{ textDecoration: 'none' }}>
       <Box position="relative" textAlign="center" borderRadius="lg" overflow="hidden" width="150px" margin="0 auto">
         {imageSrc && (
@@ -35,6 +36,7 @@ const Type = ({ type }) => {
         </Flex>
       </Box>
     </Link>
+    </>
   );
 };
 

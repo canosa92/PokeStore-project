@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useProducts } from '../../usecontext/ProductContext.jsx';
 import { useUser } from '../../usecontext/UserContext.jsx'
@@ -18,23 +18,22 @@ const Home = () => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
  
-
   useEffect(() => {
     if (products.length > 0) {
       setBestRated(
         products
-          .filter(p => p.likes[0].star > 0)
+          .filter(p => p.likes && p.likes[0] && p.likes[0].star > 0)
           .sort((a, b) => b.likes[0].star - a.likes[0].star)
           .slice(0, 10)
       );
       setMostCommented(
         products
-          .filter(p => p.reviews.length > 0)
+          .filter(p => p.reviews && p.reviews.length > 0)
           .sort((a, b) => b.reviews.length - a.reviews.length)
           .slice(0, 10)
       );
       setNewest(products.sort(() => 0.5 - Math.random()).slice(0, 10));
-
+  
       const uniqueTypes = [...new Set(products.map(product => product.tipo[0]))];
       const randomTypes = uniqueTypes.sort(() => 0.5 - Math.random()).slice(0, 5);
       const topTypesProducts = randomTypes.map(type => ({
@@ -44,7 +43,7 @@ const Home = () => {
       setTopTypes(topTypesProducts);
     }
   }, [products]);
-
+  
   const handleSearchChange = (event) => {
     const value = event.target.value;
     setQuery(value);

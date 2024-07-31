@@ -1,10 +1,9 @@
-
+import PropTypes from 'prop-types'; // Import PropTypes for prop validation
 import { Link } from 'react-router-dom';
 import { VStack, HStack } from '@chakra-ui/react';
 import { useUser } from '../../../usecontext/UserContext.jsx';
 
-
-const NavLinks = () => {
+const SearchBar = ({ isMobile }) => {
   const { user } = useUser();
 
   const homeLink = user ? { text: 'Mi Perfil', path: '/myprofile' } : { text: 'Home', path: '/' };
@@ -29,4 +28,9 @@ const NavLinks = () => {
   );
 };
 
-export default NavLinks;
+// PropTypes validation
+SearchBar.propTypes = {
+  isMobile: PropTypes.bool.isRequired, // Validate the isMobile prop
+};
+
+export default SearchBar;

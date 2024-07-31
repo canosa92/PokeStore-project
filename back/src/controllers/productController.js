@@ -72,26 +72,49 @@ const productController = {
     
 
     // Crear un producto
-    async create (req, res) {
+    async create(req, res) {
         try {
-            const { nombre, descripcion, imagen, precio, tipo, categoria, pokemonAttributes, pokeballAttributes, itemAttributes } = req.body;
+            const {
+                nombre,
+                descripcion,
+                imagen,
+                precio,
+                tipo,
+                id_pokedex,
+                peso,
+                altura,
+                estadisticas,
+                legendario,
+                mythical,
+                habilidades,
+                ratio_captura,
+                base_experience,
+            } = req.body;
+             
+            nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase(); 
             const newProduct = new ProductoModel({
                 nombre,
                 descripcion,
                 imagen,
                 precio,
                 tipo,
-                categoria,
-                pokemonAttributes,
-                pokeballAttributes,
-                itemAttributes
+                id_pokedex,
+                peso,
+                altura,
+                estadisticas,
+                legendario,
+                mythical,
+                habilidades,
+                ratio_captura,
+                base_experience,
             });
+
             await newProduct.save();
-            res.json(newProduct);
+            res.status(201).json(newProduct);
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
-    },
+    }
 };
 
 module.exports = productController;

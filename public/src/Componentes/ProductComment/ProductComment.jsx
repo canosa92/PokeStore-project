@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { useUser } from '../../usecontext/UserContext.jsx';
 import {
   Box,
@@ -20,6 +21,7 @@ const ProductCommentForm = ({ productId, productName, productImage, productDescr
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Handles the form submission for adding a comment
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
@@ -27,7 +29,7 @@ const ProductCommentForm = ({ productId, productName, productImage, productDescr
 
     const parsedRating = Number(rating);
     if (!comment || parsedRating === 0 || isNaN(parsedRating)) {
-      setError('Por favor, completa todos los campos y asegúrate de que la puntuación sea un número válido');
+      setError('Please fill in all fields and ensure the rating is a valid number.');
       setLoading(false);
       return;
     }
@@ -59,7 +61,7 @@ const ProductCommentForm = ({ productId, productName, productImage, productDescr
         setRating(0);
         setHover(0);
       } else {
-        throw new Error(data.message || 'Error al enviar el comentario');
+        throw new Error(data.message || 'Error submitting the comment');
       }
     } catch (error) {
       setError(error.message);
@@ -69,13 +71,14 @@ const ProductCommentForm = ({ productId, productName, productImage, productDescr
   };
 
   return (
+    <>
     <Box as="form" onSubmit={handleSubmit} p={4} boxShadow="md" borderRadius="md" bg="white" mt={4}>
       <FormControl id="comment" isRequired>
-        <FormLabel>Tu comentario</FormLabel>
+        <FormLabel>Your Comment</FormLabel>
         <Textarea value={comment} onChange={(e) => setComment(e.target.value)} />
       </FormControl>
       <FormControl id="rating" isRequired mt={4}>
-        <FormLabel>Tu puntuación</FormLabel>
+        <FormLabel>Your Rating</FormLabel>
         <HStack spacing={1}>
           {[1, 2, 3, 4, 5].map(star => (
             <Icon
@@ -96,10 +99,20 @@ const ProductCommentForm = ({ productId, productName, productImage, productDescr
         </Text>
       )}
       <Button type="submit" colorScheme="blue" isLoading={loading} mt={4}>
-        Enviar comentario
+        Submit Comment
       </Button>
     </Box>
+    </>
   );
+};
+
+// PropTypes validation
+ProductCommentForm.propTypes = {
+  productId: PropTypes.string.isRequired,        // ID of the product
+  productName: PropTypes.string.isRequired,      // Name of the product
+  productImage: PropTypes.string.isRequired,     // Image of the product
+  productDescription: PropTypes.string.isRequired, // Description of the product
+  onCommentSubmit: PropTypes.func.isRequired,    // Function to call on comment submission
 };
 
 export default ProductCommentForm;

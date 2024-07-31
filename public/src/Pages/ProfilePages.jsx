@@ -8,6 +8,7 @@ import {
 import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { FaShoppingCart } from 'react-icons/fa';
+import { AiOutlineDelete } from 'react-icons/ai';  // Icon for delete button
 
 const ProfilePage = () => {
     const { user, token, logout, fetchUser, addToWishList, removeFromWishList, wishListProducts } = useUser();
@@ -56,6 +57,15 @@ const ProfilePage = () => {
         }, {});
     };
 
+    // Handle removing a product from the wishlist
+    const handleRemoveFromWishlist = async (productId) => {
+        await removeFromWishList(productId);
+        // After removal, re-fetch user data to update the wishlist
+        if (token && user) {
+            fetchUser(user, token);
+        }
+    };
+
     return (
         <Container maxW="container.xl" py={10}>
             <VStack spacing={8} align="stretch">
@@ -75,7 +85,13 @@ const ProfilePage = () => {
                         </GridItem>
                     </Grid>
                 </Box>
-
+                {user && user.role === 'admin' && (
+                    <Flex justify="center" mb={6}>
+                        <Button as={Link} to="/pokemon/new" colorScheme="teal" size="lg">
+                            Crear Nuevo Producto
+                        </Button>
+                    </Flex>
+                )}
                 {/* Wishlist Section */}
                 <Box bg="white" p={6} borderRadius="lg" boxShadow="xl" borderWidth={1} borderColor="gray.200">
                     <Heading as="h2" size="lg" mb={6} color="teal.600">Mis Favoritos</Heading>
@@ -143,6 +159,15 @@ const ProfilePage = () => {
                                                         leftIcon={<Icon as={FaShoppingCart} />}
                                                     >
                                                         Añadir al Carrito
+                                                    </Button>
+                                                    <Button 
+                                                        colorScheme="red" 
+                                                        size="sm" 
+                                                        ml={2} 
+                                                        leftIcon={<Icon as={AiOutlineDelete} />} 
+                                                        onClick={() => handleRemoveFromWishlist(product._id)}
+                                                    >
+                                                        Eliminar
                                                     </Button>
                                                 </Flex>
                                             </Flex>

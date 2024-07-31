@@ -1,9 +1,9 @@
-import React from 'react';
 import { Box, Flex, Link, Text, Stack } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 
 const Footer = () => {
   return (
+    <>
     <Box bg="gray.800" color="white" py={4}>
       <Flex align="center" justify="center" direction="column">
         <Stack direction="row" spacing={4}>
@@ -15,6 +15,7 @@ const Footer = () => {
         <Text mt={2}>Proyecto creado para el bootcamp online Desarrollar FullStack web de The Bridge</Text>
       </Flex>
     </Box>
+    </>
   );
 };
 

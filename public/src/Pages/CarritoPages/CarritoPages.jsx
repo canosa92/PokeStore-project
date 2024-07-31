@@ -1,6 +1,3 @@
-// CarritoPages.jsx
-
-import React from 'react';
 import { useCarrito } from '../../usecontext/CarritoContext';
 import { Link } from 'react-router-dom';
 import { Box, Button, Flex, Heading, Image, Text, VStack, HStack } from '@chakra-ui/react';
@@ -13,6 +10,7 @@ const CarritoPages = () => {
   };
 
   return (
+    <>
     <Box p={4} bg="gray.50">
       <Heading as="h1" mb={6}>Mi Carrito</Heading>
       {carrito.length === 0 ? (
@@ -46,6 +44,7 @@ const CarritoPages = () => {
         </VStack>
       )}
     </Box>
+    </>
   );
 };
 

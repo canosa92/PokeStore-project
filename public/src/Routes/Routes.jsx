@@ -1,7 +1,5 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
-import { useProducts } from '../usecontext/ProductContext.jsx';
-import Cards from '../Componentes/Cards/Cards.jsx';
 import Nav from '../Componentes/NavBar/Navbar.jsx';
 import ProductDetail from '../Componentes/ProductDetail/ProductDetail.jsx';
 import ProductType from '../Componentes/ProductType.jsx';
@@ -17,6 +15,7 @@ import TypePages from '../Pages/TypesPages/TypesPages.jsx';
 import CarritoPages from '../Pages/CarritoPages/CarritoPages.jsx';
 import AboutPage from '../Pages/About.jsx'
 import ProfilePage from '../Pages/ProfilePages.jsx'
+import AllProducts from '../Pages/AllProducts.jsx'
 
 const ScrollTop=()=>{
     const location = useLocation(); 
@@ -28,7 +27,6 @@ const ScrollTop=()=>{
     }
 
 function Rutas() {
-    const {products} = useProducts();
 
     return (
         <>
@@ -37,7 +35,7 @@ function Rutas() {
             <Nav />
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/pokemon" element={<Cards products={products} showSort={true} />} />
+                <Route path="/pokemon" element={<AllProducts/>} />
                 <Route path="/pokemon/legendarios" element={<Legendarios />} />
                 <Route path="/pokemon/misticos" element={<Mythical />} />
                 <Route path="/pokemon/tipo" element={ <TypeComponent/>} />

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import {
     Box, Flex, Text, IconButton, Select, Image, Heading, Button, 
-    ButtonGroup, HStack, VStack, Container, Grid, Tooltip,Alert,AlertIcon
+    ButtonGroup, HStack, VStack, Container, Grid, Tooltip, useToast
 } from '@chakra-ui/react';
 import { FaHeart, FaRegHeart, FaShoppingCart } from 'react-icons/fa';
 import { StarIcon } from '@chakra-ui/icons'; 
@@ -10,34 +11,26 @@ import { useUser } from '../../usecontext/UserContext';
 import { useCarrito } from '../../usecontext/CarritoContext';
 import { useProducts } from '../../usecontext/ProductContext';
 
-const Cards = ({ products, showSort }) => {
+const Cards = ({ products, showOrderOptions }) => {
     const { user, addToWishList, removeFromWishList } = useUser();
-    const { añadir, carrito } = useCarrito();
-    const { deleteProduct,success } = useProducts(); // Utiliza el contexto de productos
+    const { añadir } = useCarrito();
+    const { deleteProduct, success } = useProducts();
     const [productosOrdenados, setProductosOrdenados] = useState(products);
     const [orden, setOrden] = useState('idAsc');
     const [productoAñadido, setProductoAñadido] = useState(null);
-    const navigate = useNavigate(); // Para redireccionar después de eliminar
-    const [showSuccess, setShowSuccess] = useState(false);
-
+    const toast = useToast(); // Hook para mostrar notificaciones
 
     useEffect(() => {
         if (success) {
-            setShowSuccess(true);
             const timer = setTimeout(() => {
-                setShowSuccess(false);
+                // Aquí estaba `setShowSuccess(false);` pero se ha eliminado ya que no se usa `showSuccess`
             }, 2000); // 2 segundos
             return () => clearTimeout(timer);
         }
     }, [success]);
-    // Efecto para reordenar los productos cuando cambia 'orden' o 'products'
-    useEffect(() => {
-        ordenarProductos(orden);
-    }, [orden, products]);
 
-    // Función para ordenar los productos según el tipo de orden seleccionado
-    const ordenarProductos = (tipoOrden) => {
-        const sortedProducts = [...products]; // Copia de los productos originales
+    const ordenarProductos = useCallback((tipoOrden) => {
+        const sortedProducts = [...products];
         switch (tipoOrden) {
             case 'nombreAsc':
                 sortedProducts.sort((a, b) => a.nombre.localeCompare(b.nombre));
@@ -66,12 +59,35 @@ const Cards = ({ products, showSort }) => {
             default:
                 break;
         }
-        setProductosOrdenados(sortedProducts); // Actualiza el estado con los productos ordenados
-    };
+        setProductosOrdenados(sortedProducts);
+    }, [products]);
 
-    // Función para manejar el cambio en el selector de orden
+    useEffect(() => {
+        ordenarProductos(orden);
+    }, [orden, products, ordenarProductos]);
+
     const handleChangeOrden = (e) => {
         setOrden(e.target.value);
+    };
+
+    const handleToggleWishlist = async (productId) => {
+        if (user) {
+            if (isInWishlist(productId)) {
+                await removeFromWishList(productId);
+                console.log(`se ha eliminado ${productId}`);
+            } else {
+                await addToWishList(productId);
+                console.log(`se ha añadido ${productId}`);
+            }
+        } else {
+            toast({
+                title: "Acceso Denegado",
+                description: "Debes estar registrado o logeado para añadir productos a tu lista de deseos.",
+                status: "warning",
+                duration: 5000,
+                isClosable: true,
+            });
+        }
     };
 
     const renderStars = (likes) => {
@@ -95,46 +111,21 @@ const Cards = ({ products, showSort }) => {
         );
     };
 
-    // Función para determinar si un producto está en la wishlist del usuario
     const isInWishlist = (productId) => {
         return user && user.wishList && user.wishList.includes(productId);
     };
 
-    const handleToggleWishlist = async (productId) => {
-        if (user) {
-            if (isInWishlist(productId)) {
-                await removeFromWishList(productId);
-                console.log(`se ha eliminado ${productId}`);
-            } else {
-                await addToWishList(productId);
-                console.log(`se ha añadido ${productId}`);
-            }
-        } else {
-            console.log("Usuario no logeado");
-            // Podrías mostrar un mensaje o redirigir al login
-        }
-    };
-
-
-
     return (
-        <>
         <Container maxW="container.xl" py={8}>
-        {showSuccess && (
-                <Alert status="success" mb={4}>
-                    <AlertIcon />
-                    {success}
-                </Alert>
-            )}
-        {showSort && (
-                <Flex mb={4} align="center">
+            {showOrderOptions && (
+                <Flex mb={4} align="center" justify="space-between">
                     <Text mr={2}>Ordenar por:</Text>
                     <Select
                         value={orden}
                         onChange={handleChangeOrden}
                         maxW="200px"
                         w="100%"
-                    >              
+                    >
                         <option value="nombreAsc">Nombre (A-Z)</option>
                         <option value="nombreDesc">Nombre (Z-A)</option>
                         <option value="precioAsc">Precio (Menor a Mayor)</option>
@@ -146,6 +137,7 @@ const Cards = ({ products, showSort }) => {
                     </Select>
                 </Flex>
             )}
+            
             <Grid templateColumns={["repeat(1, 1fr)", "repeat(2, 1fr)", "repeat(3, 1fr)", "repeat(4, 1fr)"]} gap={6}>
                 {productosOrdenados.map((product) => (
                     <Box
@@ -158,30 +150,35 @@ const Cards = ({ products, showSort }) => {
                         _hover={{ transform: "translateY(-5px)", boxShadow: "xl" }}
                     >
                         <Flex direction="column" align="center">
-                            <Image 
-                                src={product.imagen} 
-                                alt={product.nombre} 
-                                height="150px" 
-                                width="150px" 
-                                objectFit="cover"
-                            />
-                            <Heading size="md" align='center' noOfLines={1} mt={2}>
-                                #{product.id_pokedex} {product.nombre}
-                            </Heading>
-                        </Flex>
-                        <VStack p={4} align="start" spacing={3}>
-                            <Flex justify="space-between" width="100%" align="center">
-                                {renderStars(product.likes)}
+                            <Box position="relative" width="100%">
+                                <Image 
+                                    src={product.imagen} 
+                                    alt={product.nombre} 
+                                    height="150px" 
+                                    width="150px" 
+                                    objectFit="cover"
+                                />
                                 <IconButton
+                                    position="absolute"
+                                    top={2}
+                                    right={2}
                                     aria-label="Toggle wishlist"
                                     icon={isInWishlist(product._id) ? <FaHeart color="red" /> : <FaRegHeart />}
                                     onClick={() => handleToggleWishlist(product._id)}
                                     variant="ghost"
                                     size="lg"
                                 />
+                            </Box>
+                            <Flex direction="column" align="center" width="100%">
+                                <Heading size="md" align='center' noOfLines={1} mt={1}>
+                                    #{product.id_pokedex} {product.nombre}
+                                </Heading>
+                                {renderStars(product.likes)}
                             </Flex>
-                            <Text noOfLines={2} fontSize="sm">{product.descripcion}</Text>
-                            <Text color="blue.600" fontSize="x1" fontWeight="bold">{product.precio} €</Text>
+                        </Flex>
+                        <VStack p={4} align="start" spacing={3}>
+                            <Text noOfLines={3} fontSize="md">{product.descripcion}</Text>
+                            <Text color="blue.600" fontSize="lg" fontWeight="bold">{product.precio} €</Text>
                             {user && user.role === 'admin' ? (
                                 <ButtonGroup spacing={2} width="100%">
                                     <Button as={Link} to={`/pokemon/edit/${product.nombre}`} colorScheme="yellow" flex={1}>
@@ -218,8 +215,24 @@ const Cards = ({ products, showSort }) => {
                 ))}
             </Grid>
         </Container>
-        </>
     );
+};
+
+// Validación de `props` usando `PropTypes`
+Cards.propTypes = {
+    products: PropTypes.arrayOf(PropTypes.shape({
+        _id: PropTypes.string.isRequired,
+        nombre: PropTypes.string.isRequired,
+        descripcion: PropTypes.string.isRequired,
+        imagen: PropTypes.string.isRequired,
+        precio: PropTypes.number.isRequired,
+        id_pokedex: PropTypes.number.isRequired,
+        likes: PropTypes.arrayOf(PropTypes.shape({
+            star: PropTypes.number.isRequired,
+            likesCount: PropTypes.number.isRequired,
+        })).isRequired,
+    })).isRequired,
+    showOrderOptions: PropTypes.bool
 };
 
 export default Cards;

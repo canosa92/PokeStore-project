@@ -18,7 +18,7 @@ import {
 const ProductForm = ({ isEdit }) => {
   const { nombre } = useParams(); // Usar nombre para buscar el producto
   const navigate = useNavigate();
-  const { createProduct, updateProduct, fetchProductByName, fetchProductById } = useProducts();
+  const { createProduct, updateProduct, fetchProductByName } = useProducts();
   const [product, setProduct] = useState({
     nombre: '',
     descripcion: '',
@@ -41,8 +41,9 @@ const ProductForm = ({ isEdit }) => {
     habilidades: [],
     ratio_captura: '',
     base_experience: '',
-    cadena_evoluciones: [],
-    evolucionDe: ''
+    likes: [
+      { likesCount: 0, star: 0 }
+    ]
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -68,9 +69,19 @@ const ProductForm = ({ isEdit }) => {
   }, [isEdit, nombre, fetchProductByName]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type, checked, dataset } = e.target;
+  
     if (type === 'checkbox') {
       setProduct({ ...product, [name]: checked });
+    } else if (dataset.index !== undefined) {
+      const index = Number(dataset.index);
+      const field = dataset.field;
+  
+      setProduct(prevState => {
+        const updatedArray = [...prevState[field]];
+        updatedArray[index][name] = value;
+        return { ...prevState, [field]: updatedArray };
+      });
     } else {
       setProduct({ ...product, [name]: value });
     }
@@ -171,6 +182,36 @@ const ProductForm = ({ isEdit }) => {
               placeholder="Peso del producto"
             />
           </FormControl>
+          <FormControl id="ratio_captura">
+            <FormLabel>Ratio de Captura</FormLabel>
+            <Input
+              type="number"
+              name="ratio_captura"
+              value={product.ratio_captura}
+              onChange={handleChange}
+              placeholder="Ratio de captura"
+            />
+          </FormControl>
+          <FormControl id="base_experience">
+            <FormLabel>Base Experience</FormLabel>
+            <Input
+              type="number"
+              name="base_experience"
+              value={product.base_experience}
+              onChange={handleChange}
+              placeholder="Base Experience"
+            />
+          </FormControl>
+          <FormControl id="tipo">
+            <FormLabel>Tipo</FormLabel>
+            <Input
+              type="text"
+              name="tipo"
+              value={product.tipo}
+              onChange={handleChange}
+              placeholder="Tipo del producto"
+            />
+          </FormControl>  
           <FormControl id="altura">
             <FormLabel>Altura</FormLabel>
             <Input
@@ -196,6 +237,67 @@ const ProductForm = ({ isEdit }) => {
               isChecked={product.mythical}
               onChange={handleChange}
             />
+          </FormControl>
+          <FormControl id="estadisticas">
+            <FormLabel>Estadísticas</FormLabel>
+            {product.estadisticas.map((stat, index) => (
+              <Box key={index} mb={2}>
+                <FormControl id={`estadisticas-${index}-nombre`}>
+                  <FormLabel>Nombre</FormLabel>
+                  <Input
+                    type="text"
+                    name="nombre"
+                    value={stat.nombre}
+                    data-index={index}
+                    data-field="estadisticas"
+                    onChange={handleChange}
+                    placeholder="Nombre de la estadística"
+                  />
+                </FormControl>
+                <FormControl id={`estadisticas-${index}-valor`}>
+                  <FormLabel>Valor</FormLabel>
+                  <Input
+                    type="number"
+                    name="valor"
+                    value={stat.valor}
+                    data-index={index}
+                    data-field="estadisticas"
+                    onChange={handleChange}
+                    placeholder="Valor de la estadística"
+                  />
+                </FormControl>
+              </Box>
+            ))}
+          </FormControl>
+          <FormControl id="habilidades">
+            <FormLabel>Habilidades</FormLabel>
+            {product.habilidades.map((habilidad, index) => (
+              <Box key={index} mb={2}>
+                <FormControl id={`habilidades-${index}-nombre`}>
+                  <FormLabel>Nombre</FormLabel>
+                  <Input
+                    type="text"
+                    name="nombre"
+                    value={habilidad.nombre}
+                    data-index={index}
+                    data-field="habilidades"
+                    onChange={handleChange}
+                    placeholder="Nombre de la habilidad"
+                  />
+                </FormControl>
+                <FormControl id={`habilidades-${index}-descripcion`}>
+                  <FormLabel>Descripción</FormLabel>
+                  <Textarea
+                    name="descripcion"
+                    value={habilidad.descripcion}
+                    data-index={index}
+                    data-field="habilidades"
+                    onChange={handleChange}
+                    placeholder="Descripción de la habilidad"
+                  />
+                </FormControl>
+              </Box>
+            ))}
           </FormControl>
           <Button colorScheme="teal" type="submit" mt={4}>
             {isEdit ? 'Actualizar Producto' : 'Crear Producto'}

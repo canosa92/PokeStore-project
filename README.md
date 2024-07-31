@@ -1,54 +1,63 @@
-# PokeStore-project
+# PokeStore
 
-Este es el repositorio del proyecto PokeStore, una aplicación web que ofrece una tienda virtual para comprar artículos y accesorios relacionados con el mundo de Pokémon. La tienda incluye una variedad de ítems, desde Poke Balls hasta objetos de curación y más.
+PokeStore is an e-commerce platform for purchasing Pokémon-related products. The platform allows users to browse and purchase various Pokémon items, manage their wishlist, and leave product reviews. It also includes an admin interface for managing products and orders.
 
-Características
-Explora una amplia gama de artículos disponibles en la tienda.
-Filtra los artículos por categoría para encontrar lo que necesitas más fácilmente.
-Detalles completos de cada artículo, incluyendo descripción, precio y más.
-Interfaz de usuario intuitiva y fácil de usar.
-Tecnologías Utilizadas
-Node.js
-Express.js
-MongoDB
-React.js
-Vite
-Instalación
-Clona este repositorio en tu máquina local.
-Navega a la carpeta del proyecto.
-Instala las dependencias del servidor utilizando el siguiente comando:
-bash
-Copy code
-npm install
-Navega a la carpeta "front" y también instala las dependencias del cliente:
-bash
-Copy code
-cd front
-npm install
-Vuelve a la carpeta principal del proyecto:
-bash
-Copy code
-cd ..
-Inicia el servidor de desarrollo y el cliente simultáneamente con:
-bash
-Copy code
-npm run dev
-Contribución
-¡Las contribuciones son bienvenidas! Si deseas contribuir a este proyecto, sigue estos pasos:
 
-Haz un fork del repositorio.
-Crea una rama para tu funcionalidad:
-bash
-Copy code
-git checkout -b feature/NuevaFuncionalidad
-Haz tus cambios y realiza commits descriptivos:
-bash
-Copy code
-git commit -m "Agrega nueva funcionalidad: X"
-Sube tus cambios a tu fork:
-bash
-Copy code
-git push origin feature/NuevaFuncionalidad
-Abre un pull request a la rama principal del repositorio original.
-Licencia
-Este proyecto está bajo la licencia MIT. Para más detalles, consulta el archivo LICENSE.
+![Homepage Screenshot](public/asset/capturas/home.png)
+![Homepage2](public/asset/capturas/home 2.png)
+
+## Table of Contents
+
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Project Structure](#project-structure)
+- [Environment Variables](#environment-variables)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
+- [Screenshots](#screenshots)
+
+## Features
+
+- **User Authentication**: Users can sign up, log in, and manage their profiles.
+- **Product Management**: Admins can add, edit, and delete products.
+- **Shopping Cart**: Users can add products to their cart and proceed to checkout.
+- **Wishlist**: Users can add products to their wishlist.
+- **Product Reviews**: Users can leave ratings and comments on products.
+- **Responsive Design**: The platform is optimized for both desktop and mobile devices.
+
+## Technologies Used
+
+- **Frontend**:
+  - React
+  - Chakra UI
+  - React Router
+  - Context API for state management
+
+- **Backend**:
+  - Node.js
+  - Express
+  - MongoDB
+  - Mongoose
+  - JWT for authentication
+
+- **Others**:
+  - ESLint for code linting
+  - Prettier for code formatting
+
+## Installation
+
+To run this project locally, follow these steps:
+
+### Prerequisites
+
+- Node.js and npm installed on your machine
+- MongoDB instance running locally or remotely
+
+### Clone the Repository
+
+```bash
+git clone https://github.com/canosa92/PokeStore-project.git
+cd PokeStore-project
