@@ -28,10 +28,10 @@ PokeStore is an e-commerce platform for purchasing Pokémon-related products. Th
 ![Cards Admin](public/src/assets/Capturas/cards_admin.png)
 ![edit_product](public/src/assets/Capturas/edit_product.png)
 - **Shopping Cart**: Users can add products to their cart and proceed to checkout.
-![shopping cart](public/src/assets/Capturas/hopping_cart.png)
-![shopping page](public/src/assets/Capturas/Carrito_entero.png)
+![shopping cart](public/src/assets/Capturas/shopping_cart.png)
+![shopping page](public/src/assets/Capturas/carrito_entero.png)
 - **Wishlist**: Users can add products to their wishlist.
-![Lista Deseos Home](public/src/assets/Capturas/lsita_deseos_home.png)
+![Lista Deseos Home](public/src/assets/Capturas/lista_deseos_home.png)
 ![Mi perfil favoritos](public/src/assets/Capturas/mi_perfil_favoritos.png)
 - **Product Reviews**: Users can leave ratings and comments on products.
 ![Recomentarios](public/src/assets/Capturas/comentarios_en _detail.png)
