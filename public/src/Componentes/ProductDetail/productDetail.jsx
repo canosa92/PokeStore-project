@@ -222,64 +222,71 @@ const ProductDetail = () => {
   <Divider my={8} />
 
   <Box textAlign="center" mb={6}>
-    {user ? (
-      <>
-        <ProductCommentForm
-          productId={product._id}
-          productName={product.nombre}
-          productImage={product.imagen}
-          productDescription={product.descripcion}
-          onCommentSubmit={handleCommentSubmit}
-        />
-        <Grid
-          templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }}
-          gap={6}
-          mt={6}
+  {user ? (
+    <ProductCommentForm
+      productId={product._id}
+      productName={product.nombre}
+      productImage={product.imagen}
+      productDescription={product.descripcion}
+      onCommentSubmit={handleCommentSubmit}
+    />
+  ) : (
+    <Alert status="warning" mx="auto" maxW="container.sm" mb={6}>
+      <AlertIcon />
+      Para añadir un comentario debes estar logeado.
+    </Alert>
+  )}
+ 
+ {comments.length > 0 ? (
+    <Grid
+      templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }}
+      gap={6}
+      mt={6}
+    >
+      {comments.map((review, index) => (
+        <Box
+          key={index}
+          p={6}
+          borderWidth="1px"
+          borderRadius="md"
+          boxShadow="md"
+          bg="white"
+          mb={6}
+          textAlign="left"
         >
-          {comments.length > 0 ? (
-            comments.map((review, index) => (
-              <Box
-                key={index}
-                p={6}
-                borderWidth="1px"
-                borderRadius="md"
-                boxShadow="md"
-                bg="white"
-                mb={6}
-                textAlign="left"
-              >
-                <Flex direction="column" align="flex-start" h="80%">
-                  <Flex justify="space-between" align="center" w="full" mb={2}>
-                    <Text fontSize="lg" fontWeight="bold" color="blue.600">
-                      {review.username}
-                    </Text>
-                    {renderStars(review.rating)}
-                  </Flex>
-                  <Text mt={2} fontSize="md">
-                    {review.comment}
-                  </Text>
-                  <Text mt={2} fontSize="sm" color="gray.500">
-                    {formatDate(review.createdAt)}
-                  </Text>
-                </Flex>
-                <Divider mt={4} />
-              </Box>
-            ))
-          ) : (
-            <Alert status="info" mx="auto" maxW="container.sm">
-              <AlertIcon />
-              ¡Sé el primero en dejar un comentario a este Pokémon!
-            </Alert>
-          )}
-        </Grid>
-      </>
+          <Flex direction="column" align="flex-start" h="80%">
+            <Flex justify="space-between" align="center" w="full" mb={2}>
+              <Text fontSize="lg" fontWeight="bold" color="blue.600">
+                {review.username}
+              </Text>
+              {renderStars(review.rating)}
+            </Flex>
+            <Text mt={2} fontSize="md">
+              {review.comment}
+            </Text>
+            <Text mt={2} fontSize="sm" color="gray.500">
+              {formatDate(review.createdAt)}
+            </Text>
+          </Flex>
+          <Divider mt={4} />
+        </Box>
+      ))}
+    </Grid>
     ) : (
-      <Alert status="warning" mx="auto" maxW="container.sm">
-        <AlertIcon />
-        Para añadir un comentario debes estar logeado.
-      </Alert>
+      <Box>
+      <Text
+      fontSize="xl"
+      fontWeight="bold"
+      textAlign="center"
+      width="100%"
+      color="blue.500"
+      mt={4}
+    >
+      ¡Sé el primero en dejar un comentario a este Pokémon!
+    </Text>
+    </Box>
     )}
-  </Box>
+</Box>
 </Container>
 
 

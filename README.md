@@ -34,7 +34,7 @@ PokeStore is an e-commerce platform for purchasing Pokémon-related products. Th
 ![Lista Deseos Home](public/src/assets/Capturas/lista_deseos_home.png)
 ![Mi perfil favoritos](public/src/assets/Capturas/mi_perfil_favoritos.png)
 - **Product Reviews**: Users can leave ratings and comments on products.
-![Comentarios](public/src/assets/Capturas/comentarios_en_detail.png)
+![Comentarios](public/src/assets/Capturas/comentarios_detail.png)
 ![Reseñas en mi perfil](public/src/assets/Capturas/reseñas-en-mi-perfil.png)
 - **Responsive Design**: The platform is optimized for both desktop and mobile devices.
 
@@ -75,3 +75,39 @@ To run this project locally, follow these steps:
 ```bash
 git clone https://github.com/canosa92/PokeStore-project.git
 cd PokeStore-project
+```
+## Deployment
+
+To deploy the project, you can use the following script:
+
+```bash
+npm run dev
+```
+
+This command runs two processes concurrently:
+
+npm run start: Starts the backend server.
+npm run start:react: Starts the frontend development server.
+This allows you to run both the frontend and backend servers simultaneously during development.
+
+
+## Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/new-feature`).
+3. Commit your changes (`git commit -m 'Add new feature'`).
+4. Push to the branch (`git push origin feature/new-feature`).
+5. Open a pull request.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
+## Contact
+
+For any questions or suggestions, please reach out:
+
+- **GitHub**: [canosa92](https://github.com/canosa92)
+- **Email**: [adrian.canosa1992@gmail.com](mailto:adrian.canosa1992@gmail.com)

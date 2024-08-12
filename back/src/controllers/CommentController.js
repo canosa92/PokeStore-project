@@ -1,6 +1,6 @@
-const { firebaseapp, admin } = require('../config/firebase');
-const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } = require('firebase/auth');
-const { getFirestore, collection, doc, setDoc, getDoc, Timestamp, deleteDoc } = require('firebase/firestore');
+const { firebaseapp } = require('../config/firebase');
+const { getAuth} = require('firebase/auth');
+const { getFirestore, doc,updateDoc, arrayUnion } = require('firebase/firestore');
 
 const auth = getAuth(firebaseapp);
 const fireDb = getFirestore(firebaseapp);
@@ -61,7 +61,6 @@ const CommentController = {
 
       productLike.star = newStarRating;
       productLike.likesCount = newLikesCount;
-
       await Promise.all([
         product.save(),
         user.updateOne({ $push: { reviews: newReview } }),

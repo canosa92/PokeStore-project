@@ -117,15 +117,15 @@ const Cards = ({ products, showOrderOptions }) => {
 
     return (
         <Container maxW="container.xl" py={8}>
-            {showOrderOptions && (
-                <Flex mb={4} align="center" justify="space-between">
-                    <Text mr={2}>Ordenar por:</Text>
-                    <Select
-                        value={orden}
-                        onChange={handleChangeOrden}
-                        maxW="200px"
-                        w="100%"
-                    >
+        {showOrderOptions && (
+            <Flex mb={4} align="center" justify="space-between" flexDirection={["column", "row"]}>
+                <Text mr={2} mb={[2, 0]}>Ordenar por:</Text>
+                <Select
+                    value={orden}
+                    onChange={handleChangeOrden}
+                    maxW={["100%", "200px"]}
+                    w="100%"
+                >
                         <option value="nombreAsc">Nombre (A-Z)</option>
                         <option value="nombreDesc">Nombre (Z-A)</option>
                         <option value="precioAsc">Precio (Menor a Mayor)</option>
@@ -148,25 +148,28 @@ const Cards = ({ products, showOrderOptions }) => {
                         boxShadow="md"
                         transition="all 0.3s"
                         _hover={{ transform: "translateY(-5px)", boxShadow: "xl" }}
+                        width={["90%", "100%"]}
+                        mx="auto"
                     >
-                        <Flex direction="column" align="center">
-                            <Box position="relative" width="100%">
+                        <Flex direction="column" align="center" position="relative">
+                            <IconButton
+                                position="absolute"
+                                top={2}
+                                right={2}
+                                zIndex={1}
+                                aria-label="Toggle wishlist"
+                                icon={isInWishlist(product._id) ? <FaHeart color="red" /> : <FaRegHeart />}
+                                onClick={() => handleToggleWishlist(product._id)}
+                                variant="ghost"
+                                size="lg"
+                            />
+                            <Box width="100%" display="flex" justifyContent="center" alignItems="center">
                                 <Image 
                                     src={product.imagen} 
                                     alt={product.nombre} 
                                     height="150px" 
                                     width="150px" 
                                     objectFit="cover"
-                                />
-                                   <IconButton
-                                    position="absolute"
-                                    top={2}
-                                    right={2}
-                                    aria-label="Toggle wishlist"
-                                    icon={isInWishlist(product._id) ? <FaHeart color="red" /> : <FaRegHeart />}
-                                    onClick={() => handleToggleWishlist(product._id)}
-                                    variant="ghost"
-                                    size="lg"
                                 />
                             </Box>
                             <Flex direction="column" align="center" width="100%">
